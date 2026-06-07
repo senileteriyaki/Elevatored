@@ -23,6 +23,7 @@ public class ElevatorIOReal implements ElevatorIO{
     private final StatusSignal<AngularVelocity> vel;
     private final ElevatorFeedforward ff;
     private double ffVoltage;
+
     public ElevatorIOReal(){
 
         TalonFXConfiguration config = new TalonFXConfiguration();
@@ -43,10 +44,11 @@ public class ElevatorIOReal implements ElevatorIO{
 
     public void updateInputs(ElevatorIOInputs inputs){
         BaseStatusSignal.refreshAll(volts, amps, pos, vel);
-            inputs.volts = volts.getValueAsDouble();
-            inputs.amps = amps.getValueAsDouble();
-            inputs.pos = pos.getValueAsDouble() * 360;
-            inputs.vel = vel.getValueAsDouble() * 360;
+        
+        inputs.volts = volts.getValueAsDouble();
+        inputs.amps = amps.getValueAsDouble();
+        inputs.pos = pos.getValueAsDouble() * 360;
+        inputs.vel = vel.getValueAsDouble() * 360;
     }
     
     @Override

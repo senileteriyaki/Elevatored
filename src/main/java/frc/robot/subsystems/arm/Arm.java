@@ -10,8 +10,8 @@ public class Arm extends StateMachineSubsystemBase<ArmStates> {
     public Arm(ArmIO io){
         super("arm");
         this.io = io;
-
     }
+    
     public static Arm getInstance(){
         if (instance == null){
         switch (Constants.currentMode){

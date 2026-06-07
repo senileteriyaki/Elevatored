@@ -3,15 +3,15 @@ package frc.robot.subsystems.elevator;
 import frc.robot.Constants;
 import frc.robot.subsystems.StateMachineSubsystemBase;
 
-public class Elevator extends StateMachineSubsystemBase {
+public class Elevator extends StateMachineSubsystemBase<ElevatorStates> {
     private ElevatorIO io;
     private static Elevator instance;
 
     public Elevator(ElevatorIO io){
         super("elevator");
         this.io = io;
-
     }
+
     public static Elevator getInstance(){
         if (instance == null){
         switch (Constants.currentMode){

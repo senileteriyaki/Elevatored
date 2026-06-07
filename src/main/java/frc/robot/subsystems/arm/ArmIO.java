@@ -7,6 +7,7 @@ public interface ArmIO {
     public static class ArmIOInputs{
 
     }
+    
     public default void updateInputs(ArmIOInputs inputs){}
 
     public default void setVoltage(double voltage){}
