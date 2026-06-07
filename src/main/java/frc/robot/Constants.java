@@ -95,4 +95,8 @@ public final class Constants {
         public static final double targetIndexVel = 0.0;
         public static final double targetFlyVel = 10.0;
     }
+
+    public static class ElevatorConstants {
+        public static final double startPos = 0.0;
+    }   
 }

@@ -21,6 +21,9 @@ public class Elevator extends StateMachineSubsystemBase {
           case REAL:
             instance = new Elevator(new ElevatorIOReal());
             break;
+          case REPLAY:
+            instance = new Elevator(new ElevatorIOReal());
+            break;
         }
       }
         return instance;

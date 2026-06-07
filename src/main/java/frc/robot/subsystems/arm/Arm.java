@@ -1,4 +1,4 @@
-package frc.robot.subsystems.Arm;
+package frc.robot.subsystems.arm;
 
 import frc.robot.Constants;
 import frc.robot.subsystems.StateMachineSubsystemBase;
@@ -22,7 +22,6 @@ public class Arm extends StateMachineSubsystemBase<ArmStates> {
             instance = new Arm(new ArmIOReal());
             break;
           case REPLAY:
-            // For REPLAY use real IO by default
             instance = new Arm(new ArmIOReal());
             break;
         }
