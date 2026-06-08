@@ -2,6 +2,7 @@ package frc.robot.subsystems.elevator;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj.simulation.ElevatorSim;
 import frc.robot.Constants;
 import frc.robot.Constants.ElevatorConstants;
@@ -15,7 +16,10 @@ public class ElevatorIOSim implements ElevatorIO{
     private double volts;
 
     public ElevatorIOSim(){
-        this.sim = new ElevatorSim(null, 0, 0, 0., 0, 0, false, targetHeight, null); // TODO: Replace with actual values (maybe using same as MVRT Rebuilt bot?)
+        this.sim = new ElevatorSim(DCMotor.getKrakenX60(1), 0, 
+                                   0, 0, ElevatorConstants.minHeight, 
+                                   ElevatorConstants.maxHeight, true, 0, 0.1, 0);
+
         this.controller = new PIDController(ElevatorConstants.kP, ElevatorConstants.kI, ElevatorConstants.kD);
         this.targetHeight = ElevatorConstants.minHeight;
     }
@@ -39,7 +43,6 @@ public class ElevatorIOSim implements ElevatorIO{
     @Override
     public void goToPos(double pos){
        targetHeight = pos;
-
        setVoltage(controller.calculate(sim.getPositionMeters(), targetHeight));
     }
 

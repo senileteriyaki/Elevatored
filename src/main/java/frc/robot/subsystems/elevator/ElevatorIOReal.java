@@ -27,7 +27,7 @@ public class ElevatorIOReal implements ElevatorIO{
     public ElevatorIOReal(){
 
         TalonFXConfiguration config = new TalonFXConfiguration();
-        request = new MotionMagicVoltage(ElevatorConstants.startPos);
+        request = new MotionMagicVoltage(ElevatorConstants.minHeight);
         ff = new ElevatorFeedforward(0, 0, 0, 0);
 
         volts = elevatorMotor.getMotorVoltage();

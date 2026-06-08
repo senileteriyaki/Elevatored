@@ -97,12 +97,14 @@ public final class Constants {
     }
 
     public static class ElevatorConstants {
-        public static final double startPos = 0.0;
         public static final double minHeight = 0.0;
+        public static final double maxHeight = 0.0;
 
         // Constants for PIDController sim (TODO: currently temp values - confirm actual values)
         public static final double kP = 1.0;
         public static final double kI = 0;
         public static final double kD = 0;
+
+        public static final double tolerance = 0.01;
     }   
 }

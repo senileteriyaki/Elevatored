@@ -3,5 +3,5 @@ package frc.robot.subsystems.elevator;
 import frc.robot.util.IState;
 
 public enum ElevatorStates implements IState {
-    DISABLED, IDLE, HOLDING, HOMING
+    DISABLED, IDLE, HOLDING, TRAVELLING
 }
