@@ -1,35 +1,58 @@
 package frc.robot.subsystems.elevator;
 
+import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.wpilibj.simulation.ElevatorSim;
+import frc.robot.Constants;
+import frc.robot.Constants.ElevatorConstants;
+
 public class ElevatorIOSim implements ElevatorIO{
 
-    public ElevatorIOSim(){
+    private ElevatorSim sim;
+    private PIDController controller;
 
+    private double targetHeight;
+    private double volts;
+
+    public ElevatorIOSim(){
+        this.sim = new ElevatorSim(null, 0, 0, 0., 0, 0, false, targetHeight, null); // TODO: Replace with actual values (maybe using same as MVRT Rebuilt bot?)
+        this.controller = new PIDController(ElevatorConstants.kP, ElevatorConstants.kI, ElevatorConstants.kD);
+        this.targetHeight = ElevatorConstants.minHeight;
     }
     
     @Override
     public void updateInputs(ElevatorIOInputs inputs){
-        // Populate simulated inputs with default/sim values
-        // e.g., inputs.positionMeters = 0.0;
+        sim.update(Constants.globalDelta_s);
+
+        inputs.volts = volts;
+        inputs.amps = sim.getCurrentDrawAmps();
+        inputs.pos = sim.getPositionMeters();
+        inputs.vel = sim.getVelocityMetersPerSecond();
     }
 
     @Override
     public void setVoltage(double voltage){
-        // Simulate setting voltage
+        volts = MathUtil.clamp(voltage, -12, 12);
+        sim.setInputVoltage(volts);
     }
 
     @Override
     public void goToPos(double pos){
-        // Simulate position command
+       targetHeight = pos;
+
+       setVoltage(controller.calculate(sim.getPositionMeters(), targetHeight));
     }
 
     @Override
     public void hold(double pos){
-        // Simulate hold
+        targetHeight = pos;
+
+        setVoltage(controller.calculate(sim.getPositionMeters(), targetHeight));
     }
 
     @Override
     public void stop(){
-        // Simulate stop
+        setVoltage(0);
     }
 
 }

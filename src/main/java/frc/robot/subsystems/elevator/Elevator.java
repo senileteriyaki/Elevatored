@@ -10,6 +10,8 @@ public class Elevator extends StateMachineSubsystemBase<ElevatorStates> {
     public Elevator(ElevatorIO io){
         super("elevator");
         this.io = io;
+        
+        queueState(ElevatorStates.IDLE);
     }
 
     public static Elevator getInstance(){
@@ -29,14 +31,28 @@ public class Elevator extends StateMachineSubsystemBase<ElevatorStates> {
         return instance;
     }
 
-    public void handleStateMachine(){
-
+    // TODO: implement
+    public void handleStateMachine() {
+      switch (getState()) {
+        case DISABLED:
+          break;
+        case IDLE:
+          break;
+        case HOLDING:
+          break;
+        case HOMING:
+          break;
+        default:
+          break;
+      }
     }
 
+    @Override
     public void inputPeriodic(){
 
     }
 
+    @Override
     public void outputPeriodic(){
 
     }
