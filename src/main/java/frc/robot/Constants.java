@@ -106,5 +106,10 @@ public final class Constants {
         public static final double kD = 0;
 
         public static final double tolerance = 0.01;
-    }   
+    }
+
+    public static class ArmConstants {
+        public static final double minAngle = 0;
+        public static final double maxAngle = 0;
+    }
 }

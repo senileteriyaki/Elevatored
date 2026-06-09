@@ -1,27 +1,30 @@
-package frc.robot.subsystems.elevator;
+package frc.robot.subsystems.arm;
 
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.mechanism.LoggedMechanism2d;
 import org.littletonrobotics.junction.mechanism.LoggedMechanismLigament2d;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color8Bit;
 
-public class Elevator2D {
-    private LoggedMechanismLigament2d elevator;
+public class Arm2d {
+    
     private LoggedMechanism2d mech;
+    private LoggedMechanismLigament2d elbow;
+    private LoggedMechanismLigament2d shoulder;
     private String name;
 
-    public Elevator2D(String name, Color8Bit color){
+    public Arm2d(String name, Color8Bit color) {
         this.name = name;
-        mech = new LoggedMechanism2d(4, 4);
-        elevator = mech.getRoot("root", 2, 0.1)
-            .append(new LoggedMechanismLigament2d("Elevator/elevSim", 0.5, 90, 5, color));
+        this.mech = new LoggedMechanism2d(3, 3);
     }
 
-    public void set(double height){
-        elevator.setLength(height);
+    public void setElbow(double angle) {
+        elbow.setAngle(angle);
+    }
+
+    public void setShoulder(double angle) {
+        shoulder.setAngle(angle);
     }
 
     public void periodic() {

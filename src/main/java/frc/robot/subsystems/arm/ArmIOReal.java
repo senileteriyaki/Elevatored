@@ -11,18 +11,38 @@ public class ArmIOReal implements ArmIO{
     }
 
     @Override
-    public void setVoltage(double voltage){
+    public void setElbowVoltage(double voltage){
     }
 
     @Override
-    public void goToPos(double pos){
+    public void setShoulderVoltage(double voltage) {
+
     }
 
     @Override
-    public void hold(double pos){
+    public void goToElbowPos(double pos){
     }
 
     @Override
-    public void stop(){
+    public void goToShoulderPos(double pos) {
+
+    }
+
+    @Override
+    public void holdElbow(double pos){
+    }
+
+    @Override
+    public void holdShoulder(double pos) {
+
+    }
+
+    @Override
+    public void stopElbow(){
+    }
+
+    @Override
+    public void stopShoulder() {
+        
     }
 }
