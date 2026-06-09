@@ -20,7 +20,7 @@ public class Elevator extends StateMachineSubsystemBase<ElevatorStates> {
         this.io = io;
         target = ElevatorConstants.minHeight;
         queueState(ElevatorStates.IDLE);
-        elevator2d = new Elevator2D("name", new Color8Bit(Color.kLavender));
+        elevator2d = new Elevator2D("elevator", new Color8Bit(Color.kLavender));
     }
 
     public static Elevator getInstance(){
