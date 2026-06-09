@@ -49,7 +49,6 @@ public class ElevatorIOSim implements ElevatorIO{
     @Override
     public void hold(double pos){
         targetHeight = pos;
-
         setVoltage(controller.calculate(sim.getPositionMeters(), targetHeight));
     }
 

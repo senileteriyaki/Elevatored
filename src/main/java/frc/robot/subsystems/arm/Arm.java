@@ -1,6 +1,7 @@
 package frc.robot.subsystems.arm;
 
 import frc.robot.Constants;
+import frc.robot.Constants.ArmConstants;
 import frc.robot.subsystems.StateMachineSubsystemBase;
 
 public class Arm extends StateMachineSubsystemBase<ArmStates> {
@@ -30,13 +31,30 @@ public class Arm extends StateMachineSubsystemBase<ArmStates> {
     }
 
     public void handleStateMachine(){
-
+      switch (getState()) {
+        case DISABLED:
+          io.stopElbow();
+          io.stopShoulder();
+          break;
+        case IDLE:
+          io.holdElbow(ArmConstants.minAngle);
+          io.holdShoulder(ArmConstants.minAngle);
+          break;
+        case TRAVELLING:
+          break;
+        case HOLDING:
+          break;
+        default:
+          break;
+      }
     }
 
+    @Override
     protected void inputPeriodic(){
 
     }
 
+    @Override
     protected void outputPeriodic(){
 
     }

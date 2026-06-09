@@ -11,23 +11,39 @@ public class ArmIOSim implements ArmIO{
         // populate simulated inputs
     }
 
-    @Override
-    public void setVoltage(double voltage){
-        // simulate voltage
+   @Override
+    public void setElbowVoltage(double voltage){
     }
 
     @Override
-    public void goToPos(double pos){
-        // simulate go to position
+    public void setShoulderVoltage(double voltage) {
+
     }
 
     @Override
-    public void hold(double pos){
-        // simulate hold
+    public void goToElbowPos(double pos){
     }
 
     @Override
-    public void stop(){
-        // simulate stop
+    public void goToShoulderPos(double pos) {
+
+    }
+
+    @Override
+    public void holdElbow(double pos){
+    }
+
+    @Override
+    public void holdShoulder(double pos) {
+
+    }
+
+    @Override
+    public void stopElbow(){
+    }
+
+    @Override
+    public void stopShoulder() {
+        
     }
 }

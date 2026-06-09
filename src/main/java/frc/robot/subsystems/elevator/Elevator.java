@@ -16,7 +16,6 @@ public class Elevator extends StateMachineSubsystemBase<ElevatorStates> {
     private final Elevator2D elevator2d;
 
     public Elevator(ElevatorIO io){
-      
         super("elevator");
         this.io = io;
         target = ElevatorConstants.minHeight;
@@ -26,18 +25,18 @@ public class Elevator extends StateMachineSubsystemBase<ElevatorStates> {
 
     public static Elevator getInstance(){
         if (instance == null){
-        switch (Constants.currentMode){
-          case SIM:
-            instance = new Elevator(new ElevatorIOSim());
-            break;
-          case REAL:
-            instance = new Elevator(new ElevatorIOReal());
-            break;
-          case REPLAY:
-            instance = new Elevator(new ElevatorIOReal());
-            break;
+          switch (Constants.currentMode){
+            case SIM:
+              instance = new Elevator(new ElevatorIOSim());
+              break;
+            case REAL:
+              instance = new Elevator(new ElevatorIOReal());
+              break;
+            case REPLAY:
+              instance = new Elevator(new ElevatorIOReal());
+              break;
+          }
         }
-      }
         return instance;
     }
 
