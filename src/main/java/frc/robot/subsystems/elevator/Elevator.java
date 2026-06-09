@@ -73,6 +73,7 @@ public class Elevator extends StateMachineSubsystemBase<ElevatorStates> {
     public void outputPeriodic(){
       Logger.recordOutput("Elevator/target", target);
       elevator2d.set(inputs.pos);
+      elevator2d.periodic();
     }
 
     public void setTarget(double p){

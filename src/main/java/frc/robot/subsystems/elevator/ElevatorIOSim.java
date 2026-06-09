@@ -16,8 +16,8 @@ public class ElevatorIOSim implements ElevatorIO{
     private double volts;
 
     public ElevatorIOSim(){
-        this.sim = new ElevatorSim(DCMotor.getKrakenX60(1), 0, 
-                                   0, 0, ElevatorConstants.minHeight, 
+        this.sim = new ElevatorSim(DCMotor.getKrakenX60(1), 2, 
+                                   5, 0.02, ElevatorConstants.minHeight, 
                                    ElevatorConstants.maxHeight, true, 0, 0.1, 0);
 
         this.controller = new PIDController(ElevatorConstants.kP, ElevatorConstants.kI, ElevatorConstants.kD);

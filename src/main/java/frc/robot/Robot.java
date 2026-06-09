@@ -21,7 +21,9 @@ import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.drive.Drive;
+import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.tracking.Tracking;
+import frc.robot.superstructure.SS;
 import frc.robot.util.MTimer;
 
 import org.littletonrobotics.junction.LogFileUtil;
@@ -46,7 +48,8 @@ public class Robot extends LoggedRobot {
 
     private Drive drive;
     private Tracking tracking;
-
+    private Elevator elevator;
+    private SS ss;
     private boolean lastState = false;
 
     private ControlScheme scheme;
@@ -115,7 +118,8 @@ public class Robot extends LoggedRobot {
         // init subsystems
         drive = Drive.getInstance();
         tracking = Tracking.getInstance();
-        
+        elevator = Elevator.getInstance();
+        ss = SS.getInstance();
         // Check for valid swerve config
         var modules = new SwerveModuleConstants[] {
                 TunerConstants.FrontLeft,
@@ -157,7 +161,8 @@ public class Robot extends LoggedRobot {
 
         tracking.periodic();
         drive.periodic();
-
+        elevator.periodic();
+        ss.periodic();
         PerfTracker.periodic();
         Threads.setCurrentThreadPriority(false, 10);
     }
