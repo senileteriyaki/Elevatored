@@ -111,5 +111,16 @@ public final class Constants {
     public static class ArmConstants {
         public static final double minAngle = 0;
         public static final double maxAngle = 0;
+
+        // Constants for PIDController sim
+        public static final double elbowKP = 17;
+        public static final double elbowKI = 0;
+        public static final double elbowKD = 0;
+
+        public static final double shoulderKP = 25;
+        public static final double shoulderKI = 0;
+        public static final double shoulderKD = 0;
+
+        public static final double tolerance = 0.01;
     }
 }

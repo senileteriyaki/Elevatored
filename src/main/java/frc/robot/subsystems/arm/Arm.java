@@ -13,7 +13,7 @@ public class Arm extends StateMachineSubsystemBase<ArmStates> {
     private static Arm instance;
 
     private final Arm2d arm2d;
-    private ArmIOInputsAutoLogged inputs = new ArmIOInputsAutoLogged();
+    private final ArmIOInputsAutoLogged inputs = new ArmIOInputsAutoLogged();
 
     private double elbowTarget;
     private double shoulderTarget;
@@ -27,18 +27,18 @@ public class Arm extends StateMachineSubsystemBase<ArmStates> {
     
     public static Arm getInstance(){
         if (instance == null){
-        switch (Constants.currentMode){
-          case SIM:
-            instance = new Arm(new ArmIOSim());
-            break;
-          case REAL:
-            instance = new Arm(new ArmIOReal());
-            break;
-          case REPLAY:
-            instance = new Arm(new ArmIOReal());
-            break;
+          switch (Constants.currentMode){
+            case SIM:
+              instance = new Arm(new ArmIOSim());
+              break;
+            case REAL:
+              instance = new Arm(new ArmIOReal());
+              break;
+            case REPLAY:
+              instance = new Arm(new ArmIOReal());
+              break;
+          }
         }
-      }
         return instance;
     }
 
@@ -56,6 +56,13 @@ public class Arm extends StateMachineSubsystemBase<ArmStates> {
           io.holdElbow(elbowTarget);
           io.holdShoulder(shoulderTarget);
         case TRAVELLING:
+          io.goToElbowPos(elbowTarget);
+          io.goToShoulderPos(shoulderTarget);
+
+          if (Math.abs(inputs.elbowPos - elbowTarget) < ArmConstants.tolerance &&
+              Math.abs(inputs.shoulderPos - shoulderTarget) < ArmConstants.tolerance) {
+            queueState(ArmStates.HOLDING);
+          }
           break;
         default:
           break;
