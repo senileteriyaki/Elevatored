@@ -7,7 +7,6 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 import frc.robot.Constants;
 import frc.robot.Constants.ArmConstants;
-import frc.robot.Constants.ElevatorConstants;
 
 public class ArmIOSim implements ArmIO{
 
@@ -25,13 +24,13 @@ public class ArmIOSim implements ArmIO{
 
     public ArmIOSim(){
         this.elbowSim = new SingleJointedArmSim(DCMotor.getKrakenX60(1), 2, 
-                                   5, 0.02, ElevatorConstants.minHeight, 
-                                   ElevatorConstants.maxHeight, true, 0, 0.1, 0);
+                                   5, 0.02, ArmConstants.minAngle, 
+                                   ArmConstants.maxAngle, true, 0, 0.1, 0);
         this.elbowPID = new PIDController(ArmConstants.elbowKP, ArmConstants.elbowKI, ArmConstants.elbowKD);
 
         this.shoulderSim = new SingleJointedArmSim(DCMotor.getKrakenX60(1), 2, 
-                                   5, 0.02, ElevatorConstants.minHeight, 
-                                   ElevatorConstants.maxHeight, true, 0, 0.1, 0);
+                                   5, 0.02, ArmConstants.minAngle, 
+                                   ArmConstants.maxAngle, true, 0, 0.1, 0);
         this.shoulderPID = new PIDController(ArmConstants.shoulderKP, ArmConstants.shoulderKI, ArmConstants.shoulderKD);
 
         this.elbowVoltsApplied = this.shoulderVoltsApplied = 0;

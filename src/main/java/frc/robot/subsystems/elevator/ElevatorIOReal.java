@@ -15,7 +15,7 @@ import frc.robot.Constants.ElevatorConstants;
 
 public class ElevatorIOReal implements ElevatorIO{
 
-    private TalonFX elevatorMotor = new TalonFX(01);
+    private TalonFX elevatorMotor = new TalonFX(1);
     private final MotionMagicVoltage request;
     private final StatusSignal<Voltage> volts;
     private final StatusSignal<Angle> pos;
@@ -25,7 +25,6 @@ public class ElevatorIOReal implements ElevatorIO{
     private double ffVoltage;
 
     public ElevatorIOReal(){
-
         TalonFXConfiguration config = new TalonFXConfiguration();
         request = new MotionMagicVoltage(ElevatorConstants.minHeight);
         ff = new ElevatorFeedforward(0, 0, 0, 0);
@@ -38,8 +37,6 @@ public class ElevatorIOReal implements ElevatorIO{
         // [imagine I actually had values to config the motor]
 
         elevatorMotor.getConfigurator().apply(config);
-
-
     }
 
     public void updateInputs(ElevatorIOInputs inputs){

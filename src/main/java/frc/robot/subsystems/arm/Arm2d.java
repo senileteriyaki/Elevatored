@@ -17,6 +17,10 @@ public class Arm2d {
     public Arm2d(String name, Color8Bit color) {
         this.name = name;
         this.mech = new LoggedMechanism2d(3, 3);
+        this.elbow = mech.getRoot("root", 2, 0.1)
+            .append(new LoggedMechanismLigament2d("Arm/ElbowSim", 0.5, 90, 5, color));
+        this.shoulder = mech.getRoot("root", 2, 0.1)
+            .append(new LoggedMechanismLigament2d("Arm/ShoulderSim", 0.5, 90, 5, color));
     }
 
     public void setElbow(double angle) {
