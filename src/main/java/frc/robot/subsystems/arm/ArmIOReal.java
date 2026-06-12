@@ -108,11 +108,11 @@ public class ArmIOReal implements ArmIO{
 
     @Override
     public void stopElbow(){
-        setElbowVoltage(0);
+        elbowMotor.stopMotor();
     }
 
     @Override
     public void stopShoulder() {
-        setShoulderVoltage(0);
+        shoulderMotor.stopMotor();
     }
 }
