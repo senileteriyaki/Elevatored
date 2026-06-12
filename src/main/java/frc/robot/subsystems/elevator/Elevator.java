@@ -78,4 +78,8 @@ public class Elevator extends StateMachineSubsystemBase<ElevatorStates> {
     public void setTarget(double p){
         target = p;
     }
+
+    public void setCoralLevel(int level){
+        setTarget(ElevatorConstants.levelHeights[level]);
+    }
 }

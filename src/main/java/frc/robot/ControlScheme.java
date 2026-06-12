@@ -6,16 +6,19 @@ import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.PathingMode;
 import frc.robot.subsystems.drive.PathingOverride;
 import frc.robot.subsystems.drive.SwerveInput;
+import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.util.IPeriodic;
 import frc.robot.util.Util;
 
 public class ControlScheme implements IPeriodic {
 
     protected Drive drive;
+    protected Elevator elevator;    
 
     public ControlScheme() {
         super();
         drive = Drive.getInstance();
+        elevator = Elevator.getInstance();
     }
 
     public void init() {
@@ -33,6 +36,9 @@ public class ControlScheme implements IPeriodic {
             mult = -0.7;
         }
 
+        if (OI.DR.getXButtonPressed()){
+            elevator.setCoralLevel(3);
+        }
         // if (OI.DR.getRightTriggerAxis() >= 0.8) {
         //     // drive.queueState(PathingMode.TRACKING);
         //     drive.setPathingOverride(PathingOverride.SHOOTING);
