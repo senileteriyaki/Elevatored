@@ -70,12 +70,12 @@ public class Elevator extends StateMachineSubsystemBase<ElevatorStates> {
 
     @Override
     public void outputPeriodic(){
-      Logger.recordOutput("Elevator/target", target);
+      Logger.recordOutput("Elevator/targetHeightMeters", target);
       elevator2d.set(inputs.pos);
       elevator2d.periodic();
     }
 
-    public void setTarget(double p){
-        target = p;
+    public void setTarget(double target){
+        this.target = target;
     }
 }

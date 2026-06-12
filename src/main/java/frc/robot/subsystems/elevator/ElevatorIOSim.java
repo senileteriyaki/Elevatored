@@ -19,7 +19,6 @@ public class ElevatorIOSim implements ElevatorIO{
         this.sim = new ElevatorSim(DCMotor.getKrakenX60(1), 2, 
                                    5, 0.02, ElevatorConstants.minHeight, 
                                    ElevatorConstants.maxHeight, true, 0, 0.1, 0);
-
         this.controller = new PIDController(ElevatorConstants.kP, ElevatorConstants.kI, ElevatorConstants.kD);
         this.targetHeight = ElevatorConstants.minHeight;
     }
