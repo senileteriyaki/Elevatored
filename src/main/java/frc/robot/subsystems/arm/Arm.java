@@ -23,6 +23,7 @@ public class Arm extends StateMachineSubsystemBase<ArmStates> {
         this.io = io;
         this.elbowTarget = this.shoulderTarget = ArmConstants.minAngle;
         this.arm2d = new Arm2d("arm", new Color8Bit(Color.kBlanchedAlmond));
+        queueState(ArmStates.IDLE);
     }
     
     public static Arm getInstance(){

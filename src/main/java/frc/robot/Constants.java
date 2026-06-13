@@ -103,8 +103,8 @@ public final class Constants {
 
         public static final double[] levelHeights = {0.3, 0.7, 1, 1.6};
 
-        // Constants for PIDController sim (TODO: currently temp values - confirm actual values)
-        public static final double kP = 1.0;
+        // Constants for PIDController sim 
+        public static final double kP = 67.0; //i promise this is reasonable
         public static final double kI = 0;
         public static final double kD = 0;
 

@@ -4,6 +4,7 @@ import org.littletonrobotics.junction.Logger;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import frc.robot.subsystems.StateMachineSubsystemBase;
+import frc.robot.subsystems.arm.Arm;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.PathingOverride;
 import frc.robot.subsystems.elevator.Elevator;
@@ -34,7 +35,7 @@ public class SS extends StateMachineSubsystemBase<InternalState> {
     private boolean homedYet = false;
 
     private static Drive drive;
-
+    private static Arm arm;
     private static Elevator elevator;
 
     private SS() {
@@ -47,6 +48,7 @@ public class SS extends StateMachineSubsystemBase<InternalState> {
 
         drive = Drive.getInstance();
         elevator = Elevator.getInstance();
+        arm = Arm.getInstance();
     }
 
     @Override
