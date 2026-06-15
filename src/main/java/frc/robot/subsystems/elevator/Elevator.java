@@ -21,6 +21,7 @@ public class Elevator extends StateMachineSubsystemBase<ElevatorStates> {
         target = ElevatorConstants.minHeight;
         queueState(ElevatorStates.IDLE);
         elevator2d = new Elevator2D("elevator", new Color8Bit(Color.kLavender));
+        setCoralLevel(3);
     }
 
     public static Elevator getInstance(){
@@ -77,5 +78,10 @@ public class Elevator extends StateMachineSubsystemBase<ElevatorStates> {
 
     public void setTarget(double p){
         target = p;
+    }
+
+    public void setCoralLevel(int level){
+      setTarget(ElevatorConstants.levelHeights[level]);
+      queueState(ElevatorStates.TRAVELLING);
     }
 }
