@@ -125,4 +125,11 @@ public final class Constants {
 
         public static final double tolerance = 0.01;
     }
+
+    public static class ClimberConstants {
+        public static final double stowAngle = 90;
+        public static final double stretchAngle = 0;
+        public static final double climbAngle = 45;
+
+    }
 }
