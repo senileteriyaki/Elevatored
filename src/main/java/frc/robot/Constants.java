@@ -111,7 +111,7 @@ public final class Constants {
     }
 
     public static class ArmConstants {
-        public static final double minAngle = -90;
+        public static final double minAngle = -90; //prolly fake but whatever
         public static final double maxAngle = 90;
 
         // Constants for PIDController sim

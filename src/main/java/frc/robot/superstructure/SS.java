@@ -91,6 +91,14 @@ public class SS extends StateMachineSubsystemBase<InternalState> {
                     drive.setPathingOverride(PathingOverride.NONE);
                 }
                 break;
+            case SCORE1:
+                elevator.setCoralLevel(0);
+            case SCORE2:
+                elevator.setCoralLevel(1);
+            case SCORE3:
+                elevator.setCoralLevel(2);
+            case SCORE4:
+                elevator.setCoralLevel(3);
             default:
                 unimplementedStateAlert.set(true);
                 break;
@@ -101,6 +109,7 @@ public class SS extends StateMachineSubsystemBase<InternalState> {
     public final void outputPeriodic() {
         Logger.recordOutput("SS/Booted?", booted);
         Logger.recordOutput("SS/Intention", intention);
+        elevator.setArmLigament(0); //hella sus design pattern but whatever
     }
 
 }
