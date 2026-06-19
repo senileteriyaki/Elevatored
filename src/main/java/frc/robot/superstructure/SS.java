@@ -109,7 +109,7 @@ public class SS extends StateMachineSubsystemBase<InternalState> {
     public final void outputPeriodic() {
         Logger.recordOutput("SS/Booted?", booted);
         Logger.recordOutput("SS/Intention", intention);
-        elevator.setArmLigament(0); //hella sus design pattern but whatever
+        elevator.setArmLigament(arm.getElbowPos()); //hella sus design pattern but whatever
     }
 
 }

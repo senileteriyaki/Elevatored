@@ -23,13 +23,13 @@ public class ArmIOSim implements ArmIO{
     private double shoulderTarget;
 
     public ArmIOSim(){
-        this.elbowSim = new SingleJointedArmSim(DCMotor.getKrakenX60(1), 2, 
-                                   5, 0.02, ArmConstants.minAngle, 
+        this.elbowSim = new SingleJointedArmSim(DCMotor.getKrakenX60(1), 127.5, 
+                                   1.5, 0.2, ArmConstants.minAngle, 
                                    ArmConstants.maxAngle, true, 0, 0.1, 0);
         this.elbowPID = new PIDController(ArmConstants.elbowKP, ArmConstants.elbowKI, ArmConstants.elbowKD);
 
-        this.shoulderSim = new SingleJointedArmSim(DCMotor.getKrakenX60(2), 2, 
-                                   5, 0.02, ArmConstants.minAngle, 
+        this.shoulderSim = new SingleJointedArmSim(DCMotor.getKrakenX60(2), 151, 
+                                   1.5, 0.2, ArmConstants.minAngle, 
                                    ArmConstants.maxAngle, true, 0, 0.1, 0);
         this.shoulderPID = new PIDController(ArmConstants.shoulderKP, ArmConstants.shoulderKI, ArmConstants.shoulderKD);
         this.elbowVoltsApplied = this.shoulderVoltsApplied = 0;
