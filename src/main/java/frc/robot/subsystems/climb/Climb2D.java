@@ -9,18 +9,19 @@ import edu.wpi.first.wpilibj.util.Color8Bit;
 
 public class Climb2D {
     private LoggedMechanismLigament2d climb;
-    private LoggedMechanismLigament2d arm;
     private LoggedMechanism2d mech;
     private String name;
 
-    public Climb2D(String name, Color8Bit color1, Color8Bit color2) {
+    public Climb2D(String name, Color8Bit color1){
         this.name = name;
         mech = new LoggedMechanism2d(4, 4);
+        climb = mech.getRoot("root", 2, 0.1)
+                    .append(new LoggedMechanismLigament2d("climb", 0.5, 90, 5, color1));
 
     }
 
-    public void set(double height) {
-        climb.setLength(height);
+    public void set(double deg) {
+        climb.setAngle(deg);
     }
 
     public void periodic() {
@@ -28,7 +29,4 @@ public class Climb2D {
         Logger.recordOutput(name, mech);
     }
 
-    public void setArm(double deg) {
-        arm.setAngle(deg);
-    }
 }

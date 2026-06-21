@@ -40,8 +40,8 @@ public class GyroIOPigeon2 implements GyroIO {
     pigeon = new Pigeon2(
         TunerConstants.DrivetrainConstants.Pigeon2Id,
         TunerConstants.DrivetrainConstants.CANBusName);
-    pigeon.getConfigurator().apply(new Pigeon2Configuration());
-    pigeon.getConfigurator().setYaw(0.0);
+  frc.robot.util.PhoenixUtil.tryUntilOk(5, () -> pigeon.getConfigurator().apply(new Pigeon2Configuration()));
+  pigeon.getConfigurator().setYaw(0.0);
 
     yaw = pigeon.getYaw();
     pitch = pigeon.getPitch();

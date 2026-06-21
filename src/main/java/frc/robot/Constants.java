@@ -108,6 +108,8 @@ public final class Constants {
         public static final double tolerance = 0.01;
 
         public static final double[] levelHeights = {0.2, 0.5, 0.7, 1.5};
+
+        public static double drumRadius = 0.015;
     }
 
     public static class ArmConstants {

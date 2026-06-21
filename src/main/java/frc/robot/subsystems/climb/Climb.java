@@ -21,7 +21,7 @@ public class Climb extends StateMachineSubsystemBase<ClimbStates> {
         this.io = io;
         target = 0;
         queueState(ClimbStates.IDLE);
-        climb2d = new Climb2D("climb", new Color8Bit(Color.kLavender), new Color8Bit(Color.kDarkOrange));
+        climb2d = new Climb2D("climb", new Color8Bit(Color.kMediumSpringGreen));
     }
 
     public static Climb getInstance() {
