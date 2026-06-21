@@ -7,7 +7,6 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.RobotBase;
 import frc.robot.generated.TunerConstants;
 import frc.robot.util.Util;
 
@@ -49,8 +48,8 @@ public class PoseFollower {
 
         Rotation2d rotationDiff = poseDiff.getRotation();
         double radDiff = rotationDiff.getRadians();
-        double angularVelocity = Util.limit(rotate_kP * radDiff, -Drive.getInstance().MAX_ANGULAR_VEL_radps,
-                Drive.getInstance().MAX_ANGULAR_VEL_radps);
+        double angularVelocity = Util.limit(rotate_kP * radDiff, -Drive.MAX_ANGULAR_VEL_radps,
+                Drive.MAX_ANGULAR_VEL_radps);
 
         angularVelocity *= Units.radiansToDegrees(1);
 

@@ -100,7 +100,7 @@ public class Module {
             io.setTurnPosition(steerSetpoint_Rot2d);
 
             // Run drive controller
-            if (false && mode == Mode.HIGH_CONTROL) {
+            if (mode == Mode.HIGH_CONTROL) {
                 io.setDriveVelocity(driveSetpoint_mps / constants.WheelRadius);
             } else {
                 io.setDriveOpenLoop(12.0 * driveSetpoint_mps / constants.SpeedAt12Volts);

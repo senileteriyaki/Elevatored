@@ -102,10 +102,9 @@ public class Drive extends StateMachineSubsystemBase<PathingMode> {
                             new ModuleIOTalonFX(TunerConstants.BackRight));
                     break;
                 case SIM:
-                    // Sim robot, TODO: instantiate physics sim IO implementations
+                    // Sim robot, instantiate physics sim IO implementations
                     instance = new Drive(
-                            new GyroIO() { // TODO: IMPLEMENT sim gyro
-                            },
+                            new GyroIOSim(),
                             new ModuleIOSim(TunerConstants.FrontLeft),
                             new ModuleIOSim(TunerConstants.FrontRight),
                             new ModuleIOSim(TunerConstants.BackLeft),

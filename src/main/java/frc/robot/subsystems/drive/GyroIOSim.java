@@ -1,26 +1,19 @@
 package frc.robot.subsystems.drive;
 
-import static edu.wpi.first.units.Units.RadiansPerSecond;
-
-import edu.wpi.first.math.util.Units;
-import frc.robot.util.PhoenixUtil;
-// import org.ironmaple.simulation.drivesims.GyroSimulation;
+import com.ctre.phoenix6.hardware.Pigeon2;
+import com.ctre.phoenix6.sim.Pigeon2SimState;
 
 public class GyroIOSim implements GyroIO {
-    // private final GyroSimulation gyroSimulation;
+    private Pigeon2 pigeon;
+    private Pigeon2SimState state;
 
-    // public GyroIOSim(GyroSimulation gyroSimulation) {
-    //     this.gyroSimulation = gyroSimulation;
-    // }
+    public GyroIOSim() {
+        this.pigeon = new Pigeon2(10, ""); // TODO: Implement later
+        this.state = new Pigeon2SimState(pigeon);
+    }
 
     @Override
     public void updateInputs(GyroIOInputs inputs) {
-        inputs.connected = true;
-        // inputs.yaw_Rot2d = gyroSimulation.getGyroReading();
-        // inputs.yawVel_radps = Units.degreesToRadians(
-                // gyroSimulation.getMeasuredAngularVelocity().in(RadiansPerSecond));
-
-        inputs.odometryYawTimestamps = null; //PhoenixUtil.getSimulationOdometryTimeStamps();
-        // inputs.odometryYawPositions = gyroSimulation.getCachedGyroReadings();
+        
     }
 }
