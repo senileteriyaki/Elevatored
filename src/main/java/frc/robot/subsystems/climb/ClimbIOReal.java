@@ -14,9 +14,7 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
-import frc.robot.Constants;
 import frc.robot.Constants.ClimberConstants;
-import frc.robot.Constants.ElevatorConstants;
 import frc.robot.util.PhoenixUtil;
 
 public class ClimbIOReal implements ClimbIO{
@@ -49,7 +47,6 @@ public class ClimbIOReal implements ClimbIO{
         PhoenixUtil.tryUntilOk(5, () -> left.getConfigurator().apply(config));
         PhoenixUtil.tryUntilOk(5, () -> right.getConfigurator().apply(config));
         right.setControl(new Follower(left.getDeviceID(), MotorAlignmentValue.Aligned));
-
     }
 
     public void updateInputs(ClimbIOInputs inputs){

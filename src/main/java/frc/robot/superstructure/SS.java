@@ -105,18 +105,21 @@ public class SS extends StateMachineSubsystemBase<InternalState> {
             case SCORE1:
                 elevator.setCoralLevel(0);
                 arm.setCoralLevel(0);
+                break;
             case SCORE2:
                 elevator.setCoralLevel(1);
                 arm.setCoralLevel(1);
+                break;
             case SCORE3:
                 elevator.setCoralLevel(2);
                 arm.setCoralLevel(2);
+                break;
             case SCORE4:
                 elevator.setCoralLevel(3);
                 arm.setCoralLevel(3);
             case CLIMBING:
                 climb.queueState(ClimbStates.STRETCHING);
-
+                break;
             default:
                 unimplementedStateAlert.set(true);
                 break;
