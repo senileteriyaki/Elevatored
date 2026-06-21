@@ -11,6 +11,7 @@ import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.PathingOverride;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.util.MTimer;
+import frc.robot.superstructure.InternalState;
 
 
 public class SS extends StateMachineSubsystemBase<InternalState> {
@@ -60,14 +61,20 @@ public class SS extends StateMachineSubsystemBase<InternalState> {
     public void inputPeriodic() {}
 
     public InternalState defaultIntentionHandling() {
-        // Intention only contains IDLE per request; default to IDLE state
-        return InternalState.IDLE;
+        return switch (intention){
+            case IDLE -> InternalState.IDLE;
+            case CLIMB -> InternalState.CLIMBING;
+            case SCORE -> InternalState.SCORE1;
+        };
     }
 
     private void handleIntention() {
-        // Only IDLE/DISABLED are supported in InternalState, map all intentions to IDLE
-        if (isState(InternalState.IDLE) || isState(InternalState.DISABLED) || isState(InternalState.BOOT)) {
-            queueState(defaultIntentionHandling());
+        switch (getState()){
+            case BOOT: break;
+            case DISABLED: break;
+            case IDLE: break;
+            case SCORE1:
+
         }
     }
 
@@ -97,12 +104,16 @@ public class SS extends StateMachineSubsystemBase<InternalState> {
                 break;
             case SCORE1:
                 elevator.setCoralLevel(0);
+                arm.setCoralLevel(0);
             case SCORE2:
                 elevator.setCoralLevel(1);
+                arm.setCoralLevel(1);
             case SCORE3:
                 elevator.setCoralLevel(2);
+                arm.setCoralLevel(2);
             case SCORE4:
                 elevator.setCoralLevel(3);
+                arm.setCoralLevel(3);
             case CLIMBING:
                 climb.queueState(ClimbStates.STRETCHING);
 

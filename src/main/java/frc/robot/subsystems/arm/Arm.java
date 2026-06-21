@@ -95,4 +95,10 @@ public class Arm extends StateMachineSubsystemBase<ArmStates> {
     public double getElbowPos(){
       return inputs.elbowPos;
     }
+
+    public void setCoralLevel(int level){
+      elbowTarget = ArmConstants.elbowLevelAngles[level];
+      shoulderTarget = ArmConstants.shoulderLevelAngles[level];
+      queueState(ArmStates.TRAVELLING);
+    }
 }

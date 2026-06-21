@@ -126,6 +126,9 @@ public final class Constants {
         public static final double shoulderKD = 0;
 
         public static final double tolerance = 0.01;
+
+        public static final double[] elbowLevelAngles = {42, 60, 70, 67}; //entirely random numbers but wtv
+        public static final double[] shoulderLevelAngles = {80, 45, 32, 56};
     }
 
     public static class ClimberConstants {
@@ -138,7 +141,6 @@ public final class Constants {
         public static final double kP = 10.0;
         public static final double kI = 0.0;
         public static final double kD = 1.0;
-
 
     }
 }

@@ -4,7 +4,6 @@ import frc.robot.util.IState;
 
 public enum Intention implements IState{
     IDLE,
-    DISABLED,
     SCORE,
     CLIMB
 }
