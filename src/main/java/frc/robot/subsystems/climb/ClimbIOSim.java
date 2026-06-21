@@ -5,6 +5,7 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj.simulation.ElevatorSim;
 import frc.robot.Constants;
+import frc.robot.Constants.ElevatorConstants;
 
 public class ClimbIOSim implements ClimbIO{
 
@@ -15,10 +16,9 @@ public class ClimbIOSim implements ClimbIO{
     private double volts;
 
     public ClimbIOSim(){
-        // reuse ElevatorSim for a simple linear sim
-        this.sim = new ElevatorSim(DCMotor.getKrakenX60(1), 3,
-                                   5, 0.02, 0,
-                                   1, true, 0, 0.1, 0);
+        this.sim = new ElevatorSim(DCMotor.getKrakenX60(1), 3, 
+                                   5, 0.02, ElevatorConstants.minHeight, 
+                                   ElevatorConstants.maxHeight, true, 0, 0.1, 0);
 
         this.controller = new PIDController(1.0, 0, 0);
         this.targetPos = 0;

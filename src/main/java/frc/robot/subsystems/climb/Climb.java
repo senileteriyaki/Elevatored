@@ -57,10 +57,16 @@ public class Climb extends StateMachineSubsystemBase<ClimbStates> {
             case STRETCHING:
                 target = ClimberConstants.stretchAngle;
                 io.goToPos(ClimberConstants.stretchAngle);
+                if (Math.abs(inputs.pos - ClimberConstants.stretchAngle) < ClimberConstants.tolerance){
+                    queueState(ClimbStates.CLIMBING);
+                }
                 break;
             case CLIMBING:
                 target = ClimberConstants.climbAngle;
                 io.goToPos(ClimberConstants.climbAngle);
+                if (Math.abs(inputs.pos - ClimberConstants.climbAngle) < ClimberConstants.tolerance){
+                    queueState(ClimbStates.HOLDING);
+                }
                 break;
             default:
                 break;

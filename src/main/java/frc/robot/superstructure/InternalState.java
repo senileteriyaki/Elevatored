@@ -9,5 +9,6 @@ public enum InternalState implements IState{
     SCORE1,
     SCORE2,
     SCORE3,
-    SCORE4
+    SCORE4,
+    CLIMBING
 }

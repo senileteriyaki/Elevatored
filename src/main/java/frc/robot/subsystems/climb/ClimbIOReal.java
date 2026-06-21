@@ -37,7 +37,6 @@ public class ClimbIOReal implements ClimbIO{
         request = new MotionMagicVoltage(ClimberConstants.stowAngle);
         ff = new ElevatorFeedforward(0, 0, 0, 0);
 
-        config.Feedback.SensorToMechanismRatio = 1/(2*Math.PI*Constants.ElevatorConstants.drumRadius); 
         config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
         volts = left.getMotorVoltage();

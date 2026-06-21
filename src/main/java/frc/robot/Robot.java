@@ -21,6 +21,7 @@ import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.arm.Arm;
+import frc.robot.subsystems.climb.Climb;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.tracking.Tracking;
@@ -52,6 +53,7 @@ public class Robot extends LoggedRobot {
     private Elevator elevator;
     private Arm arm;
     private SS ss;
+    private Climb climb;
     private boolean lastState = false;
 
     private ControlScheme scheme;
@@ -123,6 +125,7 @@ public class Robot extends LoggedRobot {
         elevator = Elevator.getInstance();
         arm = Arm.getInstance();
         ss = SS.getInstance();
+        climb = Climb.getInstance();
         // Check for valid swerve config
         var modules = new SwerveModuleConstants[] {
                 TunerConstants.FrontLeft,
@@ -167,6 +170,7 @@ public class Robot extends LoggedRobot {
         elevator.periodic();
         arm.periodic(); 
         ss.periodic();
+        climb.periodic();
         PerfTracker.periodic();
         Threads.setCurrentThreadPriority(false, 10);
     }

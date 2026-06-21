@@ -5,6 +5,8 @@ import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import frc.robot.subsystems.StateMachineSubsystemBase;
 import frc.robot.subsystems.arm.Arm;
+import frc.robot.subsystems.climb.Climb;
+import frc.robot.subsystems.climb.ClimbStates;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.PathingOverride;
 import frc.robot.subsystems.elevator.Elevator;
@@ -38,6 +40,7 @@ public class SS extends StateMachineSubsystemBase<InternalState> {
 
     private static Elevator elevator;
     private static Arm arm;
+    private static Climb climb;
     
     private SS() {
         super("SS");
@@ -50,6 +53,7 @@ public class SS extends StateMachineSubsystemBase<InternalState> {
         drive = Drive.getInstance();
         elevator = Elevator.getInstance();
         arm = Arm.getInstance();
+        climb = Climb.getInstance();
     }
 
     @Override
@@ -99,6 +103,9 @@ public class SS extends StateMachineSubsystemBase<InternalState> {
                 elevator.setCoralLevel(2);
             case SCORE4:
                 elevator.setCoralLevel(3);
+            case CLIMBING:
+                climb.queueState(ClimbStates.STRETCHING);
+
             default:
                 unimplementedStateAlert.set(true);
                 break;
