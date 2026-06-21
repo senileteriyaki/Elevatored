@@ -6,7 +6,6 @@ import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.util.Color8Bit;
 import frc.robot.Constants;
 import frc.robot.Constants.ClimberConstants;
-import frc.robot.Constants.ElevatorConstants;
 import frc.robot.subsystems.StateMachineSubsystemBase;
 
 public class Climb extends StateMachineSubsystemBase<ClimbStates> {
