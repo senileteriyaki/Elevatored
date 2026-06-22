@@ -25,6 +25,7 @@ import frc.robot.subsystems.climb.Climb;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.tracking.Tracking;
+import frc.robot.subsystems.vision.Vision;
 import frc.robot.superstructure.SS;
 import frc.robot.util.MTimer;
 
@@ -49,6 +50,7 @@ import com.ctre.phoenix6.swerve.SwerveModuleConstants.SteerMotorArrangement;
 public class Robot extends LoggedRobot {
 
     private Drive drive;
+    private Vision vision;
     private Tracking tracking;
     private Elevator elevator;
     private Arm arm;
@@ -126,6 +128,8 @@ public class Robot extends LoggedRobot {
         arm = Arm.getInstance();
         ss = SS.getInstance();
         climb = Climb.getInstance();
+        vision = Vision.getInstance();
+        vision.setPipeline(0);
         // Check for valid swerve config
         var modules = new SwerveModuleConstants[] {
                 TunerConstants.FrontLeft,
@@ -171,6 +175,8 @@ public class Robot extends LoggedRobot {
         arm.periodic(); 
         ss.periodic();
         climb.periodic();
+        vision.periodic();
+        drive.updatePoseEstimate(vision);
         PerfTracker.periodic();
         Threads.setCurrentThreadPriority(false, 10);
     }

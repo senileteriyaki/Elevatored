@@ -35,6 +35,10 @@ import frc.robot.Constants.Mode;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.StateMachineSubsystemBase;
 import frc.robot.subsystems.tracking.Tracking;
+import frc.robot.subsystems.vision.PoseFilter;
+import frc.robot.subsystems.vision.Vision;
+import frc.robot.subsystems.vision.PoseFilter.UncertainPose;
+import frc.robot.subsystems.vision.PoseFilter.Uncertainty;
 import frc.robot.util.ChassisAcceleration;
 import frc.robot.util.Util;
 import java.util.concurrent.locks.Lock;
@@ -140,7 +144,7 @@ public class Drive extends StateMachineSubsystemBase<PathingMode> {
     private ChassisSpeeds lastSpeeds;
     private ChassisSpeeds measuredAcc;
     private PathingOverride override;
-
+    
     private ChassisSpeeds autoSpeeds = new ChassisSpeeds();
 
     private PoseFollower poseFollower = new PoseFollower(new Pose2d(), 2.5);
@@ -155,7 +159,8 @@ public class Drive extends StateMachineSubsystemBase<PathingMode> {
     private final Module[] modules = new Module[4]; // FL, FR, BL, BR
     private final Alert gyroDisconnectedAlert = new Alert("Disconnected gyro, using kinematics as fallback.",
             AlertType.kError);
-
+    private final PoseFilter poseFilter;
+    private Pose2d filteredPose;
     private SwerveDriveKinematics kinematics = new SwerveDriveKinematics(getModuleTranslations());
     private Rotation2d rawGyroRotation = new Rotation2d();
     private SwerveModulePosition[] lastModulePositions = // For delta tracking
@@ -191,6 +196,8 @@ public class Drive extends StateMachineSubsystemBase<PathingMode> {
         measuredAcc = new ChassisSpeeds();
         override = PathingOverride.NONE;
         gyroIO.zero();
+        poseFilter = new PoseFilter();
+        filteredPose = new Pose2d();
         queueState(PathingMode.DISABLED);
     }
 
@@ -615,5 +622,22 @@ public class Drive extends StateMachineSubsystemBase<PathingMode> {
                 new Translation2d(i2m * TunerConstants.BackRight.LocationX,
                         i2m * TunerConstants.BackRight.LocationY)
         };
+    }
+
+        public void updatePoseEstimate(Vision vision) {
+            poseFilter.pushMeasurement(poseEstimator.getEstimatedPosition(), new Uncertainty(0.1, 2.0));
+            if (vision.hasNewPose() && vision.hasTarget()) {
+                Pose2d visionPose = vision.getLatestPose();
+                double visionConfidence = vision.getConfidence();
+                double transUnc = 0.25 / (visionConfidence + 0.1);
+                double rotUnc = 3.0 / (visionConfidence + 0.1);
+                poseFilter.pushMeasurement(visionPose, new Uncertainty(transUnc, rotUnc));
+            }
+            UncertainPose filtered = poseFilter.filter();
+            if (vision.hasNewPose() && vision.hasTarget()) {
+                filteredPose = new Pose2d(filtered.pose().getX(), filtered.pose().getY(), getRotation());
+                poseEstimator.resetPosition(rawGyroRotation, getModulePositions(), filteredPose);
+            }
+            Logger.recordOutput("Vision/FilteredPose", filteredPose);
     }
 }
