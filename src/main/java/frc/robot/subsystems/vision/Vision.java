@@ -1,6 +1,8 @@
 package frc.robot.subsystems.vision;
 
 import org.littletonrobotics.junction.Logger;
+
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
@@ -130,7 +132,7 @@ public class Vision {
     /**
      * Convenience method to get the latest pose as a Pose2d.
      */
-    public edu.wpi.first.math.geometry.Pose2d getLatestPose2d() {
+    public Pose2d getLatestPose2d() {
         if (inputs.poseObservations.length > 0) {
             return inputs.poseObservations[0].pose().toPose2d();
         }
@@ -139,5 +141,9 @@ public class Vision {
 
     public void setPipeline(int index) {
         io.setPipeline(index);
+    }
+
+    public void getClosestReefFace(){
+
     }
 }
