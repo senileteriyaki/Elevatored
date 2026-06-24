@@ -35,6 +35,8 @@ import frc.robot.Constants.Mode;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.StateMachineSubsystemBase;
 import frc.robot.subsystems.tracking.Tracking;
+import frc.robot.subsystems.vision.LimelightHelpers;
+import frc.robot.subsystems.vision.LimelightHelpers.RawFiducial;
 import frc.robot.subsystems.vision.PoseFilter;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.PoseFilter.UncertainPose;
@@ -52,6 +54,7 @@ public class Drive extends StateMachineSubsystemBase<PathingMode> {
 
     private static Drive instance;
     // private final Vision vision;
+    public static Tracking tracking;
 
     // Constraints
     public static final double ODOMETRY_FREQUENCY_Hz = new CANBus(TunerConstants.DrivetrainConstants.CANBusName)
@@ -86,7 +89,6 @@ public class Drive extends StateMachineSubsystemBase<PathingMode> {
     public static final double MIN_TILT_XPOS_ACC_mps2 = 20, MIN_TILT_XNEG_ACC_mps2 = 20;
     public static final double MIN_TILT_YPOS_ACC_mps2 = 20, MIN_TILT_YNEG_ACC_mps2 = 20;
     public static final double MAX_SKID_ACC_mps2 = 90;
-
     public double hpRotTarget = 0;
 
     static final Lock odometryLock = new ReentrantLock();
@@ -292,7 +294,7 @@ public class Drive extends StateMachineSubsystemBase<PathingMode> {
 
                 switch (override) {
                     case TRACKING:
-                        break;
+                        inputSpeeds = tracking.getTrackingSpeeds(getRotation().getDegrees());
                     case BASELOCK:
                         break;
                     case INTAKING:
@@ -300,7 +302,7 @@ public class Drive extends StateMachineSubsystemBase<PathingMode> {
                     case NONE:
                         break;
                     case SHOOTING:
-                        ChassisSpeeds trackingSpeeds = (Tracking.getInstance()
+                        ChassisSpeeds trackingSpeeds = (tracking
                                 .getTrackingSpeeds(getRotation().getDegrees()));
                         inputSpeeds = inputSpeeds.plus(trackingSpeeds);
                         Logger.recordOutput("Tracking/Shooter/Speeds", inputSpeeds);
@@ -315,7 +317,7 @@ public class Drive extends StateMachineSubsystemBase<PathingMode> {
                 inputSpeeds = poseFollower.process();
                 break;
             case TRACKING:
-                inputSpeeds = Tracking.getInstance().getTrackingSpeeds(getRotation().getDegrees(), 720);
+                inputSpeeds = tracking.getTrackingSpeeds(getRotation().getDegrees(), 720);
                 Logger.recordOutput("Tracking/Speeds", inputSpeeds);
                 break;
             default:
@@ -597,6 +599,56 @@ public class Drive extends StateMachineSubsystemBase<PathingMode> {
     public void setTargetPose(Pose2d tPose, double maxVel, double translate_kp, double rotate_kP) {
         this.targetPose = tPose;
         this.poseFollower.setParams(tPose, maxVel, translate_kp, rotate_kP);
+    }
+
+    /**
+     * Select the closest AprilTag reported by the Limelight and begin tracking it.
+     */
+    public void followClosestAprilTag() {
+        // Ask the Limelight helper for raw fiducials (contains per-tag
+        // distance-to-robot)
+        LimelightHelpers.RawFiducial[] raw = LimelightHelpers.getRawFiducials("limelight-mvrt");
+        if (raw == null || raw.length == 0) {
+            Logger.recordOutput("Drive/FollowClosestAprilTag", "No fiducials");
+            return;
+        }
+
+        LimelightHelpers.RawFiducial best = raw[0];
+        for (int i = 1; i < raw.length; i++) {
+            if (raw[i].distToRobot < best.distToRobot) {
+                best = raw[i];
+            }
+        }
+
+        // Set the tracking subsystem to only consider the chosen fiducial ID, then
+        // enable tracking override
+        int id = best.id;
+        tracking.setValidIds(new double[] { (double) id });
+        setPathingOverride(PathingOverride.TRACKING);
+        Logger.recordOutput("Drive/FollowClosestAprilTag/SelectedId", id);
+    }
+
+    public void followClosestReefTag() {
+        RawFiducial[] raw = LimelightHelpers.getRawFiducials("limelight-mvrt");
+
+        RawFiducial best = raw[6];
+        for (int i = 6; i < 12; i++) {
+            if (raw[i].distToRobot < best.distToRobot) {
+                best = raw[i];
+            }
+        }
+
+        double[] id = {(double) best.id};
+        tracking.setValidIds(id);
+        setPathingOverride(PathingOverride.TRACKING);
+
+    }
+
+    /** Stop following any specific AprilTag and return to normal driving. */
+    public void stopFollowingAprilTag() {
+        tracking.setValidIds(new double[0]);
+        setPathingOverride(PathingOverride.NONE);
+        Logger.recordOutput("Drive/FollowClosestAprilTag/SelectedId", -1);
     }
 
     public PathingOverride getOverride() {

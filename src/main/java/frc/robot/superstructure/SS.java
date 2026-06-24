@@ -10,6 +10,7 @@ import frc.robot.subsystems.climb.ClimbStates;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.PathingOverride;
 import frc.robot.subsystems.elevator.Elevator;
+import frc.robot.subsystems.tracking.Tracking;
 import frc.robot.util.MTimer;
 import frc.robot.superstructure.InternalState;
 
@@ -42,7 +43,8 @@ public class SS extends StateMachineSubsystemBase<InternalState> {
     private static Elevator elevator;
     private static Arm arm;
     private static Climb climb;
-    
+    private static Tracking tracking;
+
     private SS() {
         super("SS");
         intention = Intention.IDLE;
@@ -55,6 +57,7 @@ public class SS extends StateMachineSubsystemBase<InternalState> {
         elevator = Elevator.getInstance();
         arm = Arm.getInstance();
         climb = Climb.getInstance();
+        tracking = Tracking.getInstance();
     }
 
     @Override
