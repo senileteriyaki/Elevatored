@@ -13,6 +13,8 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.RobotController;
@@ -222,6 +224,7 @@ public class Robot extends LoggedRobot {
     @Override
     public void teleopInit() {
         scheme.init();
+        drive.setPose(new Pose2d(7.4, 4, Rotation2d.k180deg));                //just set a random location for now
     }
 
     /** This function is called periodically during operator control. */
@@ -253,5 +256,6 @@ public class Robot extends LoggedRobot {
     @Override
     public void simulationPeriodic() {
         // drive.updateSimulationField();
+        vision.update();
     }
 }

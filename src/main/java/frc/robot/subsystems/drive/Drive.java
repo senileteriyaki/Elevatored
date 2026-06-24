@@ -17,8 +17,11 @@ import com.ctre.phoenix6.CANBus;
 import edu.wpi.first.hal.FRCNetComm.tInstances;
 import edu.wpi.first.hal.FRCNetComm.tResourceType;
 import edu.wpi.first.hal.HAL;
+import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Twist2d;
@@ -53,7 +56,7 @@ public class Drive extends StateMachineSubsystemBase<PathingMode> {
     // TunerConstants doesn't include these constants, so they are declared locally
 
     private static Drive instance;
-    // private final Vision vision;
+    private final Vision vision;
     public static Tracking tracking;
 
     // Constraints
@@ -90,6 +93,8 @@ public class Drive extends StateMachineSubsystemBase<PathingMode> {
     public static final double MIN_TILT_YPOS_ACC_mps2 = 20, MIN_TILT_YNEG_ACC_mps2 = 20;
     public static final double MAX_SKID_ACC_mps2 = 90;
     public double hpRotTarget = 0;
+    public static final PIDController xController = new PIDController(0.2, 0, 0);
+    public static final PIDController yController = new PIDController(0.2, 0, 0);
 
     static final Lock odometryLock = new ReentrantLock();
 
@@ -197,7 +202,11 @@ public class Drive extends StateMachineSubsystemBase<PathingMode> {
         gyroIO.zero();
         poseFilter = new PoseFilter();
         filteredPose = new Pose2d();
+        vision = Vision.getInstance();
         queueState(PathingMode.DISABLED);
+
+        xController.setTolerance(1);
+        yController.setTolerance(1);
     }
 
     @Override
@@ -294,7 +303,8 @@ public class Drive extends StateMachineSubsystemBase<PathingMode> {
 
                 switch (override) {
                     case TRACKING:
-                        inputSpeeds = tracking.getTrackingSpeeds(getRotation().getDegrees());
+                        inputSpeeds = calculateTracking(vision.getTargetX(), vision.getTargetY());
+                        break;
                     case BASELOCK:
                         break;
                     case INTAKING:
@@ -601,55 +611,7 @@ public class Drive extends StateMachineSubsystemBase<PathingMode> {
         this.poseFollower.setParams(tPose, maxVel, translate_kp, rotate_kP);
     }
 
-    /**
-     * Select the closest AprilTag reported by the Limelight and begin tracking it.
-     */
-    public void followClosestAprilTag() {
-        // Ask the Limelight helper for raw fiducials (contains per-tag
-        // distance-to-robot)
-        LimelightHelpers.RawFiducial[] raw = LimelightHelpers.getRawFiducials("limelight-mvrt");
-        if (raw == null || raw.length == 0) {
-            Logger.recordOutput("Drive/FollowClosestAprilTag", "No fiducials");
-            return;
-        }
-
-        LimelightHelpers.RawFiducial best = raw[0];
-        for (int i = 1; i < raw.length; i++) {
-            if (raw[i].distToRobot < best.distToRobot) {
-                best = raw[i];
-            }
-        }
-
-        // Set the tracking subsystem to only consider the chosen fiducial ID, then
-        // enable tracking override
-        int id = best.id;
-        tracking.setValidIds(new double[] { (double) id });
-        setPathingOverride(PathingOverride.TRACKING);
-        Logger.recordOutput("Drive/FollowClosestAprilTag/SelectedId", id);
-    }
-
-    public void followClosestReefTag() {
-        RawFiducial[] raw = LimelightHelpers.getRawFiducials("limelight-mvrt");
-
-        RawFiducial best = raw[6];
-        for (int i = 6; i < 12; i++) {
-            if (raw[i].distToRobot < best.distToRobot) {
-                best = raw[i];
-            }
-        }
-
-        double[] id = {(double) best.id};
-        tracking.setValidIds(id);
-        setPathingOverride(PathingOverride.TRACKING);
-
-    }
-
-    /** Stop following any specific AprilTag and return to normal driving. */
-    public void stopFollowingAprilTag() {
-        tracking.setValidIds(new double[0]);
-        setPathingOverride(PathingOverride.NONE);
-        Logger.recordOutput("Drive/FollowClosestAprilTag/SelectedId", -1);
-    }
+  
 
     public PathingOverride getOverride() {
         return override;
@@ -670,20 +632,40 @@ public class Drive extends StateMachineSubsystemBase<PathingMode> {
         };
     }
 
-    public void updatePoseEstimate(Vision vision) {
+    public void updatePoseEstimate(Vision vVision) {
         poseFilter.pushMeasurement(poseEstimator.getEstimatedPosition(), new Uncertainty(0.1, 2.0));
-        if (vision.hasNewPose() && vision.hasTarget()) {
-            Pose2d visionPose = vision.getLatestPose();
-            double visionConfidence = vision.getConfidence();
-            double transUnc = 0.25 / (visionConfidence + 0.1);
-            double rotUnc = 3.0 / (visionConfidence + 0.1);
-            poseFilter.pushMeasurement(visionPose, new Uncertainty(transUnc, rotUnc));
+        if (vVision.hasNewPose() && vVision.hasTarget()) {
+            Pose2d vVisionPose = vVision.getLatestPose();
+            double vVisionConfidence = vVision.getConfidence();
+            double transUnc = 0.25 / (vVisionConfidence + 0.1);
+            double rotUnc = 3.0 / (vVisionConfidence + 0.1);
+            poseFilter.pushMeasurement(vVisionPose, new Uncertainty(transUnc, rotUnc));
         }
         UncertainPose filtered = poseFilter.filter();
-        if (vision.hasNewPose() && vision.hasTarget()) {
+        if (vVision.hasNewPose() && vVision.hasTarget()) {
             filteredPose = new Pose2d(filtered.pose().getX(), filtered.pose().getY(), getRotation());
             poseEstimator.resetPosition(rawGyroRotation, getModulePositions(), filteredPose);
         }
         Logger.recordOutput("Vision/FilteredPose", filteredPose);
+    }
+    
+    public ChassisSpeeds calculateTracking(double targetXDegrees, double targetYDegrees) {
+
+        double omega = -xController.calculate(targetXDegrees, 20); //random value
+
+        double vx = yController.calculate(targetYDegrees, 0.0);
+
+        // Optional limits
+        omega = MathUtil.clamp(omega, -3.0, 3.0); // rad/s
+        vx = MathUtil.clamp(vx, -2.0, 2.0);       // m/s
+
+        return new ChassisSpeeds(
+                vx,
+                0.0,
+                omega);
+    }
+
+    public boolean finishedTracking(){
+        return xController.atSetpoint() && yController.atSetpoint();
     }
 }

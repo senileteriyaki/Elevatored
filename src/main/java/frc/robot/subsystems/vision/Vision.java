@@ -26,6 +26,7 @@ public class Vision {
             // new Transform3d(new Translation3d(0.16, -0.162, 0.45), new Rotation3d(0, Units.degreesToRadians(20), 0));
 
     new Transform3d(new Translation3d(0.0889, -0.2794, 0.4445), new Rotation3d(0, Units.degreesToRadians(20), 0));
+
     public static Vision getInstance() {
         if (instance == null) {
             switch (Constants.currentMode) {
@@ -145,5 +146,9 @@ public class Vision {
 
     public void getClosestReefFace(){
 
+    }
+
+    public void update(){
+        io.updatePose(Drive.getInstance().getPose());
     }
 }
