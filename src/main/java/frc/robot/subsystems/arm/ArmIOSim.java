@@ -27,11 +27,12 @@ public class ArmIOSim implements ArmIO{
                                    1.5, 0.2, ArmConstants.minAngle, 
                                    ArmConstants.maxAngle, true, 0, 0.1, 0);
         this.elbowPID = new PIDController(ArmConstants.elbowKP, ArmConstants.elbowKI, ArmConstants.elbowKD);
-
+        elbowPID.setTolerance(0.05);
         this.shoulderSim = new SingleJointedArmSim(DCMotor.getKrakenX60(2), 151, 
                                    1.5, 0.2, ArmConstants.minAngle, 
                                    ArmConstants.maxAngle, true, 0, 0.1, 0);
         this.shoulderPID = new PIDController(ArmConstants.shoulderKP, ArmConstants.shoulderKI, ArmConstants.shoulderKD);
+        shoulderPID.setTolerance(0.05);
         this.elbowVoltsApplied = this.shoulderVoltsApplied = 0;
         this.elbowTarget = this.shoulderTarget = ArmConstants.minAngle;
     }

@@ -652,8 +652,9 @@ public class Drive extends StateMachineSubsystemBase<PathingMode> {
     public ChassisSpeeds calculateTracking(double targetXDegrees, double targetYDegrees) {
 
         double omega = -xController.calculate(targetXDegrees, 20); //random value
-
-        double vx = yController.calculate(targetYDegrees, 0.0);
+        //double omega = 0;
+        double vx = -yController.calculate(targetYDegrees, 0.0);
+        //double vx = 0;
 
         // Optional limits
         omega = MathUtil.clamp(omega, -3.0, 3.0); // rad/s

@@ -21,6 +21,7 @@ public class ElevatorIOSim implements ElevatorIO{
                                    ElevatorConstants.maxHeight, true, 0, 0.1, 0);
 
         this.controller = new PIDController(ElevatorConstants.kP, ElevatorConstants.kI, ElevatorConstants.kD);
+        controller.setTolerance(0.05);
         this.targetHeight = ElevatorConstants.minHeight;
     }
     

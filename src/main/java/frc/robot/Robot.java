@@ -28,6 +28,7 @@ import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.tracking.Tracking;
 import frc.robot.subsystems.vision.Vision;
+import frc.robot.superstructure.Intention;
 import frc.robot.superstructure.SS;
 import frc.robot.util.MTimer;
 
@@ -225,6 +226,7 @@ public class Robot extends LoggedRobot {
     public void teleopInit() {
         scheme.init();
         drive.setPose(new Pose2d(7.4, 4, Rotation2d.k180deg));                //just set a random location for now
+        ss.intend(Intention.SCORE);
     }
 
     /** This function is called periodically during operator control. */

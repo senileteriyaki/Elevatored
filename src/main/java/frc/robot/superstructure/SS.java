@@ -114,6 +114,7 @@ public class SS extends StateMachineSubsystemBase<InternalState> {
             queueState(InternalState.BOOT);
         }
 
+        queueState(defaultIntentionHandling());
         handleIntention();
 
         switch (getState()) {
@@ -163,6 +164,14 @@ public class SS extends StateMachineSubsystemBase<InternalState> {
         Logger.recordOutput("SS/Booted?", booted);
         Logger.recordOutput("SS/Intention", intention);
         elevator.setArmLigament(arm.getElbowPos()); //hella sus design pattern but whatever
+    }
+
+    public void intend(Intention i) {
+        intention = i;
+    }
+
+    public void setReef(int l) {
+        coralLevel = l;
     }
 
 }

@@ -21,7 +21,6 @@ public class Elevator extends StateMachineSubsystemBase<ElevatorStates> {
         target = ElevatorConstants.minHeight;
         queueState(ElevatorStates.IDLE);
         elevator2d = new Elevator2D("elevator", new Color8Bit(Color.kLavender), new Color8Bit(Color.kDarkOrange));
-        //for testing
     }
 
     public static Elevator getInstance(){
