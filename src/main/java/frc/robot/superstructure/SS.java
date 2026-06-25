@@ -44,7 +44,6 @@ public class SS extends StateMachineSubsystemBase<InternalState> {
     private static Drive drive;
     private static Arm arm;
     private static Elevator elevator;
-    private static Arm arm;
     private static Climb climb;
     private static Tracking tracking;
     private static Vision vision;
