@@ -19,7 +19,6 @@ public class ControlScheme implements IPeriodic {
     public ControlScheme() {
         super();
         drive = Drive.getInstance();
-        elevator = Elevator.getInstance();
     }
 
     public void init() {
@@ -37,9 +36,7 @@ public class ControlScheme implements IPeriodic {
             mult = -0.7;
         }
 
-        if (OI.DR.getXButtonPressed()){
-            elevator.setCoralLevel(3);
-        }
+
         // if (OI.DR.getRightTriggerAxis() >= 0.8) {
         //     // drive.queueState(PathingMode.TRACKING);
         //     drive.setPathingOverride(PathingOverride.SHOOTING);
