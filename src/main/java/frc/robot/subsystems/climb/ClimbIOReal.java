@@ -1,4 +1,4 @@
-package frc.robot.subsystems.elevator;
+package frc.robot.subsystems.climb;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
@@ -6,19 +6,23 @@ import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
+import com.ctre.phoenix6.signals.MotorAlignmentValue;
+import com.ctre.phoenix6.controls.Follower;
 
 import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
-import frc.robot.Constants;
-import frc.robot.Constants.ElevatorConstants;
+import frc.robot.Constants.ClimberConstants;
+import frc.robot.util.PhoenixUtil;
 
-public class ElevatorIOReal implements ElevatorIO{
+public class ClimbIOReal implements ClimbIO{
+    private TalonFX left = new TalonFX(7); //as lead
+    private TalonFX right = new TalonFX(8);
 
-    private TalonFX elevatorMotor = new TalonFX(1);
     private final MotionMagicVoltage request;
+
     private final StatusSignal<Voltage> volts;
     private final StatusSignal<Angle> pos;
     private final StatusSignal<Current> amps;
@@ -26,25 +30,26 @@ public class ElevatorIOReal implements ElevatorIO{
     private final ElevatorFeedforward ff;
     private double ffVoltage;
 
-    public ElevatorIOReal(){
+    public ClimbIOReal(){
         TalonFXConfiguration config = new TalonFXConfiguration();
-        request = new MotionMagicVoltage(ElevatorConstants.minHeight);
+        request = new MotionMagicVoltage(ClimberConstants.stowAngle);
         ff = new ElevatorFeedforward(0, 0, 0, 0);
 
-        config.Feedback.SensorToMechanismRatio = 1/(2*Math.PI*Constants.ElevatorConstants.drumRadius); 
         config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
-        volts = elevatorMotor.getMotorVoltage();
-        pos = elevatorMotor.getPosition();
-        amps = elevatorMotor.getStatorCurrent();
-        vel = elevatorMotor.getVelocity();
+        volts = left.getMotorVoltage();
+        pos = left.getPosition();
+        amps = left.getStatorCurrent();
+        vel = left.getVelocity();
         
         // [imagine I actually had values to config the motor]
 
-        frc.robot.util.PhoenixUtil.tryUntilOk(5, () -> elevatorMotor.getConfigurator().apply(config));
+        PhoenixUtil.tryUntilOk(5, () -> left.getConfigurator().apply(config));
+        PhoenixUtil.tryUntilOk(5, () -> right.getConfigurator().apply(config));
+        right.setControl(new Follower(left.getDeviceID(), MotorAlignmentValue.Aligned));
     }
 
-    public void updateInputs(ElevatorIOInputs inputs){
+    public void updateInputs(ClimbIOInputs inputs){
         BaseStatusSignal.refreshAll(volts, amps, pos, vel);
         
         inputs.volts = volts.getValueAsDouble();
@@ -52,17 +57,17 @@ public class ElevatorIOReal implements ElevatorIO{
         inputs.pos = pos.getValueAsDouble() * 360;
         inputs.vel = vel.getValueAsDouble() * 360;
     }
-    
+
     @Override
     public void setVoltage(double voltage){
         ffVoltage = ff.calculate(0);
-        elevatorMotor.setVoltage(voltage + ffVoltage);
+        left.setVoltage(voltage + ffVoltage);
     }
 
     @Override
     public void goToPos(double pos){
         ffVoltage = ff.calculate(0);
-        elevatorMotor.setControl(request
+        left.setControl(request
             .withPosition(pos)
             .withFeedForward(ffVoltage));
     }
@@ -70,14 +75,15 @@ public class ElevatorIOReal implements ElevatorIO{
     @Override
     public void hold(double pos){
         ffVoltage = ff.calculate(0);
-        elevatorMotor.setControl(request
+        left.setControl(request
             .withPosition(pos)
             .withFeedForward(ffVoltage));
     }
 
     @Override
     public void stop(){
-        elevatorMotor.stopMotor();
+        left.stopMotor();
+        right.stopMotor();
     }
-    
+
 }

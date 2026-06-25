@@ -5,5 +5,11 @@ import frc.robot.util.IState;
 public enum InternalState implements IState{
     IDLE,
     DISABLED,
-    BOOT
+    BOOT,
+    SCORE1,
+    SCORE2,
+    SCORE3,
+    SCORE4,
+    CLIMBING,
+    PRESCORE
 }

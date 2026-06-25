@@ -5,6 +5,7 @@ import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.InvertedValue;
 
 import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.units.measure.Angle;
@@ -52,9 +53,11 @@ public class ArmIOReal implements ArmIO{
         shoulderAmps = shoulderMotor.getStatorCurrent();
 
         // NOTE: Apply motor configs here
+        elbowConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+        shoulderConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
-        elbowMotor.getConfigurator().apply(elbowConfig);
-        shoulderMotor.getConfigurator().apply(shoulderConfig);
+    frc.robot.util.PhoenixUtil.tryUntilOk(5, () -> elbowMotor.getConfigurator().apply(elbowConfig));
+    frc.robot.util.PhoenixUtil.tryUntilOk(5, () -> shoulderMotor.getConfigurator().apply(shoulderConfig));
     }
 
     @Override
@@ -108,11 +111,11 @@ public class ArmIOReal implements ArmIO{
 
     @Override
     public void stopElbow(){
-        setElbowVoltage(0);
+        elbowMotor.stopMotor();
     }
 
     @Override
     public void stopShoulder() {
-        setShoulderVoltage(0);
+        shoulderMotor.stopMotor();
     }
 }

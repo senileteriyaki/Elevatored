@@ -6,15 +6,16 @@ import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.PathingMode;
 import frc.robot.subsystems.drive.PathingOverride;
 import frc.robot.subsystems.drive.SwerveInput;
-import frc.robot.subsystems.elevator.Elevator;
+import frc.robot.superstructure.Intention;
+import frc.robot.superstructure.SS;
 import frc.robot.util.IPeriodic;
 import frc.robot.util.Util;
 
 public class ControlScheme implements IPeriodic {
 
     protected Drive drive;
-    protected Elevator elevator;    
-
+    private SS ss;
+    
     public ControlScheme() {
         super();
         drive = Drive.getInstance();
@@ -63,6 +64,16 @@ public class ControlScheme implements IPeriodic {
         }
 
         if (OI.DR.getAButtonReleased()) {
+        }
+
+        if (OI.DR.getYButtonPressed()) {
+            ss.setReef(2);
+            ss.intend(Intention.SCORE);
+        }
+
+        if (OI.DR.getXButtonPressed()) {
+            ss.setReef(3);
+            ss.intend(Intention.SCORE);
         }
     }
 }

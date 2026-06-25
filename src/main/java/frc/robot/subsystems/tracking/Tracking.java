@@ -244,6 +244,7 @@ public class Tracking extends StateMachineSubsystemBase<TrackingStates> {
       // }
       return new ChassisSpeeds(0,0,rotSpeed);
   }
+
   public boolean hasTarget() {
     return inputs.tv == 1;
   }

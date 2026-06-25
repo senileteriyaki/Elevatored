@@ -17,8 +17,11 @@ import com.ctre.phoenix6.CANBus;
 import edu.wpi.first.hal.FRCNetComm.tInstances;
 import edu.wpi.first.hal.FRCNetComm.tResourceType;
 import edu.wpi.first.hal.HAL;
+import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Twist2d;
@@ -35,6 +38,12 @@ import frc.robot.Constants.Mode;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.StateMachineSubsystemBase;
 import frc.robot.subsystems.tracking.Tracking;
+import frc.robot.subsystems.vision.LimelightHelpers;
+import frc.robot.subsystems.vision.LimelightHelpers.RawFiducial;
+import frc.robot.subsystems.vision.PoseFilter;
+import frc.robot.subsystems.vision.Vision;
+import frc.robot.subsystems.vision.PoseFilter.UncertainPose;
+import frc.robot.subsystems.vision.PoseFilter.Uncertainty;
 import frc.robot.util.ChassisAcceleration;
 import frc.robot.util.Util;
 import java.util.concurrent.locks.Lock;
@@ -47,7 +56,8 @@ public class Drive extends StateMachineSubsystemBase<PathingMode> {
     // TunerConstants doesn't include these constants, so they are declared locally
 
     private static Drive instance;
-    // private final Vision vision;
+    private final Vision vision;
+    public static Tracking tracking;
 
     // Constraints
     public static final double ODOMETRY_FREQUENCY_Hz = new CANBus(TunerConstants.DrivetrainConstants.CANBusName)
@@ -69,7 +79,7 @@ public class Drive extends StateMachineSubsystemBase<PathingMode> {
 
     public static final double MAX_VOLTAGE_V = 12.0;
     public static final double MAX_LINEAR_VEL_mps = 4.8; // TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); //
-                                                       // 4.483;
+                                                         // 4.483;
     public static final double MAX_LINEAR_VEL_CONTROLLED_mps = 4.8; // 4
     public static final double MAX_LINEAR_VEL_THROTTLED_mps = 3.5;
     public static final double MAX_ANGULAR_VEL_radps = (MAX_LINEAR_VEL_mps / DRIVE_BASE_RADIUS_m);
@@ -82,12 +92,11 @@ public class Drive extends StateMachineSubsystemBase<PathingMode> {
     public static final double MIN_TILT_XPOS_ACC_mps2 = 20, MIN_TILT_XNEG_ACC_mps2 = 20;
     public static final double MIN_TILT_YPOS_ACC_mps2 = 20, MIN_TILT_YNEG_ACC_mps2 = 20;
     public static final double MAX_SKID_ACC_mps2 = 90;
-
     public double hpRotTarget = 0;
+    public static final PIDController xController = new PIDController(0.2, 0, 0);
+    public static final PIDController yController = new PIDController(0.2, 0, 0);
 
     static final Lock odometryLock = new ReentrantLock();
-
-
 
     public static Drive getInstance() {
         if (instance == null) {
@@ -147,7 +156,6 @@ public class Drive extends StateMachineSubsystemBase<PathingMode> {
 
     private Pose2d targetPose = new Pose2d();
 
-
     private boolean braked = true;
 
     private final GyroIO gyroIO;
@@ -155,7 +163,8 @@ public class Drive extends StateMachineSubsystemBase<PathingMode> {
     private final Module[] modules = new Module[4]; // FL, FR, BL, BR
     private final Alert gyroDisconnectedAlert = new Alert("Disconnected gyro, using kinematics as fallback.",
             AlertType.kError);
-
+    private final PoseFilter poseFilter;
+    private Pose2d filteredPose;
     private SwerveDriveKinematics kinematics = new SwerveDriveKinematics(getModuleTranslations());
     private Rotation2d rawGyroRotation = new Rotation2d();
     private SwerveModulePosition[] lastModulePositions = // For delta tracking
@@ -191,7 +200,13 @@ public class Drive extends StateMachineSubsystemBase<PathingMode> {
         measuredAcc = new ChassisSpeeds();
         override = PathingOverride.NONE;
         gyroIO.zero();
+        poseFilter = new PoseFilter();
+        filteredPose = new Pose2d();
+        vision = Vision.getInstance();
         queueState(PathingMode.DISABLED);
+
+        xController.setTolerance(3);
+        yController.setTolerance(3);
     }
 
     @Override
@@ -288,6 +303,7 @@ public class Drive extends StateMachineSubsystemBase<PathingMode> {
 
                 switch (override) {
                     case TRACKING:
+                        inputSpeeds = calculateTracking(vision.getTargetX(), vision.getTargetY());
                         break;
                     case BASELOCK:
                         break;
@@ -296,7 +312,8 @@ public class Drive extends StateMachineSubsystemBase<PathingMode> {
                     case NONE:
                         break;
                     case SHOOTING:
-                        ChassisSpeeds trackingSpeeds = (Tracking.getInstance().getTrackingSpeeds(getRotation().getDegrees()));
+                        ChassisSpeeds trackingSpeeds = (tracking
+                                .getTrackingSpeeds(getRotation().getDegrees()));
                         inputSpeeds = inputSpeeds.plus(trackingSpeeds);
                         Logger.recordOutput("Tracking/Shooter/Speeds", inputSpeeds);
 
@@ -310,7 +327,7 @@ public class Drive extends StateMachineSubsystemBase<PathingMode> {
                 inputSpeeds = poseFollower.process();
                 break;
             case TRACKING:
-                inputSpeeds = Tracking.getInstance().getTrackingSpeeds(getRotation().getDegrees(), 720);
+                inputSpeeds = tracking.getTrackingSpeeds(getRotation().getDegrees(), 720);
                 Logger.recordOutput("Tracking/Speeds", inputSpeeds);
                 break;
             default:
@@ -355,7 +372,6 @@ public class Drive extends StateMachineSubsystemBase<PathingMode> {
         double k = 1;
         return tx < tz * k && tz > -tz * k;
     }
-
 
     @Override
     public void outputPeriodic() {
@@ -421,7 +437,6 @@ public class Drive extends StateMachineSubsystemBase<PathingMode> {
         this.poseFollower = new PoseFollower(targetPose, maxSpeed);
     }
 
-
     public void toggleBrake() {
         for (var module : modules) {
             module.setBrakeMode(!braked);
@@ -479,9 +494,9 @@ public class Drive extends StateMachineSubsystemBase<PathingMode> {
     public ChassisSpeeds accLimitTilt(ChassisSpeeds in) {
         ChassisSpeeds res = in;
         // double h = (1.0 - target_bias) * Elevator.getInstance().getHeight()
-        //         + target_bias * Elevator.getInstance().getTargetHeight();
+        // + target_bias * Elevator.getInstance().getTargetHeight();
 
-        double alpha = 1.0; //Util.unlerp(Elevator.MAX_HEIGHT_m, Elevator.MIN_HEIGHT_m, h);
+        double alpha = 1.0; // Util.unlerp(Elevator.MAX_HEIGHT_m, Elevator.MIN_HEIGHT_m, h);
 
         double maxXPosAcc = Util.lerp(MIN_TILT_XPOS_ACC_mps2, MAX_TILT_XPOS_ACC_mps2, alpha);
         double maxXNegAcc = Util.lerp(MIN_TILT_XNEG_ACC_mps2, MAX_TILT_XNEG_ACC_mps2, alpha);
@@ -508,7 +523,6 @@ public class Drive extends StateMachineSubsystemBase<PathingMode> {
         return res;
     }
 
-
     /** Stops the drive. */
     public void stop() {
         setInput(new SwerveInput(0, 0, 0));
@@ -527,7 +541,6 @@ public class Drive extends StateMachineSubsystemBase<PathingMode> {
         kinematics.resetHeadings(headings);
         stop();
     }
-
 
     /**
      * Returns the module states (turn angles and drive velocities) for all of the
@@ -598,7 +611,9 @@ public class Drive extends StateMachineSubsystemBase<PathingMode> {
         this.poseFollower.setParams(tPose, maxVel, translate_kp, rotate_kP);
     }
 
-    public PathingOverride getOverride(){
+  
+
+    public PathingOverride getOverride() {
         return override;
     }
 
@@ -615,5 +630,50 @@ public class Drive extends StateMachineSubsystemBase<PathingMode> {
                 new Translation2d(i2m * TunerConstants.BackRight.LocationX,
                         i2m * TunerConstants.BackRight.LocationY)
         };
+    }
+
+    public void updatePoseEstimate(Vision vVision) {
+        poseFilter.pushMeasurement(poseEstimator.getEstimatedPosition(), new Uncertainty(0.1, 2.0));
+        if (vVision.hasNewPose() && vVision.hasTarget()) {
+            Pose2d vVisionPose = vVision.getLatestPose();
+            double vVisionConfidence = vVision.getConfidence();
+            double transUnc = 0.25 / (vVisionConfidence + 0.1);
+            double rotUnc = 3.0 / (vVisionConfidence + 0.1);
+            poseFilter.pushMeasurement(vVisionPose, new Uncertainty(transUnc, rotUnc));
+        }
+        UncertainPose filtered = poseFilter.filter();
+        if (vVision.hasNewPose() && vVision.hasTarget()) {
+            filteredPose = new Pose2d(filtered.pose().getX(), filtered.pose().getY(), getRotation());
+            poseEstimator.resetPosition(rawGyroRotation, getModulePositions(), filteredPose);
+        }
+        Logger.recordOutput("Vision/FilteredPose", filteredPose);
+    }
+    
+    public ChassisSpeeds calculateTracking(double targetXDegrees, double targetYDegrees) {
+
+        double omega = -xController.calculate(targetXDegrees, 20); //random value
+        //double omega = 0;
+        double vx = -yController.calculate(targetYDegrees, 0.0);
+        //double vx = 0;
+
+        // Optional limits
+        omega = MathUtil.clamp(omega, -3.0, 3.0); // rad/s
+        vx = MathUtil.clamp(vx, -2.0, 2.0);       // m/s
+        
+        Logger.recordOutput("Drive/track/", true);
+        return new ChassisSpeeds(
+                vx,
+                0.0,
+                omega);
+
+    }
+
+    public boolean finishedTracking(){
+        boolean isFinished = (xController.atSetpoint() && yController.atSetpoint());
+        if (isFinished){
+            Logger.recordOutput("Drive/track", false);
+            setPathingOverride(PathingOverride.NONE);
+        }
+        return isFinished; 
     }
 }

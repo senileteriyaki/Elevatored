@@ -13,14 +13,14 @@ public class Elevator extends StateMachineSubsystemBase<ElevatorStates> {
     private static Elevator instance;
     private double target;
     private final ElevatorIOInputsAutoLogged inputs = new ElevatorIOInputsAutoLogged();
-    private final Elevator2D elevator2d;
+    public final Elevator2D elevator2d;
 
     public Elevator(ElevatorIO io){
         super("elevator");
         this.io = io;
         target = ElevatorConstants.minHeight;
         queueState(ElevatorStates.IDLE);
-        this.elevator2d = new Elevator2D("elevator", new Color8Bit(Color.kGreenYellow));
+        elevator2d = new Elevator2D("elevator", new Color8Bit(Color.kLavender), new Color8Bit(Color.kDarkOrange));
     }
 
     public static Elevator getInstance(){
@@ -80,6 +80,12 @@ public class Elevator extends StateMachineSubsystemBase<ElevatorStates> {
     }
 
     public void setCoralLevel(int level){
-        setTarget(ElevatorConstants.levelHeights[level]);
+      setTarget(ElevatorConstants.levelHeights[level]);
+      queueState(ElevatorStates.TRAVELLING);
     }
+
+    public void setArmLigament(double deg){
+      elevator2d.setArm(deg);
+    }
+
 }

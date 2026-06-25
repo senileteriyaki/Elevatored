@@ -1,4 +1,4 @@
-package frc.robot.subsystems.elevator;
+package frc.robot.subsystems.climb;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
@@ -7,26 +7,25 @@ import edu.wpi.first.wpilibj.simulation.ElevatorSim;
 import frc.robot.Constants;
 import frc.robot.Constants.ElevatorConstants;
 
-public class ElevatorIOSim implements ElevatorIO{
+public class ClimbIOSim implements ClimbIO{
 
     private ElevatorSim sim;
     private PIDController controller;
 
-    private double targetHeight;
+    private double targetPos;
     private double volts;
 
-    public ElevatorIOSim(){
+    public ClimbIOSim(){
         this.sim = new ElevatorSim(DCMotor.getKrakenX60(1), 3, 
                                    5, 0.02, ElevatorConstants.minHeight, 
                                    ElevatorConstants.maxHeight, true, 0, 0.1, 0);
 
-        this.controller = new PIDController(ElevatorConstants.kP, ElevatorConstants.kI, ElevatorConstants.kD);
-        controller.setTolerance(0.05);
-        this.targetHeight = ElevatorConstants.minHeight;
+        this.controller = new PIDController(1.0, 0, 0);
+        this.targetPos = 0;
     }
     
     @Override
-    public void updateInputs(ElevatorIOInputs inputs){
+    public void updateInputs(ClimbIOInputs inputs){
         sim.update(Constants.globalDelta_s);
 
         inputs.volts = volts;
@@ -43,14 +42,14 @@ public class ElevatorIOSim implements ElevatorIO{
 
     @Override
     public void goToPos(double pos){
-       targetHeight = pos;
-       setVoltage(controller.calculate(sim.getPositionMeters(), targetHeight));
+       targetPos = pos;
+       setVoltage(controller.calculate(sim.getPositionMeters(), targetPos));
     }
 
     @Override
     public void hold(double pos){
-        targetHeight = pos;
-        setVoltage(controller.calculate(sim.getPositionMeters(), targetHeight));
+        targetPos = pos;
+        setVoltage(controller.calculate(sim.getPositionMeters(), targetPos));
     }
 
     @Override

@@ -80,8 +80,7 @@ public class Arm extends StateMachineSubsystemBase<ArmStates> {
     protected void outputPeriodic(){
       Logger.recordOutput("Arm/Elbow/targetAngleDegrees", elbowTarget);
       Logger.recordOutput("Arm/Shoulder/targetAngleDegrees", shoulderTarget);
-      arm2d.setElbow(elbowTarget);
-      arm2d.setShoulder(shoulderTarget);
+      arm2d.set(inputs.shoulderPos);
       arm2d.periodic();
     }
 
@@ -91,5 +90,15 @@ public class Arm extends StateMachineSubsystemBase<ArmStates> {
 
     public void setShoulderTarget(double target) {
       this.shoulderTarget = target;
+    }
+
+    public double getElbowPos(){
+      return inputs.elbowPos;
+    }
+
+    public void setCoralLevel(int level){
+      elbowTarget = ArmConstants.elbowLevelAngles[level];
+      shoulderTarget = ArmConstants.shoulderLevelAngles[level];
+      queueState(ArmStates.TRAVELLING);
     }
 }

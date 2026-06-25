@@ -13,6 +13,8 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.RobotController;
@@ -21,9 +23,12 @@ import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.arm.Arm;
+import frc.robot.subsystems.climb.Climb;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.tracking.Tracking;
+import frc.robot.subsystems.vision.Vision;
+import frc.robot.superstructure.Intention;
 import frc.robot.superstructure.SS;
 import frc.robot.util.MTimer;
 
@@ -48,10 +53,12 @@ import com.ctre.phoenix6.swerve.SwerveModuleConstants.SteerMotorArrangement;
 public class Robot extends LoggedRobot {
 
     private Drive drive;
+    private Vision vision;
     private Tracking tracking;
     private Elevator elevator;
     private Arm arm;
     private SS ss;
+    private Climb climb;
     private boolean lastState = false;
 
     private ControlScheme scheme;
@@ -123,7 +130,9 @@ public class Robot extends LoggedRobot {
         elevator = Elevator.getInstance();
         arm = Arm.getInstance();
         ss = SS.getInstance();
-
+        climb = Climb.getInstance();
+        vision = Vision.getInstance();
+        vision.setPipeline(0);
         // Check for valid swerve config
         var modules = new SwerveModuleConstants[] {
                 TunerConstants.FrontLeft,
@@ -166,8 +175,11 @@ public class Robot extends LoggedRobot {
         tracking.periodic();
         drive.periodic();
         elevator.periodic();
-        arm.periodic();
+        arm.periodic(); 
         ss.periodic();
+        climb.periodic();
+        vision.periodic();
+        drive.updatePoseEstimate(vision);
         PerfTracker.periodic();
         Threads.setCurrentThreadPriority(false, 10);
     }
@@ -213,6 +225,8 @@ public class Robot extends LoggedRobot {
     @Override
     public void teleopInit() {
         scheme.init();
+        drive.setPose(new Pose2d(7.4, 4, Rotation2d.k180deg));                //just set a random location for now
+        ss.intend(Intention.SCORE);
     }
 
     /** This function is called periodically during operator control. */
@@ -244,5 +258,6 @@ public class Robot extends LoggedRobot {
     @Override
     public void simulationPeriodic() {
         // drive.updateSimulationField();
+        vision.update();
     }
 }
