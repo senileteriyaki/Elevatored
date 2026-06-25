@@ -56,7 +56,7 @@ public class Climb extends StateMachineSubsystemBase<ClimbStates> {
             case STRETCHING:
                 target = ClimberConstants.stretchAngle;
                 io.goToPos(ClimberConstants.stretchAngle);
-                if (Math.abs(inputs.pos - ClimberConstants.stretchAngle) < ClimberConstants.tolerance){
+                if (Math.abs(inputs.pos - ClimberConstants.stretchAngle) < ClimberConstants.tolerance){ // Raymond: This logic doesn't work because like you don't want it to start climping the moment it reaches the stretch angle. You want to wait for a button press or something like if its at the location.
                     queueState(ClimbStates.CLIMBING);
                 }
                 break;
@@ -75,6 +75,7 @@ public class Climb extends StateMachineSubsystemBase<ClimbStates> {
     @Override
     public void inputPeriodic() {
         io.updateInputs(inputs);
+        // Raymond: Not updating climb2d here. You need to update it with the current position of the climb.
         Logger.processInputs("Climb", inputs);
     }
 
@@ -89,4 +90,5 @@ public class Climb extends StateMachineSubsystemBase<ClimbStates> {
         target = p;
     }
 
+    // Raymond: YOU HAVE NO HANDLER METHODS> YOU DONT DO SHIT WITH THIS THEN.
 }

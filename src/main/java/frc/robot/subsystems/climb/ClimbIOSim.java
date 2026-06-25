@@ -43,13 +43,13 @@ public class ClimbIOSim implements ClimbIO{
     @Override
     public void goToPos(double pos){
        targetPos = pos;
-       setVoltage(controller.calculate(sim.getPositionMeters(), targetPos));
+       setVoltage(controller.calculate(sim.getPositionMeters(), targetPos)); // Use a trapezoidal profile here as well. Try to integrate that.
     }
 
     @Override
     public void hold(double pos){
         targetPos = pos;
-        setVoltage(controller.calculate(sim.getPositionMeters(), targetPos));
+        setVoltage(controller.calculate(sim.getPositionMeters(), targetPos)); // Raymond: Redundant. Just use goToPos method here.
     }
 
     @Override

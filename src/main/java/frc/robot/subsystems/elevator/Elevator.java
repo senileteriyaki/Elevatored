@@ -46,7 +46,7 @@ public class Elevator extends StateMachineSubsystemBase<ElevatorStates> {
           io.stop();
           break;
         case IDLE:
-          io.hold(ElevatorConstants.minHeight);
+          io.hold(ElevatorConstants.minHeight); // bruh whats with u and the hold methods
           break;
         case HOLDING:
           io.hold(target);
@@ -71,7 +71,7 @@ public class Elevator extends StateMachineSubsystemBase<ElevatorStates> {
     @Override
     public void outputPeriodic(){
       Logger.recordOutput("Elevator/target", target);
-      elevator2d.set(inputs.pos);
+      elevator2d.set(inputs.pos); // nice u remembered
       elevator2d.periodic();
     }
 
@@ -79,12 +79,12 @@ public class Elevator extends StateMachineSubsystemBase<ElevatorStates> {
         target = p;
     }
 
-    public void setCoralLevel(int level){
+    public void setCoralLevel(int level){ // just use a method to set the specific height instead of the level thats bad. Too specific lacks polymorphism.
       setTarget(ElevatorConstants.levelHeights[level]);
       queueState(ElevatorStates.TRAVELLING);
     }
 
-    public void setArmLigament(double deg){
+    public void setArmLigament(double deg){ // Raymond: This is a bad method. You should not be setting the arm ligament from the elevator subsystem. The elevator should not know about the arm. This is a violation of the single responsibility principle. You should have a method in the arm subsystem to set the arm ligament and call that from the command that controls both subsystems. Do it in ss or smt.
       elevator2d.setArm(deg);
     }
 

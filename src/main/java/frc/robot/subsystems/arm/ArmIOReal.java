@@ -16,7 +16,7 @@ import frc.robot.Constants.ArmConstants;
 
 public class ArmIOReal implements ArmIO{
 
-    private TalonFX elbowMotor = new TalonFX(2);
+    private TalonFX elbowMotor = new TalonFX(2); // Raymond Use constants for device ids. Make a constant file for each subsystem
     private TalonFX shoulderMotor = new TalonFX(3);
 
     private final StatusSignal<Angle> elbowPos;
@@ -36,8 +36,8 @@ public class ArmIOReal implements ArmIO{
     public ArmIOReal(){
         TalonFXConfiguration elbowConfig = new TalonFXConfiguration();
         this.elbowMM = new MotionMagicVoltage(ArmConstants.minAngle);
-        this.elbowFF = new ArmFeedforward(0, 0, 0, 0);
-
+        this.elbowFF = new ArmFeedforward(0, 0, 0, 0); // Raymond: don't create another feedforward object. Just use motionmagic it uses it ialready. Use motion magic configurations. You didn't make a good configuration here. thats not how configurations work. You make a configuration then you like set slots and stuff. Check this years code. 
+        //Raymond: You need to have all the configurations like gearing etc. 
         TalonFXConfiguration shoulderConfig = new TalonFXConfiguration();
         this.shoulderMM = new MotionMagicVoltage(ArmConstants.minAngle);
         this.shoulderFF = new ArmFeedforward(0, 0, 0, 0);
@@ -64,7 +64,7 @@ public class ArmIOReal implements ArmIO{
     public void updateInputs(ArmIOInputs inputs){
         BaseStatusSignal.refreshAll(elbowPos, elbowVel, elbowVolts, elbowAmps,
             shoulderPos, shoulderVel, shoulderVolts, shoulderAmps);
-        inputs.elbowPos = elbowPos.getValueAsDouble() * 360;
+        inputs.elbowPos = elbowPos.getValueAsDouble() * 360; // RAymond: For all of your inputs do a _units afterwards. Makes life easier for everyone
         inputs.elbowVel = elbowVel.getValueAsDouble() * 360;
         inputs.elbowVolts = elbowVolts.getValueAsDouble();
         inputs.elbowAmps = elbowAmps.getValueAsDouble();
@@ -77,19 +77,19 @@ public class ArmIOReal implements ArmIO{
 
     @Override
     public void setElbowVoltage(double voltage){
-        elbowMotor.setVoltage(voltage + elbowFF.calculate(elbowPos.getValueAsDouble(), 0));
+        elbowMotor.setVoltage(voltage + elbowFF.calculate(elbowPos.getValueAsDouble(), 0)); // Raymond: ueah this is good but there isn't that much of a point cuz when u just set voltage its kinda useless lowk. 
     }
 
     @Override
     public void setShoulderVoltage(double voltage) {
-        shoulderMotor.setVoltage(voltage + shoulderFF.calculate(shoulderPos.getValueAsDouble(), 0));
+        shoulderMotor.setVoltage(voltage + shoulderFF.calculate(shoulderPos.getValueAsDouble(), 0)); 
     }
 
     @Override
     public void goToElbowPos(double pos){
         elbowMotor.setControl(elbowMM
             .withPosition(pos)
-            .withFeedForward(elbowFF.calculate(elbowPos.getValueAsDouble(), 0)));
+            .withFeedForward(elbowFF.calculate(elbowPos.getValueAsDouble(), 0))); // Raymond: sure you can use feed forwwards here but remember that motion magic already uses feedforward so like its not that useful. But this is good for gravitational compensation. Also make sure the units are right to what it corresponds to.
     }
 
     @Override
@@ -100,7 +100,7 @@ public class ArmIOReal implements ArmIO{
     }
 
     @Override
-    public void holdElbow(double pos){
+    public void holdElbow(double pos){  // Raymond: Redundant.
         goToElbowPos(pos);
     }
 

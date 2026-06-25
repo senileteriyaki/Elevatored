@@ -225,7 +225,7 @@ public class Robot extends LoggedRobot {
     @Override
     public void teleopInit() {
         scheme.init();
-        drive.setPose(new Pose2d(7.4, 4, Rotation2d.k180deg));                //just set a random location for now
+        drive.setPose(new Pose2d(7.4, 4, Rotation2d.k180deg)); // Raymond:You probably don't want to hardcode this or like do it in teleop init. Better for autoInit. 
         ss.intend(Intention.SCORE);
     }
 

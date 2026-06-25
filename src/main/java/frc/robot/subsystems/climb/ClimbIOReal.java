@@ -17,6 +17,8 @@ import edu.wpi.first.units.measure.Voltage;
 import frc.robot.Constants.ClimberConstants;
 import frc.robot.util.PhoenixUtil;
 
+
+// Raymond : Same feedback as arm, do configs, less feedforward, use motion magic, and make sure to use the right units for the feedforward. Also make sure to use the right units for the position and velocity. Use degrees or radians consistently.
 public class ClimbIOReal implements ClimbIO{
     private TalonFX left = new TalonFX(7); //as lead
     private TalonFX right = new TalonFX(8);

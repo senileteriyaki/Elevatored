@@ -31,6 +31,7 @@ public class ElevatorIOReal implements ElevatorIO{
         request = new MotionMagicVoltage(ElevatorConstants.minHeight);
         ff = new ElevatorFeedforward(0, 0, 0, 0);
 
+        // Do more for your configurations. 
         config.Feedback.SensorToMechanismRatio = 1/(2*Math.PI*Constants.ElevatorConstants.drumRadius); 
         config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
@@ -40,6 +41,7 @@ public class ElevatorIOReal implements ElevatorIO{
         vel = elevatorMotor.getVelocity();
         
         // [imagine I actually had values to config the motor]
+        // Add them bro
 
         frc.robot.util.PhoenixUtil.tryUntilOk(5, () -> elevatorMotor.getConfigurator().apply(config));
     }

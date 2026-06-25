@@ -30,7 +30,7 @@ public class ElevatorIOSim implements ElevatorIO{
         sim.update(Constants.globalDelta_s);
 
         inputs.volts = volts;
-        inputs.amps = sim.getCurrentDrawAmps();
+        inputs.amps = sim.getCurrentDrawAmps(); // unit names
         inputs.pos = sim.getPositionMeters();
         inputs.vel = sim.getVelocityMetersPerSecond();
     }
@@ -44,7 +44,7 @@ public class ElevatorIOSim implements ElevatorIO{
     @Override
     public void goToPos(double pos){
        targetHeight = pos;
-       setVoltage(controller.calculate(sim.getPositionMeters(), targetHeight));
+       setVoltage(controller.calculate(sim.getPositionMeters(), targetHeight)); //trapezoidla profile here.
     }
 
     @Override

@@ -67,7 +67,7 @@ public class ArmIOSim implements ArmIO{
     @Override
     public void goToElbowPos(double pos){
         elbowTarget = pos;
-        setElbowVoltage(elbowPID.calculate(elbowSim.getAngleRads(), Units.degreesToRadians(elbowTarget)));
+        setElbowVoltage(elbowPID.calculate(elbowSim.getAngleRads(), Units.degreesToRadians(elbowTarget))); // Raymond: Sure but use a trapezoidal profile here as well. Try to integrate that. 
     }
 
     @Override

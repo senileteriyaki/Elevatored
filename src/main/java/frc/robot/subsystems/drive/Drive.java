@@ -303,7 +303,7 @@ public class Drive extends StateMachineSubsystemBase<PathingMode> {
 
                 switch (override) {
                     case TRACKING:
-                        inputSpeeds = calculateTracking(vision.getTargetX(), vision.getTargetY());
+                        inputSpeeds = calculateTracking(vision.getTargetX(), vision.getTargetY());  // bro use trackings get tracking speeds. Your things do not work like this. Or figure out how to make it work.... The angling is wrong.
                         break;
                     case BASELOCK:
                         break;

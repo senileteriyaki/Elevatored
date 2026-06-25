@@ -59,7 +59,7 @@ public class ControlScheme implements IPeriodic {
         else {
         }
 
-        if (OI.DR.getAButtonReleased()) {
+        if (OI.DR.getAButtonReleased()) { // idk this crashes me smh
         }
 
         if (OI.DR.getYButtonPressed()) {

@@ -51,17 +51,17 @@ public class Arm extends StateMachineSubsystemBase<ArmStates> {
           break;
         case IDLE:
           io.holdElbow(ArmConstants.minAngle);
-          io.holdShoulder(ArmConstants.minAngle);
+          io.holdShoulder(ArmConstants.minAngle); // Raymond: BRO hold elbow/shoulder just calls goToElbowPos/goToShoulderPos with the current position, so like why??????? just use the same method. Also, like why are we holding the minAngle when idle? Just stopElbow() and stopShoulder() here.
           break;
         case HOLDING:
           io.holdElbow(elbowTarget);
-          io.holdShoulder(shoulderTarget);
+          io.holdShoulder(shoulderTarget); // Raymond: Just use goToPos methods here. 
         case TRAVELLING:
           io.goToElbowPos(elbowTarget);
           io.goToShoulderPos(shoulderTarget);
 
           if (Math.abs(inputs.elbowPos - elbowTarget) < ArmConstants.tolerance &&
-              Math.abs(inputs.shoulderPos - shoulderTarget) < ArmConstants.tolerance) {
+              Math.abs(inputs.shoulderPos - shoulderTarget) < ArmConstants.tolerance) { // Raymond prob want different tolerances for shoulder and elbow
             queueState(ArmStates.HOLDING);
           }
           break;
@@ -96,7 +96,7 @@ public class Arm extends StateMachineSubsystemBase<ArmStates> {
       return inputs.elbowPos;
     }
 
-    public void setCoralLevel(int level){
+    public void setCoralLevel(int level) { // Raymond: ok sure but like in here you don't want full logic for whole bot. Cuz Arm doesn't like determine coral levles ykwim, its more elevator? also you should just have a general method for like trackToPosition that sets target Angle and queues States. Your states should also check here or else its gonna fluctuate between holding and travelling. Your elbow and shoulder should have seperate methods too. 
       elbowTarget = ArmConstants.elbowLevelAngles[level];
       shoulderTarget = ArmConstants.shoulderLevelAngles[level];
       queueState(ArmStates.TRAVELLING);
