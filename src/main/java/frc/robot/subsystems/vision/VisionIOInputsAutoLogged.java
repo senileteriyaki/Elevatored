@@ -18,6 +18,7 @@ public class VisionIOInputsAutoLogged extends VisionIOInputs
     table.put("TargetAreaPercent", targetAreaPercent);
     table.put("VisibleTagIds", visibleTagIds);
     table.put("PoseObservations", poseObservations);
+    table.put("targetId", targetId);
   }
 
   @Override
@@ -29,6 +30,7 @@ public class VisionIOInputsAutoLogged extends VisionIOInputs
     targetAreaPercent = table.get("TargetAreaPercent", targetAreaPercent);
     visibleTagIds = table.get("VisibleTagIds", visibleTagIds);
     poseObservations = table.get("PoseObservations", poseObservations);
+    targetId = table.get("targetId", targetId);
   }
 
   @Override
@@ -41,6 +43,7 @@ public class VisionIOInputsAutoLogged extends VisionIOInputs
     copy.targetAreaPercent = this.targetAreaPercent;
     copy.visibleTagIds = this.visibleTagIds.clone();
     copy.poseObservations = this.poseObservations.clone();
+    copy.targetId = this.targetId;
     return copy;
   }
 }

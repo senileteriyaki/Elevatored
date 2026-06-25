@@ -96,6 +96,7 @@ public class VisionIOSimPhoton implements VisionIO {
         inputs.targetXDegrees = best.getYaw();
         inputs.targetYDegrees = best.getPitch();
         inputs.targetAreaPercent = best.getArea();
+        inputs.targetId = best.getFiducialId();
 
         inputs.visibleTagIds = result.getTargets().stream()
                 .mapToInt(PhotonTrackedTarget::getFiducialId)

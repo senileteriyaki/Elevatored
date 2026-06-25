@@ -205,8 +205,8 @@ public class Drive extends StateMachineSubsystemBase<PathingMode> {
         vision = Vision.getInstance();
         queueState(PathingMode.DISABLED);
 
-        xController.setTolerance(1);
-        yController.setTolerance(1);
+        xController.setTolerance(3);
+        yController.setTolerance(3);
     }
 
     @Override
@@ -659,14 +659,21 @@ public class Drive extends StateMachineSubsystemBase<PathingMode> {
         // Optional limits
         omega = MathUtil.clamp(omega, -3.0, 3.0); // rad/s
         vx = MathUtil.clamp(vx, -2.0, 2.0);       // m/s
-
+        
+        Logger.recordOutput("Drive/track/", true);
         return new ChassisSpeeds(
                 vx,
                 0.0,
                 omega);
+
     }
 
     public boolean finishedTracking(){
-        return xController.atSetpoint() && yController.atSetpoint();
+        boolean isFinished = (xController.atSetpoint() && yController.atSetpoint());
+        if (isFinished){
+            Logger.recordOutput("Drive/track", false);
+            setPathingOverride(PathingOverride.NONE);
+        }
+        return isFinished; 
     }
 }

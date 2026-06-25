@@ -18,6 +18,8 @@ public interface VisionIO {
         public double targetAreaPercent = 0.0;
         public int[] visibleTagIds = new int[0];
 
+        public int targetId = 0;
+
         public PoseObservation[] poseObservations = new PoseObservation[0];
 
         public static record PoseObservation(double timestamp, Pose3d pose, double ambiguity,
