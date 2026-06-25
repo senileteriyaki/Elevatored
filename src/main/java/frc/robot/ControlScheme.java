@@ -19,6 +19,7 @@ public class ControlScheme implements IPeriodic {
     public ControlScheme() {
         super();
         drive = Drive.getInstance();
+        ss = SS.getInstance();
     }
 
     public void init() {
@@ -37,23 +38,23 @@ public class ControlScheme implements IPeriodic {
         }
 
 
-        // if (OI.DR.getRightTriggerAxis() >= 0.8) {
-        //     // drive.queueState(PathingMode.TRACKING);
-        //     drive.setPathingOverride(PathingOverride.SHOOTING);
+         if (OI.DR.getRightTriggerAxis() >= 0.8) {
+             drive.queueState(PathingMode.TRACKING);
+             drive.setPathingOverride(PathingOverride.SHOOTING);
 
-        // } else {
-        //     drive.queueState(PathingMode.FIELD_RELATIVE);
-        //     drive.setPathingOverride(PathingOverride.NONE);
+        } else {
+             drive.queueState(PathingMode.FIELD_RELATIVE);
+             drive.setPathingOverride(PathingOverride.NONE);
 
-        // }
-        // double x_ = -OI.deadband(OI.DR.getLeftY() * mult);
-        // double y_ = -OI.deadband(OI.DR.getLeftX() * mult);
-        // double w_ = rotMult * -Util.sqInput(OI.deadband(OI.DR.getRightX()));
-        // double throttle = Util
-        //         .sqInput(1.0 - OI.deadband(Math.max(OI.DR.getLeftTriggerAxis(), OI.DR.getRightTriggerAxis())));
+        }
+         double x_ = -OI.deadband(OI.DR.getLeftY() * mult);
+        double y_ = -OI.deadband(OI.DR.getLeftX() * mult);
+        double w_ = rotMult * -Util.sqInput(OI.deadband(OI.DR.getRightX()));
+        double throttle = Util
+                 .sqInput(1.0 - OI.deadband(Math.max(OI.DR.getLeftTriggerAxis(), OI.DR.getRightTriggerAxis())));
 
-        // SwerveInput input = new SwerveInput(x_, y_, w_, throttle);
-        // drive.setInput(input);
+         SwerveInput input = new SwerveInput(x_, y_, w_, throttle);
+         drive.setInput(input);
 
         if (OI.DR.getRightTriggerAxis() > 0.8) {
         }
