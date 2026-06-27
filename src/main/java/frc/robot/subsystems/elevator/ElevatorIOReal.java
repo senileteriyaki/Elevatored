@@ -2,9 +2,11 @@ package frc.robot.subsystems.elevator;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
+import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 
 import edu.wpi.first.math.controller.ElevatorFeedforward;
@@ -28,20 +30,38 @@ public class ElevatorIOReal implements ElevatorIO{
 
     public ElevatorIOReal(){
         TalonFXConfiguration config = new TalonFXConfiguration();
+        MotionMagicConfigs mmConfig = new MotionMagicConfigs();
+
         request = new MotionMagicVoltage(ElevatorConstants.minHeight);
         ff = new ElevatorFeedforward(0, 0, 0, 0);
 
+        
         // Do more for your configurations. 
         config.Feedback.SensorToMechanismRatio = 1/(2*Math.PI*Constants.ElevatorConstants.drumRadius); 
         config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+
+        config.CurrentLimits.StatorCurrentLimit = 80;
+        config.CurrentLimits.StatorCurrentLimit = 30;
+        config.CurrentLimits.StatorCurrentLimitEnable = true;
+        config.CurrentLimits.SupplyCurrentLimitEnable = true;
+
+        mmConfig.MotionMagicAcceleration = 10.0;
+        mmConfig.MotionMagicCruiseVelocity = 5.0;
+        config.MotionMagic = mmConfig;
+
+        config.Slot0.GravityType = GravityTypeValue.Elevator_Static;
+        config.Slot0.kP = 10.0;
+        config.Slot0.kP = 1.0;
+        config.Slot0.kD = 1.0;
+
+
 
         volts = elevatorMotor.getMotorVoltage();
         pos = elevatorMotor.getPosition();
         amps = elevatorMotor.getStatorCurrent();
         vel = elevatorMotor.getVelocity();
         
-        // [imagine I actually had values to config the motor]
-        // Add them bro
+
 
         frc.robot.util.PhoenixUtil.tryUntilOk(5, () -> elevatorMotor.getConfigurator().apply(config));
     }
@@ -63,19 +83,11 @@ public class ElevatorIOReal implements ElevatorIO{
 
     @Override
     public void goToPos(double pos){
-        ffVoltage = ff.calculate(0);
         elevatorMotor.setControl(request
             .withPosition(pos)
             .withFeedForward(ffVoltage));
     }
 
-    @Override
-    public void hold(double pos){
-        ffVoltage = ff.calculate(0);
-        elevatorMotor.setControl(request
-            .withPosition(pos)
-            .withFeedForward(ffVoltage));
-    }
 
     @Override
     public void stop(){
