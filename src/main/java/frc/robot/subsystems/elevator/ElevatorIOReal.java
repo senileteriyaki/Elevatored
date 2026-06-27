@@ -49,10 +49,10 @@ public class ElevatorIOReal implements ElevatorIO{
     public void updateInputs(ElevatorIOInputs inputs){
         BaseStatusSignal.refreshAll(volts, amps, pos, vel);
         
-        inputs.volts = volts.getValueAsDouble();
-        inputs.amps = amps.getValueAsDouble();
-        inputs.pos = pos.getValueAsDouble() * 360;
-        inputs.vel = vel.getValueAsDouble() * 360;
+        inputs.voltage_v = volts.getValueAsDouble();
+        inputs.current_a = amps.getValueAsDouble();
+        inputs.pos_m = pos.getValueAsDouble() * 360;
+        inputs.vel_mps = vel.getValueAsDouble() * 360;
     }
     
     @Override

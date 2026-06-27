@@ -7,27 +7,27 @@ import org.littletonrobotics.junction.inputs.LoggableInputs;
 
 public class ElevatorIOInputsAutoLogged extends ElevatorIO.ElevatorIOInputs implements LoggableInputs, Cloneable {
   @Override
-  public void toLog(LogTable table){
-    table.put("Volts", volts);
-    table.put("Amps", amps);
-    table.put("Pos", pos);
-    table.put("Vel", vel);
+  public void toLog(LogTable table) {
+    table.put("Voltage_v", voltage_v);
+    table.put("Current_a", current_a);
+    table.put("Pos_m", pos_m);
+    table.put("Vel_mps", vel_mps);
   }
 
   @Override
-  public void fromLog(LogTable table){
-    volts = table.get("Volts", volts);
-    amps = table.get("Amps", amps);
-    pos = table.get("Pos", pos);
-    vel = table.get("Vel", vel);
+  public void fromLog(LogTable table) {
+    voltage_v = table.get("Voltage_v", voltage_v);
+    current_a = table.get("Current_a", current_a);
+    pos_m = table.get("Pos_m", pos_m);
+    vel_mps = table.get("Vel_mps", vel_mps);
   }
 
-  public ElevatorIOInputsAutoLogged clone(){
+  public ElevatorIOInputsAutoLogged clone() {
     ElevatorIOInputsAutoLogged copy = new ElevatorIOInputsAutoLogged();
-    copy.volts = this.volts;
-    copy.amps = this.amps;
-    copy.pos = this.pos;
-    copy.vel = this.vel;
+    copy.voltage_v = this.voltage_v;
+    copy.current_a = this.current_a;
+    copy.pos_m = this.pos_m;
+    copy.vel_mps = this.vel_mps;
     return copy;
   }
 }
