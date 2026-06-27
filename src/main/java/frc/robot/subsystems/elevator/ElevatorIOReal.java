@@ -16,6 +16,7 @@ import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
 import frc.robot.Constants;
 import frc.robot.Constants.ElevatorConstants;
+import frc.robot.util.PhoenixUtil;
 
 public class ElevatorIOReal implements ElevatorIO{
 
@@ -35,8 +36,6 @@ public class ElevatorIOReal implements ElevatorIO{
         request = new MotionMagicVoltage(ElevatorConstants.minHeight);
         ff = new ElevatorFeedforward(0, 0, 0, 0);
 
-        
-        // Do more for your configurations. 
         config.Feedback.SensorToMechanismRatio = 1/(2*Math.PI*Constants.ElevatorConstants.drumRadius); 
         config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
@@ -53,17 +52,13 @@ public class ElevatorIOReal implements ElevatorIO{
         config.Slot0.kP = 10.0;
         config.Slot0.kP = 1.0;
         config.Slot0.kD = 1.0;
-
-
+        
+        PhoenixUtil.tryUntilOk(5, () -> elevatorMotor.getConfigurator().apply(config));
 
         volts = elevatorMotor.getMotorVoltage();
         pos = elevatorMotor.getPosition();
         amps = elevatorMotor.getStatorCurrent();
         vel = elevatorMotor.getVelocity();
-        
-
-
-        frc.robot.util.PhoenixUtil.tryUntilOk(5, () -> elevatorMotor.getConfigurator().apply(config));
     }
 
     public void updateInputs(ElevatorIOInputs inputs){
@@ -87,7 +82,6 @@ public class ElevatorIOReal implements ElevatorIO{
             .withPosition(pos)
             .withFeedForward(ffVoltage));
     }
-
 
     @Override
     public void stop(){

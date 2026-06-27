@@ -24,7 +24,7 @@ public class ElevatorIOSim implements ElevatorIO{
 
     private double targetHeight;
     private double volts;
-    private ElevatorIOInputs inputs; // bhlcusd: unusual, but works
+    private ElevatorIOInputs inputs;
 
     public ElevatorIOSim(){
         this.sim = new ElevatorSim(DCMotor.getKrakenX60(1), 3, 
@@ -35,7 +35,7 @@ public class ElevatorIOSim implements ElevatorIO{
         controller.setTolerance(0.05);
         this.targetHeight = ElevatorConstants.minHeight;
 
-        this.constraints = new Constraints(23.4, 3.1); // NOTE: Ripped from bot-2025
+        this.constraints = new Constraints(23.4, 3.1);
         this.profile = new TrapezoidProfile(constraints);
         this.setPoint = this.startPoint = this.goal = new State(targetHeight, 0);
         this.timer = new Timer();
@@ -63,7 +63,7 @@ public class ElevatorIOSim implements ElevatorIO{
     @Override
     public void goToPos(double pos){
        targetHeight = pos;
-       setVoltage(controller.calculate(sim.getPositionMeters(), targetHeight)); //trapezoidla profile here.
+       setVoltage(controller.calculate(sim.getPositionMeters(), targetHeight));
 
        if (pos != targetHeight) {
         targetHeight = pos;
@@ -79,7 +79,7 @@ public class ElevatorIOSim implements ElevatorIO{
 
     @Override
     public void hold(double pos){
-        goToPos(pos); // bhlcusd: I guess this method is only for semantic reasons...
+        goToPos(pos);
     }
 
     @Override
