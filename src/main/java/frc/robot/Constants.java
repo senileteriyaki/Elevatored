@@ -112,25 +112,6 @@ public final class Constants {
         public static double drumRadius = 0.015;
     }
 
-    public static class ArmConstants {
-        public static final double minAngle = -90; //prolly fake but whatever
-        public static final double maxAngle = 90;
-
-        // Constants for PIDController sim
-        public static final double elbowKP = 17;
-        public static final double elbowKI = 0;
-        public static final double elbowKD = 0;
-
-        public static final double shoulderKP = 25;
-        public static final double shoulderKI = 0;
-        public static final double shoulderKD = 0;
-
-        public static final double tolerance = 0.01;
-
-        public static final double[] elbowLevelAngles = {42, 60, 70, 67}; //entirely random numbers but wtv
-        public static final double[] shoulderLevelAngles = {80, 45, 32, 56};
-    }
-
     public static class ClimberConstants {
         public static final double stowAngle = 90;
         public static final double stretchAngle = 0;

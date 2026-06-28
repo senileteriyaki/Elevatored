@@ -13,7 +13,13 @@ public class Arm2d {
     private LoggedMechanismLigament2d arm;
     private String name;
 
-    public Arm2d(String name, Color8Bit color){ //top view of arm
+    /**
+     * Constructs a top-down view of the arm.
+     * 
+     * @param name      name of arm
+     * @param color     color in simulation
+     */
+    public Arm2d(String name, Color8Bit color){
         this.name = name;
         this.mech = new LoggedMechanism2d(3, 3);
         this.arm = mech.getRoot("root", 2, 1)

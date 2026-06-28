@@ -8,38 +8,38 @@ import org.littletonrobotics.junction.inputs.LoggableInputs;
 public class ArmIOInputsAutoLogged extends ArmIO.ArmIOInputs implements LoggableInputs, Cloneable {
   @Override
   public void toLog(LogTable table) {
-    table.put("ElbowVolts", elbowVolts);
-    table.put("ElbowAmps", elbowAmps);
-    table.put("ElbowPos", elbowPos);
-    table.put("ElbowVel", elbowVel);
-    table.put("ShoulderVolts", shoulderVolts);
-    table.put("ShoulderAmps", shoulderAmps);
-    table.put("ShoulderPos", shoulderPos);
-    table.put("ShoulderVel", shoulderVel);
+    table.put("ElbowVoltage_v", elbowVoltage_v);
+    table.put("ElbowCurrent_a", elbowCurrent_a);
+    table.put("ElbowPos_deg", elbowPos_deg);
+    table.put("ElbowVel_dps", elbowVel_dps);
+    table.put("ShoulderVoltage_v", shoulderVoltage_v);
+    table.put("ShoulderCurrent_a", shoulderCurrent_a);
+    table.put("ShoulderPos_deg", shoulderPos_deg);
+    table.put("ShoulderVel_dps", shoulderVel_dps);
   }
 
   @Override
   public void fromLog(LogTable table) {
-    elbowVolts = table.get("ElbowVolts", elbowVolts);
-    elbowAmps = table.get("ElbowAmps", elbowAmps);
-    elbowPos = table.get("ElbowPos", elbowPos);
-    elbowVel = table.get("ElbowVel", elbowVel);
-    shoulderVolts = table.get("ShoulderVolts", shoulderVolts);
-    shoulderAmps = table.get("ShoulderAmps", shoulderAmps);
-    shoulderPos = table.get("ShoulderPos", shoulderPos);
-    shoulderVel = table.get("ShoulderVel", shoulderVel);
+    elbowVoltage_v = table.get("ElbowVoltage_v", elbowVoltage_v);
+    elbowCurrent_a = table.get("ElbowCurrent_a", elbowCurrent_a);
+    elbowPos_deg = table.get("ElbowPos_deg", elbowPos_deg);
+    elbowVel_dps = table.get("ElbowVel_dps", elbowVel_dps);
+    shoulderVoltage_v = table.get("ShoulderVoltage_v", shoulderVoltage_v);
+    shoulderCurrent_a = table.get("ShoulderCurrent_a", shoulderCurrent_a);
+    shoulderPos_deg = table.get("ShoulderPos_deg", shoulderPos_deg);
+    shoulderVel_dps = table.get("ShoulderVel_dps", shoulderVel_dps);
   }
 
   public ArmIOInputsAutoLogged clone() {
     ArmIOInputsAutoLogged copy = new ArmIOInputsAutoLogged();
-    copy.elbowVolts = this.elbowVolts;
-    copy.elbowAmps = this.elbowAmps;
-    copy.elbowPos = this.elbowPos;
-    copy.elbowVel = this.elbowVel;
-    copy.shoulderVolts = this.shoulderVolts;
-    copy.shoulderAmps = this.shoulderAmps;
-    copy.shoulderPos = this.shoulderPos;
-    copy.shoulderVel = this.shoulderVel;
+    copy.elbowVoltage_v = this.elbowVoltage_v;
+    copy.elbowCurrent_a = this.elbowCurrent_a;
+    copy.elbowPos_deg = this.elbowPos_deg;
+    copy.elbowVel_dps = this.elbowVel_dps;
+    copy.shoulderVoltage_v = this.shoulderVoltage_v;
+    copy.shoulderCurrent_a = this.shoulderCurrent_a;
+    copy.shoulderPos_deg = this.shoulderPos_deg;
+    copy.shoulderVel_dps = this.shoulderVel_dps;
     return copy;
   }
 }

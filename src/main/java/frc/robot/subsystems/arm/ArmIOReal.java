@@ -12,12 +12,12 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
-import frc.robot.Constants.ArmConstants;
+import frc.robot.util.PhoenixUtil;
 
 public class ArmIOReal implements ArmIO{
 
-    private TalonFX elbowMotor = new TalonFX(2); // Raymond Use constants for device ids. Make a constant file for each subsystem
-    private TalonFX shoulderMotor = new TalonFX(3);
+    private TalonFX elbowMotor = new TalonFX(ArmConstants.ELBOW_MOTOR_ID); // Raymond Use constants for device ids. Make a constant file for each subsystem
+    private TalonFX shoulderMotor = new TalonFX(ArmConstants.SHOULDER_MOTOR_ID);
 
     private final StatusSignal<Angle> elbowPos;
     private final StatusSignal<AngularVelocity> elbowVel;
@@ -35,10 +35,15 @@ public class ArmIOReal implements ArmIO{
     
     public ArmIOReal(){
         TalonFXConfiguration elbowConfig = new TalonFXConfiguration();
+        // TODO: Set Configs
         this.elbowMM = new MotionMagicVoltage(ArmConstants.minAngle);
-        this.elbowFF = new ArmFeedforward(0, 0, 0, 0); // Raymond: don't create another feedforward object. Just use motionmagic it uses it ialready. Use motion magic configurations. You didn't make a good configuration here. thats not how configurations work. You make a configuration then you like set slots and stuff. Check this years code. 
-        //Raymond: You need to have all the configurations like gearing etc. 
+        this.elbowFF = new ArmFeedforward(0, 0, 0, 0);
+        
+        // Raymond: don't create another feedforward object. Just use motionmagic it uses it ialready. Use motion magic configurations. You didn't make a good
+        // configuration here. thats not how configurations work. You make a configuration then you like set slots and stuff. Check this years code. 
+
         TalonFXConfiguration shoulderConfig = new TalonFXConfiguration();
+        // TODO: Set Configs
         this.shoulderMM = new MotionMagicVoltage(ArmConstants.minAngle);
         this.shoulderFF = new ArmFeedforward(0, 0, 0, 0);
 
@@ -56,23 +61,24 @@ public class ArmIOReal implements ArmIO{
         elbowConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
         shoulderConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
-    frc.robot.util.PhoenixUtil.tryUntilOk(5, () -> elbowMotor.getConfigurator().apply(elbowConfig));
-    frc.robot.util.PhoenixUtil.tryUntilOk(5, () -> shoulderMotor.getConfigurator().apply(shoulderConfig));
+        PhoenixUtil.tryUntilOk(5, () -> elbowMotor.getConfigurator().apply(elbowConfig));
+        PhoenixUtil.tryUntilOk(5, () -> shoulderMotor.getConfigurator().apply(shoulderConfig));
     }
 
     @Override
     public void updateInputs(ArmIOInputs inputs){
         BaseStatusSignal.refreshAll(elbowPos, elbowVel, elbowVolts, elbowAmps,
             shoulderPos, shoulderVel, shoulderVolts, shoulderAmps);
-        inputs.elbowPos = elbowPos.getValueAsDouble() * 360; // RAymond: For all of your inputs do a _units afterwards. Makes life easier for everyone
-        inputs.elbowVel = elbowVel.getValueAsDouble() * 360;
-        inputs.elbowVolts = elbowVolts.getValueAsDouble();
-        inputs.elbowAmps = elbowAmps.getValueAsDouble();
+        
+        inputs.elbowPos_deg = elbowPos.getValueAsDouble() * 360;
+        inputs.elbowVel_dps = elbowVel.getValueAsDouble() * 360;
+        inputs.elbowVoltage_v = elbowVolts.getValueAsDouble();
+        inputs.elbowCurrent_a = elbowAmps.getValueAsDouble();
 
-        inputs.shoulderPos = shoulderPos.getValueAsDouble() * 360;
-        inputs.shoulderVel = shoulderVel.getValueAsDouble() * 360;
-        inputs.shoulderVolts = shoulderVolts.getValueAsDouble();
-        inputs.shoulderAmps = shoulderAmps.getValueAsDouble();
+        inputs.shoulderPos_deg = shoulderPos.getValueAsDouble() * 360;
+        inputs.shoulderVel_dps = shoulderVel.getValueAsDouble() * 360;
+        inputs.shoulderVoltage_v = shoulderVolts.getValueAsDouble();
+        inputs.shoulderCurrent_a = shoulderAmps.getValueAsDouble();
     }
 
     @Override
@@ -100,7 +106,7 @@ public class ArmIOReal implements ArmIO{
     }
 
     @Override
-    public void holdElbow(double pos){  // Raymond: Redundant.
+    public void holdElbow(double pos){
         goToElbowPos(pos);
     }
 
