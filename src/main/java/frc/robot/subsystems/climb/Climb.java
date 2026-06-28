@@ -5,7 +5,6 @@ import org.littletonrobotics.junction.Logger;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.util.Color8Bit;
 import frc.robot.Constants;
-import frc.robot.Constants.ClimberConstants;
 import frc.robot.subsystems.StateMachineSubsystemBase;
 
 public class Climb extends StateMachineSubsystemBase<ClimbStates> {
@@ -50,20 +49,19 @@ public class Climb extends StateMachineSubsystemBase<ClimbStates> {
                 io.hold(ClimberConstants.stowAngle);
                 break;
             case HOLDING:
-                target = ClimberConstants.climbAngle;
-                io.hold(ClimberConstants.climbAngle);
+                io.hold(target);
                 break;
             case STRETCHING:
                 target = ClimberConstants.stretchAngle;
                 io.goToPos(ClimberConstants.stretchAngle);
-                if (Math.abs(inputs.pos - ClimberConstants.stretchAngle) < ClimberConstants.tolerance){ // Raymond: This logic doesn't work because like you don't want it to start climping the moment it reaches the stretch angle. You want to wait for a button press or something like if its at the location.
-                    queueState(ClimbStates.CLIMBING);
+                if (Math.abs(inputs.pos_deg - ClimberConstants.stretchAngle) < ClimberConstants.tolerance) {
+                    queueState(ClimbStates.HOLDING);
                 }
                 break;
             case CLIMBING:
                 target = ClimberConstants.climbAngle;
                 io.goToPos(ClimberConstants.climbAngle);
-                if (Math.abs(inputs.pos - ClimberConstants.climbAngle) < ClimberConstants.tolerance){
+                if (Math.abs(inputs.pos_deg - ClimberConstants.climbAngle) < ClimberConstants.tolerance) {
                     queueState(ClimbStates.HOLDING);
                 }
                 break;
@@ -75,14 +73,14 @@ public class Climb extends StateMachineSubsystemBase<ClimbStates> {
     @Override
     public void inputPeriodic() {
         io.updateInputs(inputs);
-        // Raymond: Not updating climb2d here. You need to update it with the current position of the climb.
+        climb2d.set(inputs.pos_deg);
         Logger.processInputs("Climb", inputs);
     }
 
     @Override
     public void outputPeriodic() {
         Logger.recordOutput("Climb/target", target);
-        climb2d.set(inputs.pos);
+        climb2d.set(inputs.pos_deg);
         climb2d.periodic();
     }
 
@@ -90,5 +88,28 @@ public class Climb extends StateMachineSubsystemBase<ClimbStates> {
         target = p;
     }
 
-    // Raymond: YOU HAVE NO HANDLER METHODS> YOU DONT DO SHIT WITH THIS THEN.
+    public void stretch() {
+        queueState(ClimbStates.STRETCHING);
+    }
+
+    public void climb() {
+        queueState(ClimbStates.CLIMBING);
+    }
+
+    public void hold() {
+        queueState(ClimbStates.HOLDING);
+    }
+
+    public void disable() {
+        queueState(ClimbStates.DISABLED);
+    }
+
+    public void idle() {
+        queueState(ClimbStates.IDLE);
+    }
+
+    public void abortAndHold() {
+        target = inputs.pos_deg;
+        hold();
+    }
 }

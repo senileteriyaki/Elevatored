@@ -14,9 +14,7 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
-import frc.robot.Constants.ClimberConstants;
 import frc.robot.util.PhoenixUtil;
-
 
 // Raymond : Same feedback as arm, do configs, less feedforward, use motion magic, and make sure to use the right units for the feedforward. Also make sure to use the right units for the position and velocity. Use degrees or radians consistently.
 public class ClimbIOReal implements ClimbIO{
@@ -43,8 +41,6 @@ public class ClimbIOReal implements ClimbIO{
         pos = left.getPosition();
         amps = left.getStatorCurrent();
         vel = left.getVelocity();
-        
-        // [imagine I actually had values to config the motor]
 
         PhoenixUtil.tryUntilOk(5, () -> left.getConfigurator().apply(config));
         PhoenixUtil.tryUntilOk(5, () -> right.getConfigurator().apply(config));
@@ -54,10 +50,10 @@ public class ClimbIOReal implements ClimbIO{
     public void updateInputs(ClimbIOInputs inputs){
         BaseStatusSignal.refreshAll(volts, amps, pos, vel);
         
-        inputs.volts = volts.getValueAsDouble();
-        inputs.amps = amps.getValueAsDouble();
-        inputs.pos = pos.getValueAsDouble() * 360;
-        inputs.vel = vel.getValueAsDouble() * 360;
+        inputs.voltage_v = volts.getValueAsDouble();
+        inputs.current_a = amps.getValueAsDouble();
+        inputs.pos_deg = pos.getValueAsDouble() * 360;
+        inputs.vel_dps = vel.getValueAsDouble() * 360;
     }
 
     @Override
@@ -70,7 +66,7 @@ public class ClimbIOReal implements ClimbIO{
     public void goToPos(double pos){
         ffVoltage = ff.calculate(0);
         left.setControl(request
-            .withPosition(pos)
+            .withPosition(pos / 360)
             .withFeedForward(ffVoltage));
     }
 
@@ -78,7 +74,7 @@ public class ClimbIOReal implements ClimbIO{
     public void hold(double pos){
         ffVoltage = ff.calculate(0);
         left.setControl(request
-            .withPosition(pos)
+            .withPosition(pos / 360)
             .withFeedForward(ffVoltage));
     }
 
