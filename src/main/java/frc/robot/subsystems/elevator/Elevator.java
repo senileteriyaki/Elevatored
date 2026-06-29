@@ -5,7 +5,6 @@ import org.littletonrobotics.junction.Logger;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.util.Color8Bit;
 import frc.robot.Constants;
-import frc.robot.Constants.ElevatorConstants;
 import frc.robot.subsystems.StateMachineSubsystemBase;
 
 public class Elevator extends StateMachineSubsystemBase<ElevatorStates> {

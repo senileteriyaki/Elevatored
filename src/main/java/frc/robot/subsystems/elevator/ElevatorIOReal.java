@@ -14,8 +14,6 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
-import frc.robot.Constants;
-import frc.robot.Constants.ElevatorConstants;
 import frc.robot.util.PhoenixUtil;
 
 public class ElevatorIOReal implements ElevatorIO{
@@ -36,7 +34,7 @@ public class ElevatorIOReal implements ElevatorIO{
         request = new MotionMagicVoltage(ElevatorConstants.minHeight);
         ff = new ElevatorFeedforward(0, 0, 0, 0);
 
-        config.Feedback.SensorToMechanismRatio = 1/(2*Math.PI*Constants.ElevatorConstants.drumRadius); 
+        config.Feedback.SensorToMechanismRatio = 1 / (2* Math.PI * ElevatorConstants.drumRadius); 
         config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
         config.CurrentLimits.StatorCurrentLimit = 80;

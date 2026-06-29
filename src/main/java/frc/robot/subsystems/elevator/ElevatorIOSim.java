@@ -9,7 +9,6 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.simulation.ElevatorSim;
 import frc.robot.Constants;
-import frc.robot.Constants.ElevatorConstants;
 
 public class ElevatorIOSim implements ElevatorIO{
 
@@ -62,9 +61,6 @@ public class ElevatorIOSim implements ElevatorIO{
 
     @Override
     public void goToPos(double pos){
-       targetHeight = pos;
-       setVoltage(controller.calculate(sim.getPositionMeters(), targetHeight));
-
        if (pos != targetHeight) {
         targetHeight = pos;
         goal = new State(targetHeight, 0);
