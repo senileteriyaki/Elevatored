@@ -3,6 +3,9 @@ package frc.robot.superstructure;
 import java.util.Arrays;
 
 import org.littletonrobotics.junction.Logger;
+
+import com.fasterxml.jackson.databind.ser.BeanSerializer;
+
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import frc.robot.subsystems.StateMachineSubsystemBase;
@@ -15,7 +18,6 @@ import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.tracking.Tracking;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.util.MTimer;
-import frc.robot.superstructure.InternalState;
 
 
 public class SS extends StateMachineSubsystemBase<InternalState> {
@@ -76,37 +78,68 @@ public class SS extends StateMachineSubsystemBase<InternalState> {
     public InternalState defaultIntentionHandling() {
         return switch (intention){
             case IDLE -> InternalState.IDLE;
+            case PRESCORE -> InternalState.PRESCORE;
+            case SCORE -> InternalState.SCORE1;
             case CLIMB -> InternalState.CLIMBING;
-            case SCORE -> InternalState.PRESCORE;
-            // need a default case
+            default -> InternalState.IDLE;
         };
     }
 
     private void handleIntention() {
-        switch (getState()){
-            case BOOT: break; // this should zero the elevator and arm and then go to idle.
-            case DISABLED: break;
-            case IDLE: break; // need to handle the case where the robot is idle but the intention is to score or climb or anything else. For most of them you can't just break you have to queue defaultIntentionHandling() if there isn't something weird going on. if your in idle and then u try to score nothing will happen. 
-            case PRESCORE: // The only intention should be score PRESCORE should be an internal state. 
-                if (drive.finishedTracking() && intention == Intention.SCORE){
-                    switch (coralLevel){
-                        case 1: 
-                            queueState(InternalState.SCORE1);
-                        case 2:
-                            queueState(InternalState.SCORE2);
-                        case 3:
-                            queueState(InternalState.SCORE3); // there should be 3 stages of scoring. 1 prescore, then goes to score where arm goes down and 3 where it goes to pull back from the reef. 
-                        case 4:
-                            queueState(InternalState.SCORE4);
+        switch (intention) {
+            case IDLE:
+                queueState(
+                    switch (intention) {
+                        case IDLE -> InternalState.IDLE;
+                        default -> defaultIntentionHandling();
                     }
-                    break;
-                }else{
-                    queueState(InternalState.PRESCORE);
-                    break;
-                }
-                // you need a case to check if going from prescore to idle if the intention is no longer score.
-                // you need to have a reject option
-                // you need to have a case from if ur done scoring then go to idle to stow. 
+                );
+                break;
+            case PRESCORE:
+                queueState(
+                    switch (intention) {
+                        case IDLE -> InternalState.IDLE;
+                        case PRESCORE -> InternalState.PRESCORE;
+                        default -> {
+                            if (!tracking.getEnabled() || drive.finishedTracking()) {
+                                yield InternalState.SCORE1;
+                            } else {
+                                yield defaultIntentionHandling();
+                            }
+                        }
+                    }
+                );
+                break;
+            case SCORE:
+                queueState(
+                    switch (intention) {
+                        case IDLE -> InternalState.IDLE;
+                        default -> {
+                            yield defaultIntentionHandling();
+
+                            /*
+                             * TODO: Check when to change between current scoring levels (make a switch based on InternalState).
+                             * Then, add cases to switch back to idle once the robot is done scoring (bhlcusd: idk when this is the case...),
+                             * or when there is a "reject".
+                             */
+                        }
+                    }
+                );
+                break;
+            case CLIMB:
+                queueState(
+                    switch (intention) {
+                        case IDLE -> InternalState.IDLE;
+                        default -> {
+                            yield defaultIntentionHandling();
+
+                            /*
+                             * TODO: Implement the same conditions as above => figure out when the robot is done climbing.
+                             */
+                        }
+                    }
+                );
+                break;
             default:
                 break;
         }
@@ -116,7 +149,7 @@ public class SS extends StateMachineSubsystemBase<InternalState> {
     @Override
     public void handleStateMachine() {
         if (!booted && !isState(InternalState.DISABLED)) {
-            queueState(InternalState.BOOT); // BUT BOOT DOESNT DO ANYTHING
+            queueState(InternalState.BOOT);
         }
 
         queueState(defaultIntentionHandling());
@@ -127,16 +160,23 @@ public class SS extends StateMachineSubsystemBase<InternalState> {
                 break;
             case BOOT:
                 booted = true;
+
+                elevator.zero();
+                arm.zero();
+
                 queueState(InternalState.IDLE);
+
                 break;
             case IDLE:
                 if (stateInit()) {
                     homedYet = false;
                 }
+
                 // ensure drive is in a safe state
                 if (drive != null) {
                     drive.setPathingOverride(PathingOverride.NONE);
                 }
+
                 break;
             case PRESCORE:
                 drive.setPathingOverride(PathingOverride.TRACKING);
@@ -158,7 +198,7 @@ public class SS extends StateMachineSubsystemBase<InternalState> {
                 elevator.setCoralLevel(3);
                 arm.setCoralLevel(3);
             case CLIMBING:
-                climb.queueState(ClimbStates.STRETCHING); // Where the hell is climb ever intended. It will never run.
+                climb.queueState(ClimbStates.STRETCHING);
                 break;
             default:
                 unimplementedStateAlert.set(true);
@@ -170,8 +210,6 @@ public class SS extends StateMachineSubsystemBase<InternalState> {
     public final void outputPeriodic() {
         Logger.recordOutput("SS/Booted?", booted);
         Logger.recordOutput("SS/Intention", intention);
-        elevator.setArmLigament(arm.getElbowPos()); //hella sus design pattern but whatever 
-        // I agree its hella sus. 
     }
 
     public void intend(Intention i) {
