@@ -7,6 +7,12 @@ public final class ArmConstants {
     public static final double minAngle = -90; //prolly fake but whatever
     public static final double maxAngle = 90;
 
+    public static final double ELBOW_ZERO = ArmConstants.minAngle;
+    public static final double ELBOW_STOW = -90;
+
+    public static final double SHOULDER_ZERO = ArmConstants.minAngle;
+    public static final double SHOULDER_STOW = -90;
+
     // Constants for PIDController sim
     public static final double elbowKP = 17;
     public static final double elbowKI = 0;

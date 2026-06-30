@@ -104,18 +104,11 @@ public class Arm extends StateMachineSubsystemBase<ArmStates> {
       queueState(ArmStates.TRAVELLING);
     }
 
-    /*
-     * FEEDBACK:
-     * 
-     * Raymond: ok sure but like in here you don't want full logic for whole bot. Cuz Arm doesn't like
-     * determine coral levles ykwim, its more elevator? also you should just have a general method for 
-     * like trackToPosition that sets target Angle and queues States. Your states should also check here 
-     * or else its gonna fluctuate between holding and travelling. Your elbow and shoulder should have 
-     * seperate methods too. 
-     */
-    public void setCoralLevel(int level) {
-      elbowTarget = ArmConstants.elbowLevelAngles[level];
-      shoulderTarget = ArmConstants.shoulderLevelAngles[level];
-      queueState(ArmStates.TRAVELLING);
+    public void zero() {
+      trackToPosition(ArmConstants.ELBOW_ZERO, ArmConstants.SHOULDER_ZERO);
+    }
+
+    public void stow() {
+      trackToPosition(ArmConstants.ELBOW_STOW, ArmConstants.SHOULDER_STOW);
     }
 }
