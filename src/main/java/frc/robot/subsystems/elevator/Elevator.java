@@ -81,4 +81,11 @@ public class Elevator extends StateMachineSubsystemBase<ElevatorStates> {
       queueState(ElevatorStates.TRAVELLING);
     }
 
+    public void zero() {
+      setHeight(ElevatorConstants.ZERO);
+    }
+
+    public void stow() {
+      setHeight(ElevatorConstants.STOW);
+    }
 }

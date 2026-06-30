@@ -3,6 +3,8 @@ package frc.robot.subsystems.elevator;
 public class ElevatorConstants {
     public static final double minHeight = 0.0;
     public static final double maxHeight = 2.0;
+    public static final double ZERO = ElevatorConstants.minHeight;
+    public static final double STOW = 0;
 
     public static final double kP = 10.0;
     public static final double kI = 0.0;
