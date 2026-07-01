@@ -5,10 +5,10 @@ import org.littletonrobotics.junction.AutoLog;
 public interface ElevatorIO {
     @AutoLog
     public static class ElevatorIOInputs{
-        public double volts;
-        public double amps;
-        public double pos;
-        public double vel;
+        public double voltage_v;
+        public double current_a;
+        public double pos_m;
+        public double vel_mps;
     }
     
     public default void updateInputs(ElevatorIOInputs inputs){};

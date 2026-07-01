@@ -30,7 +30,7 @@ public class Elevator2D {
         Logger.recordOutput(name, mech);
     }
 
-    public void setArm(double deg){
-        arm.setAngle(deg);
+    public LoggedMechanismLigament2d getArm() {
+        return arm;
     }
 }

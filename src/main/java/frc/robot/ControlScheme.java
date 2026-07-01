@@ -6,6 +6,8 @@ import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.PathingMode;
 import frc.robot.subsystems.drive.PathingOverride;
 import frc.robot.subsystems.drive.SwerveInput;
+import frc.robot.subsystems.elevator.Elevator;
+import frc.robot.subsystems.elevator.ElevatorConstants;
 import frc.robot.superstructure.Intention;
 import frc.robot.superstructure.SS;
 import frc.robot.util.IPeriodic;
@@ -14,11 +16,14 @@ import frc.robot.util.Util;
 public class ControlScheme implements IPeriodic {
 
     protected Drive drive;
+    protected Elevator elevator;
     private SS ss;
+
+    private int elevatorLevel;
     
     public ControlScheme() {
-        super();
-        drive = Drive.getInstance();
+        this.drive = Drive.getInstance();
+        this.elevator = Elevator.getInstance();
     }
 
     public void init() {
@@ -28,6 +33,7 @@ public class ControlScheme implements IPeriodic {
     }
 
     public void periodic() {
+        /* 
         double rotMult = 0.5;
         double mult = 0;
         if (OI.DR.getLeftTriggerAxis() >= 0.8) {
@@ -71,5 +77,24 @@ public class ControlScheme implements IPeriodic {
             ss.setReef(3);
             ss.intend(Intention.SCORE);
         }
+            */
+        
+        // Testing elevator
+        if (OI.DR.getLeftBumperButtonPressed()) {
+            elevatorLevel = Math.max(0, elevatorLevel - 1);
+            System.out.println("increased");
+        }
+
+        if (OI.DR.getRightBumperButtonPressed()) {
+            elevatorLevel = Math.min(ElevatorConstants.levelHeights.length - 1, elevatorLevel + 1);
+            System.out.println("decreased");
+        }
+
+        if (OI.DR.getAButtonPressed()) {
+            elevatorLevel = 0;
+            System.out.println("zeroed");
+        }
+
+        elevator.setHeight(ElevatorConstants.levelHeights[elevatorLevel]);
     }
 }

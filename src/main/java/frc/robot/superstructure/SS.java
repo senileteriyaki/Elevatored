@@ -205,7 +205,6 @@ public class SS extends StateMachineSubsystemBase<InternalState> {
                 break;
         }
     }
-
     @Override
     public final void outputPeriodic() {
         Logger.recordOutput("SS/Booted?", booted);
