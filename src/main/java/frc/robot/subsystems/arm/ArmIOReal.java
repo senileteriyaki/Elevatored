@@ -5,6 +5,7 @@ import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 
 import edu.wpi.first.math.controller.ArmFeedforward;
@@ -35,17 +36,36 @@ public class ArmIOReal implements ArmIO{
     
     public ArmIOReal(){
         TalonFXConfiguration elbowConfig = new TalonFXConfiguration();
-        // TODO: Set Configs
         this.elbowMM = new MotionMagicVoltage(ArmConstants.minAngle);
-        this.elbowFF = new ArmFeedforward(0, 0, 0, 0);
-        
-        // Raymond: don't create another feedforward object. Just use motionmagic it uses it ialready. Use motion magic configurations. You didn't make a good
-        // configuration here. thats not how configurations work. You make a configuration then you like set slots and stuff. Check this years code. 
-
+        this.elbowFF = new ArmFeedforward(0, 0, 0, 0); //useless but you might as well be able to set voltage
+    
         TalonFXConfiguration shoulderConfig = new TalonFXConfiguration();
-        // TODO: Set Configs
         this.shoulderMM = new MotionMagicVoltage(ArmConstants.minAngle);
         this.shoulderFF = new ArmFeedforward(0, 0, 0, 0);
+
+        shoulderConfig.CurrentLimits.StatorCurrentLimit = 80;
+        shoulderConfig.CurrentLimits.StatorCurrentLimitEnable = true;
+        
+        elbowConfig.CurrentLimits.StatorCurrentLimit = 80;
+        elbowConfig.CurrentLimits.StatorCurrentLimitEnable = true;
+
+        shoulderConfig.MotionMagic.MotionMagicAcceleration = 160;
+        shoulderConfig.MotionMagic.MotionMagicCruiseVelocity = 80;
+        shoulderConfig.MotionMagic.MotionMagicJerk = 1600;
+
+        elbowConfig.MotionMagic.MotionMagicAcceleration = 160;
+        elbowConfig.MotionMagic.MotionMagicCruiseVelocity = 80;
+        elbowConfig.MotionMagic.MotionMagicJerk = 1600;
+
+        shoulderConfig.Slot0.GravityType = GravityTypeValue.Arm_Cosine;
+        shoulderConfig.Slot0.kG = 0.1;
+        shoulderConfig.Slot0.kP = 0.1;
+        shoulderConfig.Slot0.kD = 0.05;
+
+        elbowConfig.Slot0.GravityType = GravityTypeValue.Arm_Cosine;
+        elbowConfig.Slot0.kG = 0.1;
+        elbowConfig.Slot0.kP = 0.1;
+        elbowConfig.Slot0.kD = 0.05;
 
         elbowPos = elbowMotor.getPosition();
         elbowVel = elbowMotor.getVelocity();
