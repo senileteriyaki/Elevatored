@@ -86,63 +86,7 @@ public class SS extends StateMachineSubsystemBase<InternalState> {
     }
 
     private void handleIntention() {
-        switch (intention) {
-            case IDLE:
-                queueState(
-                    switch (intention) {
-                        case IDLE -> InternalState.IDLE;
-                        default -> defaultIntentionHandling();
-                    }
-                );
-                break;
-            case PRESCORE:
-                queueState(
-                    switch (intention) {
-                        case IDLE -> InternalState.IDLE;
-                        case PRESCORE -> InternalState.PRESCORE;
-                        default -> {
-                            if (!tracking.getEnabled() || drive.finishedTracking()) {
-                                yield InternalState.SCORE1;
-                            } else {
-                                yield defaultIntentionHandling();
-                            }
-                        }
-                    }
-                );
-                break;
-            case SCORE:
-                queueState(
-                    switch (intention) {
-                        case IDLE -> InternalState.IDLE;
-                        default -> {
-                            yield defaultIntentionHandling();
 
-                            /*
-                             * TODO: Check when to change between current scoring levels (make a switch based on InternalState).
-                             * Then, add cases to switch back to idle once the robot is done scoring (bhlcusd: idk when this is the case...),
-                             * or when there is a "reject".
-                             */
-                        }
-                    }
-                );
-                break;
-            case CLIMB:
-                queueState(
-                    switch (intention) {
-                        case IDLE -> InternalState.IDLE;
-                        default -> {
-                            yield defaultIntentionHandling();
-
-                            /*
-                             * TODO: Implement the same conditions as above => figure out when the robot is done climbing.
-                             */
-                        }
-                    }
-                );
-                break;
-            default:
-                break;
-        }
     }
 
     // you don't handle actual internal states, you mostly only queue the score states. You basically never go back to idle when intended. 
@@ -152,58 +96,7 @@ public class SS extends StateMachineSubsystemBase<InternalState> {
             queueState(InternalState.BOOT);
         }
 
-        queueState(defaultIntentionHandling());
-        handleIntention();
 
-        switch (getState()) {
-            case DISABLED:
-                break;
-            case BOOT:
-                booted = true;
-
-                elevator.zero();
-                arm.zero();
-
-                queueState(InternalState.IDLE);
-
-                break;
-            case IDLE:
-                if (stateInit()) {
-                    homedYet = false;
-                }
-
-                // ensure drive is in a safe state
-                if (drive != null) {
-                    drive.setPathingOverride(PathingOverride.NONE);
-                }
-
-                break;
-            case PRESCORE:
-                drive.setPathingOverride(PathingOverride.TRACKING);
-                // This should also move the arm and elevator to the location before it is scored. 
-                // Then check if it is at positon, then like go between the score states.
-            case SCORE1:
-                elevator.setCoralLevel(0);
-                arm.setCoralLevel(0); /// bruh no pull back. Also you just stay in these states forever.
-                break;
-            case SCORE2:
-                elevator.setCoralLevel(1);
-                arm.setCoralLevel(1);
-                break;
-            case SCORE3:
-                elevator.setCoralLevel(2);
-                arm.setCoralLevel(2);
-                break;
-            case SCORE4:
-                elevator.setCoralLevel(3);
-                arm.setCoralLevel(3);
-            case CLIMBING:
-                climb.queueState(ClimbStates.STRETCHING);
-                break;
-            default:
-                unimplementedStateAlert.set(true);
-                break;
-        }
     }
     @Override
     public final void outputPeriodic() {
