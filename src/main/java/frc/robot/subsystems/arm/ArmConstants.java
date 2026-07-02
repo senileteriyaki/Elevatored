@@ -33,4 +33,5 @@ public final class ArmConstants {
 
     public static final double[] elbowLevelAngles = {42, 60, 70, 67}; //entirely random numbers but wtv
     public static final double[] shoulderLevelAngles = {80, 45, 32, 56};
+    public static final double[] shoulderLevelAngles2 = {80, 45, 32, 56};
 }

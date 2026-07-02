@@ -72,12 +72,10 @@ public class Elevator extends StateMachineSubsystemBase<ElevatorStates> {
       elevator2d.periodic();
     }
 
-    public void setTarget(double p){
-      target = p;
-    }
+
 
     public void setHeight(double height) {
-      setTarget(height);
+      target = height;
       queueState(ElevatorStates.TRAVELLING);
     }
 
@@ -87,5 +85,9 @@ public class Elevator extends StateMachineSubsystemBase<ElevatorStates> {
 
     public void stow() {
       setHeight(ElevatorConstants.STOW);
+    }
+
+    public boolean reachedTarget() {
+      return Math.abs(inputs.pos_m - target) < ElevatorConstants.tolerance;
     }
 }

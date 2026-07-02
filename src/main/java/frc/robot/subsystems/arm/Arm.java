@@ -104,11 +104,26 @@ public class Arm extends StateMachineSubsystemBase<ArmStates> {
       queueState(ArmStates.TRAVELLING);
     }
 
+    public void setElbowPosition(double elbowAngle) {
+      setElbowTarget(elbowAngle);
+      queueState(ArmStates.TRAVELLING);
+    }
+
+    public void setShoulderPosition(double shoulderAngle) {
+      setShoulderTarget(shoulderAngle);
+      queueState(ArmStates.TRAVELLING);
+    }
+    
     public void zero() {
       trackToPosition(ArmConstants.ELBOW_ZERO, ArmConstants.SHOULDER_ZERO);
     }
 
     public void stow() {
       trackToPosition(ArmConstants.ELBOW_STOW, ArmConstants.SHOULDER_STOW);
+    }
+
+    public boolean reachedTarget(){
+      return Math.abs(inputs.elbowPos_deg - elbowTarget) < ArmConstants.elbowTolerance &&
+             Math.abs(inputs.shoulderPos_deg - shoulderTarget) < ArmConstants.shoulderTolerance;
     }
 }

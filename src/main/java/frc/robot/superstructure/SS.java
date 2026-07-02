@@ -8,6 +8,8 @@ import com.fasterxml.jackson.databind.ser.BeanSerializer;
 
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
+import edu.wpi.first.wpilibj.Timer;
+import frc.robot.Constants.ArmConstants;
 import frc.robot.subsystems.StateMachineSubsystemBase;
 import frc.robot.subsystems.arm.Arm;
 import frc.robot.subsystems.climb.Climb;
@@ -15,6 +17,7 @@ import frc.robot.subsystems.climb.ClimbStates;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.PathingOverride;
 import frc.robot.subsystems.elevator.Elevator;
+import frc.robot.subsystems.elevator.ElevatorConstants;
 import frc.robot.subsystems.tracking.Tracking;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.util.MTimer;
@@ -38,8 +41,9 @@ public class SS extends StateMachineSubsystemBase<InternalState> {
     private Alert unimplementedStateAlert = new Alert("SS InternalState unimplemented", AlertType.kError);
 
     public static final double PULLBACK_TIME_s = 0.45;
+    public static final double POSTSCORE_s = 0.5;
 
-    private MTimer scoringTimer;
+    private Timer timer;
 
     private boolean homedYet = false;
 
@@ -58,7 +62,7 @@ public class SS extends StateMachineSubsystemBase<InternalState> {
         intention = Intention.IDLE;
         queueState(InternalState.IDLE);
         booted = false;
-        scoringTimer = new MTimer();
+        timer = new Timer();
         homedYet = false;
 
         drive = Drive.getInstance();
@@ -78,24 +82,93 @@ public class SS extends StateMachineSubsystemBase<InternalState> {
     public InternalState defaultIntentionHandling() {
         return switch (intention){
             case IDLE -> InternalState.IDLE;
-            case PRESCORE -> InternalState.PRESCORE;
-            case SCORE -> InternalState.SCORE1;
+            case SCORE -> InternalState.PRESCORE;
             case CLIMB -> InternalState.CLIMBING;
             default -> InternalState.IDLE;
         };
     }
 
     private void handleIntention() {
+        switch (getState()) {
+            case BOOT: break;
+            case DISABLED: break;
+            case IDLE:
+                queueState(defaultIntentionHandling());
+                break;
+            case PRESCORE:
+                queueState(switch (intention){
+                    case REJECT:
+                        yield (InternalState.REJECT);
+                    case SCORE: 
+                        yield (drive.finishedTracking() ? InternalState.SCORESTAGE1 : InternalState.PRESCORE);
+                    case IDLE: 
+                        yield (InternalState.IDLE);
+                    default: 
+                        yield (InternalState.PRESCORE);
+                });
+                break;
+            case SCORESTAGE1:
+                queueState(switch (intention){
+                    case SCORE:
+                        yield (okToScore1() ? InternalState.SCORESTAGE2 : InternalState.SCORESTAGE1);
+                    case REJECT:
+                        yield (InternalState.REJECT);
+                    default:
+                        yield (InternalState.IDLE);
 
+                });
+            case SCORESTAGE2:
+                queueState(okToScore2() ? InternalState.POSTSCORE : InternalState.SCORESTAGE2);
+            case POSTSCORE:
+                if (arm.reachedTarget() && elevator.reachedTarget()){
+                    queueState(InternalState.IDLE);
+                }
+                break;
+                
+        }
     }
 
     // you don't handle actual internal states, you mostly only queue the score states. You basically never go back to idle when intended. 
     @Override
-    public void handleStateMachine() {
+    public void handleStateMachine() { 
         if (!booted && !isState(InternalState.DISABLED)) {
             queueState(InternalState.BOOT);
         }
 
+        handleIntention();
+
+        switch (getState()){
+            case DISABLED:
+                break;
+            case BOOT:
+                elevator.zero();
+                arm.zero();
+                booted = true;
+                queueState(InternalState.IDLE);
+                break;
+            case IDLE: //finish sometime
+                break;            
+            case PRESCORE:
+                arm.setElbowPosition(ArmConstants.elbowLevelAngles[coralLevel]);
+                break;
+            case SCORESTAGE1:
+                elevator.setHeight(ElevatorConstants.levelHeights[coralLevel]);
+                arm.setShoulderPosition(ArmConstants.shoulderLevelAngles[coralLevel]);
+                break;
+            case SCORESTAGE2:
+                if (timer.hasElapsed(PULLBACK_TIME_s)) {
+                    arm.setShoulderPosition(ArmConstants.shoulderLevelAngles[coralLevel]);
+                }
+                break;
+            
+            case POSTSCORE:
+                if (timer.hasElapsed(POSTSCORE_s)) {
+                    elevator.stow();
+                    arm.stow();
+                }
+                break;
+            
+        }
 
     }
     @Override
@@ -112,5 +185,12 @@ public class SS extends StateMachineSubsystemBase<InternalState> {
         coralLevel = l;
     }
 
+    public boolean okToScore1(){
+        return true;
+    }
+
+    public boolean okToScore2(){
+        return true;
+    }
 }
 
