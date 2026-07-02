@@ -37,12 +37,10 @@ public class Tracking extends StateMachineSubsystemBase<TrackingStates> {
         case REAL:
           instance = new Tracking(new TrackingIOLimelight("limelight-mvrt"));
           break;
-
         case SIM:
         case REPLAY:
           instance = new Tracking(new TrackingIO() {});
           break;
-
         default:
           break;
       }
@@ -60,16 +58,13 @@ public class Tracking extends StateMachineSubsystemBase<TrackingStates> {
   @Override
   public void handleStateMachine() {
     switch (getState()) {
-
       case DISABLED:
         break;
-
       case IDLE:
         if (enabled && hasTarget()) {
           queueState(TrackingStates.TRACKING);
         }
         break;
-
       case TRACKING:
         if (!enabled) {
           queueState(TrackingStates.DISABLED);
@@ -77,7 +72,6 @@ public class Tracking extends StateMachineSubsystemBase<TrackingStates> {
           queueState(TrackingStates.IDLE);
         }
         break;
-
       default:
         break;
     }
