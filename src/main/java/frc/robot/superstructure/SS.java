@@ -1,10 +1,6 @@
 package frc.robot.superstructure;
 
-import java.util.Arrays;
-
 import org.littletonrobotics.junction.Logger;
-
-import com.fasterxml.jackson.databind.ser.BeanSerializer;
 
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
@@ -13,14 +9,11 @@ import frc.robot.Constants.ArmConstants;
 import frc.robot.subsystems.StateMachineSubsystemBase;
 import frc.robot.subsystems.arm.Arm;
 import frc.robot.subsystems.climb.Climb;
-import frc.robot.subsystems.climb.ClimbStates;
 import frc.robot.subsystems.drive.Drive;
-import frc.robot.subsystems.drive.PathingOverride;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.elevator.ElevatorConstants;
 import frc.robot.subsystems.tracking.Tracking;
 import frc.robot.subsystems.vision.Vision;
-import frc.robot.util.MTimer;
 
 
 public class SS extends StateMachineSubsystemBase<InternalState> {
@@ -72,7 +65,6 @@ public class SS extends StateMachineSubsystemBase<InternalState> {
         tracking = Tracking.getInstance();
         vision = Vision.getInstance();
 
-
         tracking.setValidIds(new double[] {6, 7, 8, 9, 10, 11, 17, 18, 19, 20, 21}); //reef only
     }
 
@@ -89,6 +81,7 @@ public class SS extends StateMachineSubsystemBase<InternalState> {
     }
 
     private void handleIntention() {
+        /*
         switch (getState()) {
             case BOOT: break;
             case DISABLED: break;
@@ -126,6 +119,20 @@ public class SS extends StateMachineSubsystemBase<InternalState> {
                 break;
                 
         }
+        */
+
+        switch (intention) {
+            case IDLE:
+                break;
+            case SCORE:
+                break;
+            case CLIMB:
+                break;
+            case REJECT:
+                break;
+            default:
+                break;
+        }
     }
 
     // you don't handle actual internal states, you mostly only queue the score states. You basically never go back to idle when intended. 
@@ -160,14 +167,14 @@ public class SS extends StateMachineSubsystemBase<InternalState> {
                     arm.setShoulderPosition(ArmConstants.shoulderLevelAngles[coralLevel]);
                 }
                 break;
-            
             case POSTSCORE:
                 if (timer.hasElapsed(POSTSCORE_s)) {
                     elevator.stow();
                     arm.stow();
                 }
                 break;
-            
+            default:
+                break;
         }
 
     }
