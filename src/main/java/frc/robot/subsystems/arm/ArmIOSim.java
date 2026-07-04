@@ -21,9 +21,7 @@ public class ArmIOSim implements ArmIO{
     private ProfiledPIDController elbowController;
     private ProfiledPIDController shoulderController;
 
-    private State elbowGoal;
-    private State shoulderGoal;
-
+ 
     private Timer elbowTimer;
     private Timer shoulderTimer;
 
@@ -56,7 +54,8 @@ public class ArmIOSim implements ArmIO{
         shoulderTimer.start();
 
         this.elbowVoltsApplied = this.shoulderVoltsApplied = 0;
-        this.elbowTarget = this.shoulderTarget = ArmConstants.minAngle;
+        this.elbowTarget = ArmConstants.ELBOW_STOW;
+        this.shoulderTarget = ArmConstants.SHOULDER_STOW;
     }
     
     @Override
@@ -90,11 +89,10 @@ public class ArmIOSim implements ArmIO{
     public void goToElbowPos(double pos) {
         if (pos != elbowTarget) {
             elbowTarget = pos;
-            elbowGoal = new State(Units.degreesToRadians(elbowTarget), 0);
             elbowTimer.reset();
         }
 
-        double controllerVoltage = elbowController.calculate(elbowSim.getAngleRads(), elbowGoal);
+        double controllerVoltage = elbowController.calculate(elbowSim.getAngleRads(), elbowTarget);
 
         setElbowVoltage(controllerVoltage);
     }
@@ -103,11 +101,11 @@ public class ArmIOSim implements ArmIO{
     public void goToShoulderPos(double pos) {
         if (pos != shoulderTarget) {
             shoulderTarget = pos;
-            shoulderGoal = new State(Units.degreesToRadians(shoulderTarget), 0);
+
             shoulderTimer.reset();
         }
 
-        double controllerVoltage = shoulderController.calculate(shoulderSim.getAngleRads(), shoulderGoal);
+        double controllerVoltage = shoulderController.calculate(shoulderSim.getAngleRads(), shoulderTarget);
 
         setElbowVoltage(controllerVoltage);
     }

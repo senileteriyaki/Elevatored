@@ -4,7 +4,10 @@ import frc.robot.Constants;
 import frc.robot.subsystems.StateMachineSubsystemBase;
 import frc.robot.util.Util;
 
+import java.util.function.ToLongBiFunction;
+
 import org.littletonrobotics.junction.Logger;
+import org.opencv.core.Mat;
 
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
@@ -319,5 +322,12 @@ public class Tracking extends StateMachineSubsystemBase<TrackingStates> {
 
   public void setValidIds(double[] validIds) {
     io.setValidIds(validIds);
+  }
+
+  public boolean finishedTracking(){
+    boolean isFinished = Math.abs((getTx() - getTxTarget())) < 0.75 && Math.abs((getTz() - getTzTarget())) < 0.75;
+
+    Logger.recordOutput("Tracking/finished", isFinished);
+    return isFinished;
   }
 }

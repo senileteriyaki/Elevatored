@@ -10,6 +10,7 @@ import frc.robot.subsystems.StateMachineSubsystemBase;
 import frc.robot.subsystems.arm.Arm;
 import frc.robot.subsystems.climb.Climb;
 import frc.robot.subsystems.drive.Drive;
+import frc.robot.subsystems.drive.PathingOverride;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.elevator.ElevatorConstants;
 import frc.robot.subsystems.tracking.Tracking;
@@ -81,7 +82,7 @@ public class SS extends StateMachineSubsystemBase<InternalState> {
     }
 
     private void handleIntention() {
-        /*
+        
         switch (getState()) {
             case BOOT: break;
             case DISABLED: break;
@@ -91,9 +92,10 @@ public class SS extends StateMachineSubsystemBase<InternalState> {
             case PRESCORE:
                 queueState(switch (intention){
                     case REJECT:
+                        timer.reset();
                         yield (InternalState.REJECT);
                     case SCORE: 
-                        yield (drive.finishedTracking() ? InternalState.SCORESTAGE1 : InternalState.PRESCORE);
+                        yield (tracking.finishedTracking() ? InternalState.SCORESTAGE1 : InternalState.PRESCORE);
                     case IDLE: 
                         yield (InternalState.IDLE);
                     default: 
@@ -103,8 +105,12 @@ public class SS extends StateMachineSubsystemBase<InternalState> {
             case SCORESTAGE1:
                 queueState(switch (intention){
                     case SCORE:
+                        if (okToScore1()){
+                            timer.reset();
+                        }
                         yield (okToScore1() ? InternalState.SCORESTAGE2 : InternalState.SCORESTAGE1);
                     case REJECT:
+                        timer.reset();
                         yield (InternalState.REJECT);
                     default:
                         yield (InternalState.IDLE);
@@ -119,20 +125,9 @@ public class SS extends StateMachineSubsystemBase<InternalState> {
                 break;
                 
         }
-        */
+        
 
-        switch (intention) {
-            case IDLE:
-                break;
-            case SCORE:
-                break;
-            case CLIMB:
-                break;
-            case REJECT:
-                break;
-            default:
-                break;
-        }
+
     }
 
     // you don't handle actual internal states, you mostly only queue the score states. You basically never go back to idle when intended. 
@@ -156,6 +151,7 @@ public class SS extends StateMachineSubsystemBase<InternalState> {
             case IDLE: //finish sometime
                 break;            
             case PRESCORE:
+                drive.setPathingOverride(PathingOverride.TRACKING);
                 arm.setElbowPosition(ArmConstants.elbowLevelAngles[coralLevel]);
                 break;
             case SCORESTAGE1:
@@ -164,7 +160,7 @@ public class SS extends StateMachineSubsystemBase<InternalState> {
                 break;
             case SCORESTAGE2:
                 if (timer.hasElapsed(PULLBACK_TIME_s)) {
-                    arm.setShoulderPosition(ArmConstants.shoulderLevelAngles[coralLevel]);
+                    arm.setShoulderPosition(ArmConstants.shoulderLevelAngles2[coralLevel]);
                 }
                 break;
             case POSTSCORE:
@@ -173,6 +169,11 @@ public class SS extends StateMachineSubsystemBase<InternalState> {
                     arm.stow();
                 }
                 break;
+            case REJECT:
+                if (timer.hasElapsed(2)){
+                    queueState(InternalState.IDLE); 
+                }
+
             default:
                 break;
         }

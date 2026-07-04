@@ -115,5 +115,6 @@ public final class Constants {
         public static final double[] shoulderLevelAngles = {80, 45, 32, 56};
 
         public static double drumRadius = 0.015;
+        public static double[] shoulderLevelAngles2 = {70, 35, 22, 46};
     }
 }

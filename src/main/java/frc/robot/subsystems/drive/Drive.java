@@ -203,6 +203,7 @@ public class Drive extends StateMachineSubsystemBase<PathingMode> {
         poseFilter = new PoseFilter();
         filteredPose = new Pose2d();
         vision = Vision.getInstance();
+        tracking = Tracking.getInstance();
         queueState(PathingMode.DISABLED);
 
         xController.setTolerance(3);
@@ -303,7 +304,10 @@ public class Drive extends StateMachineSubsystemBase<PathingMode> {
 
                 switch (override) {
                     case TRACKING:
-                        inputSpeeds = calculateTracking(vision.getTargetX(), vision.getTargetY());  // bro use trackings get tracking speeds. Your things do not work like this. Or figure out how to make it work.... The angling is wrong.
+                        if (tracking.finishedTracking()) {
+                            setPathingOverride(PathingOverride.NONE);
+                        }
+                        inputSpeeds = tracking.getTrackingSpeeds(getRotation().getDegrees()); // bro use trackings get tracking speeds. Your things do not work like this. Or figure out how to make it work.... The angling is wrong.
                         break;
                     case BASELOCK:
                         break;
@@ -668,12 +672,5 @@ public class Drive extends StateMachineSubsystemBase<PathingMode> {
 
     }
 
-    public boolean finishedTracking(){
-        boolean isFinished = (xController.atSetpoint() && yController.atSetpoint());
-        if (isFinished){
-            Logger.recordOutput("Drive/track", false);
-            setPathingOverride(PathingOverride.NONE);
-        }
-        return isFinished; 
-    }
+
 }
