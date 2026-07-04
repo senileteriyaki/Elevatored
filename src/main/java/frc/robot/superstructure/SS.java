@@ -75,31 +75,41 @@ public class SS extends StateMachineSubsystemBase<InternalState> {
     public InternalState defaultIntentionHandling() {
         return switch (intention){
             case IDLE -> InternalState.IDLE;
+            case REJECT -> InternalState.IDLE;
             case SCORE -> InternalState.PRESCORE;
             case CLIMB -> InternalState.CLIMBING;
             default -> InternalState.IDLE;
         };
     }
 
+    /**
+     * Controls the switching between states by handling the intention. No subsystem
+     * actions are called since that behavior is manged by handleStateMachine().
+     */
     private void handleIntention() {
-        
         switch (getState()) {
-            case BOOT: break;
-            case DISABLED: break;
+            case BOOT:
+            case DISABLED:
+                break; // Wait for handleStateMachine() to finish booting / disable state switching
+            case REJECT:
+                // TODO: use timer to wait for some time - create constant
+                
+                queueState(InternalState.IDLE);
+                break;
             case IDLE:
                 queueState(defaultIntentionHandling());
                 break;
             case PRESCORE:
-                queueState(switch (intention){
+                queueState(switch (intention) {
                     case REJECT:
                         timer.reset();
                         yield (InternalState.REJECT);
                     case SCORE: 
                         yield (tracking.finishedTracking() ? InternalState.SCORESTAGE1 : InternalState.PRESCORE);
                     case IDLE: 
-                        yield (InternalState.IDLE);
+                        yield InternalState.IDLE;
                     default: 
-                        yield (InternalState.PRESCORE);
+                        yield InternalState.PRESCORE;
                 });
                 break;
             case SCORESTAGE1:
@@ -113,8 +123,7 @@ public class SS extends StateMachineSubsystemBase<InternalState> {
                         timer.reset();
                         yield (InternalState.REJECT);
                     default:
-                        yield (InternalState.IDLE);
-
+                        yield InternalState.IDLE;
                 });
             case SCORESTAGE2:
                 queueState(okToScore2() ? InternalState.POSTSCORE : InternalState.SCORESTAGE2);
@@ -123,14 +132,16 @@ public class SS extends StateMachineSubsystemBase<InternalState> {
                     queueState(InternalState.IDLE);
                 }
                 break;
-                
+            default:
+                queueState(defaultIntentionHandling());
+                break;
         }
-        
-
-
     }
 
-    // you don't handle actual internal states, you mostly only queue the score states. You basically never go back to idle when intended. 
+    /**
+     * Calls subsystem methods to achive the current state. Does not manage switching
+     * the current state - use handleIntention().
+     */
     @Override
     public void handleStateMachine() { 
         if (!booted && !isState(InternalState.DISABLED)) {
@@ -145,11 +156,12 @@ public class SS extends StateMachineSubsystemBase<InternalState> {
             case BOOT:
                 elevator.zero();
                 arm.zero();
+
                 booted = true;
                 queueState(InternalState.IDLE);
                 break;
-            case IDLE: //finish sometime
-                break;            
+            case IDLE:
+                break; // Wait for new intention - changes in handleIntention()      
             case PRESCORE:
                 drive.setPathingOverride(PathingOverride.TRACKING);
                 arm.setElbowPosition(ArmConstants.elbowLevelAngles[coralLevel]);
