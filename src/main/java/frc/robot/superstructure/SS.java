@@ -9,6 +9,7 @@ import frc.robot.Constants.ArmConstants;
 import frc.robot.subsystems.StateMachineSubsystemBase;
 import frc.robot.subsystems.arm.Arm;
 import frc.robot.subsystems.climb.Climb;
+import frc.robot.subsystems.climb.ClimbStates;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.PathingOverride;
 import frc.robot.subsystems.elevator.Elevator;
@@ -80,7 +81,8 @@ public class SS extends StateMachineSubsystemBase<InternalState> {
             case IDLE -> InternalState.IDLE;
             case REJECT -> InternalState.IDLE;
             case SCORE -> InternalState.PRESCORE;
-            case CLIMB -> InternalState.CLIMBING;
+            case CLIMB1 -> InternalState.PRECLIMB;
+            case CLIMB2 -> InternalState.CLIMB;
             default -> InternalState.IDLE;
         };
     }
@@ -144,6 +146,24 @@ public class SS extends StateMachineSubsystemBase<InternalState> {
                     queueState(InternalState.IDLE);
                 }
                 break;
+            case PRECLIMB:
+                queueState(switch (intention) {
+                    case IDLE:
+                        yield InternalState.IDLE;
+                    case CLIMB1:
+                        yield InternalState.PRECLIMB;
+                    case CLIMB2:
+                        yield (climb.reachedTarget() ? InternalState.CLIMB : InternalState.PRECLIMB);
+                    default:
+                        yield InternalState.IDLE;
+
+                });
+                break;
+            case CLIMB:
+                queueState(switch (intention) {
+                    case IDLE: yield InternalState.IDLE;
+                    default: yield InternalState.CLIMB;
+                });
             default:
                 queueState(defaultIntentionHandling());
                 break;
@@ -195,6 +215,12 @@ public class SS extends StateMachineSubsystemBase<InternalState> {
                     elevator.stow();
                     arm.stow();
                 }
+                break;
+            case PRECLIMB:
+                climb.queueState(ClimbStates.STRETCHING);
+                break;
+            case CLIMB:
+                climb.queueState(ClimbStates.CLIMBING);
                 break;
             default:
                 break;

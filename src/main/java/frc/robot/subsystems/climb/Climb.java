@@ -112,4 +112,8 @@ public class Climb extends StateMachineSubsystemBase<ClimbStates> {
         target = inputs.pos_deg;
         hold();
     }
+
+    public boolean reachedTarget(){
+        return (Math.abs(inputs.pos_deg - target) < ClimberConstants.tolerance);
+    }
 }

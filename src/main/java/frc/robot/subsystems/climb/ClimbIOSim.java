@@ -1,17 +1,21 @@
 package frc.robot.subsystems.climb;
 
+import static edu.wpi.first.units.Units.Degrees;
+
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.State;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.simulation.ElevatorSim;
+import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 import frc.robot.Constants;
 import frc.robot.subsystems.elevator.ElevatorConstants;
 
 public class ClimbIOSim implements ClimbIO{
 
-    private ElevatorSim sim;
+    private SingleJointedArmSim sim;
 
     private Constraints constraints;
     private ProfiledPIDController controller;
@@ -21,15 +25,15 @@ public class ClimbIOSim implements ClimbIO{
     private double volts;
 
     public ClimbIOSim(){
-        this.sim = new ElevatorSim(DCMotor.getKrakenX60(1), 3, 
-                                   5, 0.02, ElevatorConstants.minHeight, 
-                                   ElevatorConstants.maxHeight, true, 0, 0.1, 0);
+        this.sim = new SingleJointedArmSim(DCMotor.getKrakenX60(2), 3, 
+                                   5, 0.5, Units.degreesToRadians(ClimberConstants.minAngle),
+                                   Units.degreesToRadians(ClimberConstants.maxAngle), true, Units.degreesToRadians(90), 0.1, 0);
 
         this.constraints = new Constraints(ClimberConstants.MAX_VELOCITY, ClimberConstants.MAX_ACCELERATION);
         this.controller = new ProfiledPIDController(ClimberConstants.kP, ClimberConstants.kI, ClimberConstants.kD, constraints);
         controller.setTolerance(ClimberConstants.tolerance);
 
-        this.targetPos = 0;
+        this.targetPos = 90;
     }
     
     @Override
@@ -38,8 +42,8 @@ public class ClimbIOSim implements ClimbIO{
 
         inputs.voltage_v = volts;
         inputs.current_a = sim.getCurrentDrawAmps();
-        inputs.pos_deg = sim.getPositionMeters();
-        inputs.vel_dps = sim.getVelocityMetersPerSecond();
+        inputs.pos_deg = Units.radiansToDegrees(sim.getAngleRads());
+        inputs.vel_dps = Units.radiansToDegrees(sim.getVelocityRadPerSec());
     }
 
     @Override
@@ -56,7 +60,7 @@ public class ClimbIOSim implements ClimbIO{
         controller.setGoal(goal);
        }
 
-       setVoltage(controller.calculate(sim.getPositionMeters()));
+       setVoltage(controller.calculate(Units.radiansToDegrees(sim.getAngleRads()), targetPos));
     }
 
     @Override

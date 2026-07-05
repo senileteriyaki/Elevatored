@@ -6,7 +6,8 @@ public enum InternalState implements IState{
     IDLE,
     DISABLED,
     BOOT,
-    CLIMBING,
+    PRECLIMB,
+    CLIMB,
     REJECT,
     PRESCORE, //track to reef, got to desired arm elbow angle
     SCORESTAGE1, //raise elevator, go to desired arm shoulder angle as well

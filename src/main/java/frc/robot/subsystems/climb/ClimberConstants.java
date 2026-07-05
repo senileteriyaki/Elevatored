@@ -1,6 +1,10 @@
 package frc.robot.subsystems.climb;
 
 public final class ClimberConstants {
+
+    public static final double minAngle = -15;
+    public static final double maxAngle = 150;
+    
     public static final double stowAngle = 90;
     public static final double stretchAngle = 0;
     public static final double climbAngle = 45;
