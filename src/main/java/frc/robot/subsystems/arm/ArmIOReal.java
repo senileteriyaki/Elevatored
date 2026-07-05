@@ -103,7 +103,7 @@ public class ArmIOReal implements ArmIO{
 
     @Override
     public void setElbowVoltage(double voltage){
-        elbowMotor.setVoltage(voltage + elbowFF.calculate(elbowPos.getValueAsDouble(), 0)); // Raymond: ueah this is good but there isn't that much of a point cuz when u just set voltage its kinda useless lowk. 
+        elbowMotor.setVoltage(voltage + elbowFF.calculate(elbowPos.getValueAsDouble(), 0));  
     }
 
     @Override
@@ -114,15 +114,12 @@ public class ArmIOReal implements ArmIO{
     @Override
     public void goToElbowPos(double pos){
         elbowMotor.setControl(elbowMM
-            .withPosition(pos)
-            .withFeedForward(elbowFF.calculate(elbowPos.getValueAsDouble(), 0))); // Raymond: sure you can use feed forwwards here but remember that motion magic already uses feedforward so like its not that useful. But this is good for gravitational compensation. Also make sure the units are right to what it corresponds to.
+            .withPosition(pos));
     }
-
     @Override
     public void goToShoulderPos(double pos) {
         shoulderMotor.setControl(shoulderMM
-            .withPosition(pos)
-            .withFeedForward(shoulderFF.calculate(shoulderPos.getValueAsDouble(), 0)));
+            .withPosition(pos));
     }
 
     @Override

@@ -199,11 +199,11 @@ public class SS extends StateMachineSubsystemBase<InternalState> {
                 break; // Wait for new intention - changes in handleIntention()      
             case PRESCORE:
                 drive.setPathingOverride(PathingOverride.TRACKING);
-                arm.setElbowPosition(ArmConstants.elbowLevelAngles[coralLevel]);
                 break;
             case SCORESTAGE1:
                 elevator.setHeight(ElevatorConstants.levelHeights[coralLevel]);
                 arm.setShoulderPosition(ArmConstants.shoulderLevelAngles[coralLevel]);
+                arm.setElbowPosition(ArmConstants.elbowLevelAngles[coralLevel]);
                 break;
             case SCORESTAGE2:
                 if (timer.hasElapsed(PULLBACK_TIME_s)) {
@@ -242,11 +242,11 @@ public class SS extends StateMachineSubsystemBase<InternalState> {
     }
 
     public boolean okToScore1(){
-        return true;
+        return arm.reachedTarget() && elevator.reachedTarget();
     }
 
     public boolean okToScore2(){
-        return true;
+        return arm.reachedTarget();
     }
 }
 
