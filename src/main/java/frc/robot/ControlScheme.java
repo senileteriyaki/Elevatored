@@ -19,10 +19,10 @@ public class ControlScheme implements IPeriodic {
     protected Elevator elevator;
     private SS ss;
 
-    private String[] modes = {"elevator", "arm", "climb", "drive", "ss"};
+    private String[] modes = { "elevator", "arm", "climb", "drive", "ss" };
     private int modeCounter;
     private int elevatorLevel;
-    
+
     public ControlScheme() {
         this.drive = Drive.getInstance();
         this.elevator = Elevator.getInstance();
@@ -37,7 +37,7 @@ public class ControlScheme implements IPeriodic {
     }
 
     public void periodic() {
-        /* 
+        
         double rotMult = 0.5;
         double mult = 0;
         if (OI.DR.getLeftTriggerAxis() >= 0.8) {
@@ -46,42 +46,27 @@ public class ControlScheme implements IPeriodic {
             mult = -0.7;
         }
 
-        // if (OI.DR.getRightTriggerAxis() >= 0.8) {
-        //     // drive.queueState(PathingMode.TRACKING);
-        //     drive.setPathingOverride(PathingOverride.SHOOTING);
+         if (OI.DR.getRightTriggerAxis() >= 0.8) {
+             // drive.queueState(PathingMode.TRACKING);
+             drive.setPathingOverride(PathingOverride.SHOOTING);
 
-        // } else {
-        //     drive.queueState(PathingMode.FIELD_RELATIVE);
-        //     drive.setPathingOverride(PathingOverride.NONE);
+         } else {
+             drive.queueState(PathingMode.FIELD_RELATIVE);
+             drive.setPathingOverride(PathingOverride.NONE);
 
-        // }
-        // double x_ = -OI.deadband(OI.DR.getLeftY() * mult);
-        // double y_ = -OI.deadband(OI.DR.getLeftX() * mult);
-        // double w_ = rotMult * -Util.sqInput(OI.deadband(OI.DR.getRightX()));
-        // double throttle = Util
-        //         .sqInput(1.0 - OI.deadband(Math.max(OI.DR.getLeftTriggerAxis(), OI.DR.getRightTriggerAxis())));
+         }
+         double x_ = -OI.deadband(OI.DR.getLeftY() * mult);
+         double y_ = -OI.deadband(OI.DR.getLeftX() * mult);
+         double w_ = rotMult * -Util.sqInput(OI.deadband(OI.DR.getRightX()));
+         double throttle = Util
+                 .sqInput(1.0 - OI.deadband(Math.max(OI.DR.getLeftTriggerAxis(), OI.DR.getRightTriggerAxis())));
 
-        // SwerveInput input = new SwerveInput(x_, y_, w_, throttle);
-        // drive.setInput(input);
+        SwerveInput input = new SwerveInput(x_, y_, w_, throttle);
+        drive.setInput(input);
 
-        if (OI.DR.getRightTriggerAxis() > 0.8) {
-        }
-        else {
-        }
 
-        if (OI.DR.getAButtonReleased()) { // idk this crashes me smh
-        }
-
-        if (OI.DR.getYButtonPressed()) {
-            ss.setReef(2);
-            ss.intend(Intention.SCORE);
-        }
-
-        if (OI.DR.getXButtonPressed()) {
-            ss.setReef(3);
-            ss.intend(Intention.SCORE);
-        }
-        */
+  
+        
         
         if (OI.DR.getAButtonPressed()) {
             modeCounter++;
