@@ -48,7 +48,6 @@ public class ElevatorIOReal implements ElevatorIO{
 
         config.Slot0.GravityType = GravityTypeValue.Elevator_Static;
         config.Slot0.kP = 10.0;
-        config.Slot0.kP = 1.0;
         config.Slot0.kD = 1.0;
         
         PhoenixUtil.tryUntilOk(5, () -> elevatorMotor.getConfigurator().apply(config));

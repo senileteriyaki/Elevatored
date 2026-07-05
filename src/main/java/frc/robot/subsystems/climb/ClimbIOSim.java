@@ -1,7 +1,5 @@
 package frc.robot.subsystems.climb;
 
-import static edu.wpi.first.units.Units.Degrees;
-
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.ProfiledPIDController;
@@ -9,11 +7,9 @@ import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.State;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.simulation.ElevatorSim;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 
 import frc.robot.Constants;
-import frc.robot.subsystems.elevator.ElevatorConstants;
 
 public class ClimbIOSim implements ClimbIO{
 
@@ -30,7 +26,7 @@ public class ClimbIOSim implements ClimbIO{
     public ClimbIOSim(){
         this.sim = new SingleJointedArmSim(DCMotor.getKrakenX60(2), 50, 
                                    1.5, 0.5, Units.degreesToRadians(ClimberConstants.minAngle),
-                                   Units.degreesToRadians(ClimberConstants.maxAngle), true, Units.degreesToRadians(ClimberConstants.stowAngle) );
+                                   Units.degreesToRadians(ClimberConstants.maxAngle), true, Units.degreesToRadians(ClimberConstants.stowAngle));
 
         this.constraints = new Constraints(ClimberConstants.MAX_VELOCITY, ClimberConstants.MAX_ACCELERATION);
         this.controller = new ProfiledPIDController(ClimberConstants.kP, ClimberConstants.kI, ClimberConstants.kD, constraints);
@@ -63,7 +59,6 @@ public class ClimbIOSim implements ClimbIO{
     public void goToPos(double pos){
         double conVoltage = controller.calculate(Units.radiansToDegrees(sim.getAngleRads()), pos);
         setVoltage(conVoltage + ff.calculate(Units.degreesToRadians(controller.getSetpoint().position), Units.degreesToRadians(controller.getSetpoint().velocity)));
-        //setVoltage(conVoltage);
     }
 
     @Override

@@ -114,7 +114,7 @@ public class SS extends StateMachineSubsystemBase<InternalState> {
                     case SCORE: 
                         yield tracking.finishedTracking() ? InternalState.SCORESTAGE1 : InternalState.PRESCORE;
                     default: 
-                        yield InternalState.PRESCORE;
+                        yield defaultIntentionHandling();
                 });
                 break;
             case SCORESTAGE1:
@@ -128,7 +128,7 @@ public class SS extends StateMachineSubsystemBase<InternalState> {
                         }
                         yield okToScore1() ? InternalState.SCORESTAGE2 : InternalState.SCORESTAGE1;
                     default:
-                        yield InternalState.IDLE;
+                        yield defaultIntentionHandling();
                 });
             case SCORESTAGE2:
                 queueState(okToScore2() ? InternalState.POSTSCORE : InternalState.SCORESTAGE2);
@@ -139,7 +139,7 @@ public class SS extends StateMachineSubsystemBase<InternalState> {
                     case SCORE:
                         yield okToScore2() ? InternalState.POSTSCORE : InternalState.SCORESTAGE2;
                     default:
-                        yield InternalState.IDLE;
+                        yield defaultIntentionHandling();
                 });
             case POSTSCORE:
                 if (arm.reachedTarget() && elevator.reachedTarget()){
@@ -153,16 +153,18 @@ public class SS extends StateMachineSubsystemBase<InternalState> {
                     case CLIMB1:
                         yield InternalState.PRECLIMB;
                     case CLIMB2:
-                        yield (climb.reachedTarget() ? InternalState.CLIMB : InternalState.PRECLIMB);
+                        yield climb.reachedTarget() ? InternalState.CLIMB : InternalState.PRECLIMB;
                     default:
-                        yield InternalState.IDLE;
+                        yield defaultIntentionHandling();
 
                 });
                 break;
             case CLIMB:
                 queueState(switch (intention) {
-                    case IDLE: yield InternalState.IDLE;
-                    default: yield InternalState.CLIMB;
+                    case IDLE: 
+                        yield InternalState.IDLE;
+                    default: 
+                        yield defaultIntentionHandling();
                 });
             default:
                 queueState(defaultIntentionHandling());
@@ -223,6 +225,7 @@ public class SS extends StateMachineSubsystemBase<InternalState> {
                 climb.queueState(ClimbStates.CLIMBING);
                 break;
             default:
+                unimplementedStateAlert.set(true);
                 break;
         }
 
