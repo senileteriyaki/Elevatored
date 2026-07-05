@@ -4,7 +4,6 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
-import edu.wpi.first.math.trajectory.TrapezoidProfile.State;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
@@ -92,7 +91,7 @@ public class ArmIOSim implements ArmIO{
             elbowTimer.reset();
         }
 
-        double controllerVoltage = elbowController.calculate(elbowSim.getAngleRads(), elbowTarget);
+        double controllerVoltage = elbowController.calculate(elbowSim.getAngleRads(), Units.degreesToRadians(elbowTarget));
 
         setElbowVoltage(controllerVoltage);
     }
@@ -101,13 +100,12 @@ public class ArmIOSim implements ArmIO{
     public void goToShoulderPos(double pos) {
         if (pos != shoulderTarget) {
             shoulderTarget = pos;
-
             shoulderTimer.reset();
         }
 
-        double controllerVoltage = shoulderController.calculate(shoulderSim.getAngleRads(), shoulderTarget);
+        double controllerVoltage = shoulderController.calculate(shoulderSim.getAngleRads(), Units.degreesToRadians(shoulderTarget));
 
-        setElbowVoltage(controllerVoltage);
+        setShoulderVoltage(controllerVoltage);
     }
 
     @Override

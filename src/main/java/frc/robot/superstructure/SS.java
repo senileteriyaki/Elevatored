@@ -36,6 +36,7 @@ public class SS extends StateMachineSubsystemBase<InternalState> {
 
     public static final double PULLBACK_TIME_s = 0.45;
     public static final double POSTSCORE_s = 0.5;
+    public static final double REJECT_TIMEOUT_s = 2;
 
     private Timer timer;
 
@@ -53,8 +54,10 @@ public class SS extends StateMachineSubsystemBase<InternalState> {
 
     private SS() {
         super("SS");
+
         intention = Intention.IDLE;
-        queueState(InternalState.IDLE);
+        queueState(InternalState.BOOT);
+        
         booted = false;
         timer = new Timer();
         homedYet = false;
@@ -87,14 +90,16 @@ public class SS extends StateMachineSubsystemBase<InternalState> {
      * actions are called since that behavior is manged by handleStateMachine().
      */
     private void handleIntention() {
+        // System.out.println("\n\n\nIntention: " + intention + " | " + getState() + "\n\n\n");
+
         switch (getState()) {
             case BOOT:
             case DISABLED:
                 break; // Wait for handleStateMachine() to finish booting / disable state switching
             case REJECT:
-                // TODO: use timer to wait for some time - create constant
-                
-                queueState(InternalState.IDLE);
+                if (timer.hasElapsed(REJECT_TIMEOUT_s)){
+                    queueState(InternalState.IDLE); 
+                }
                 break;
             case IDLE:
                 queueState(defaultIntentionHandling());
@@ -103,30 +108,37 @@ public class SS extends StateMachineSubsystemBase<InternalState> {
                 queueState(switch (intention) {
                     case REJECT:
                         timer.reset();
-                        yield (InternalState.REJECT);
+                        yield InternalState.REJECT;
                     case SCORE: 
-                        yield (tracking.finishedTracking()  ? InternalState.SCORESTAGE1 : InternalState.PRESCORE);
-                    case IDLE: 
-                        yield InternalState.IDLE;
+                        yield tracking.finishedTracking() ? InternalState.SCORESTAGE1 : InternalState.PRESCORE;
                     default: 
                         yield InternalState.PRESCORE;
                 });
                 break;
             case SCORESTAGE1:
-                queueState(switch (intention){
+                queueState(switch (intention) {
+                    case REJECT:
+                        timer.reset();
+                        yield InternalState.REJECT;
                     case SCORE:
                         if (okToScore1()){
                             timer.reset();
                         }
-                        yield (okToScore1() ? InternalState.SCORESTAGE2 : InternalState.SCORESTAGE1);
-                    case REJECT:
-                        timer.reset();
-                        yield (InternalState.REJECT);
+                        yield okToScore1() ? InternalState.SCORESTAGE2 : InternalState.SCORESTAGE1;
                     default:
                         yield InternalState.IDLE;
                 });
             case SCORESTAGE2:
                 queueState(okToScore2() ? InternalState.POSTSCORE : InternalState.SCORESTAGE2);
+                queueState(switch (intention) {
+                    case REJECT:
+                        timer.reset();
+                        yield InternalState.REJECT;
+                    case SCORE:
+                        yield okToScore2() ? InternalState.POSTSCORE : InternalState.SCORESTAGE2;
+                    default:
+                        yield InternalState.IDLE;
+                });
             case POSTSCORE:
                 if (arm.reachedTarget() && elevator.reachedTarget()){
                     queueState(InternalState.IDLE);
@@ -152,6 +164,7 @@ public class SS extends StateMachineSubsystemBase<InternalState> {
 
         switch (getState()){
             case DISABLED:
+            case REJECT:
                 break;
             case BOOT:
                 elevator.zero();
@@ -183,11 +196,6 @@ public class SS extends StateMachineSubsystemBase<InternalState> {
                     arm.stow();
                 }
                 break;
-            case REJECT:
-                if (timer.hasElapsed(2)){
-                    queueState(InternalState.IDLE); 
-                }
-
             default:
                 break;
         }

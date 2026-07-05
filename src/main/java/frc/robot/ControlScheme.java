@@ -24,6 +24,8 @@ public class ControlScheme implements IPeriodic {
     public ControlScheme() {
         this.drive = Drive.getInstance();
         this.elevator = Elevator.getInstance();
+        
+        this.ss = SS.getInstance();
     }
 
     public void init() {

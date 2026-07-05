@@ -23,6 +23,7 @@ public class Arm extends StateMachineSubsystemBase<ArmStates> {
         this.elbowTarget = ArmConstants.ELBOW_STOW;
         this.shoulderTarget = ArmConstants.SHOULDER_STOW;
         this.arm2d = new Arm2d("arm", new Color8Bit(Color.kBlanchedAlmond));
+
         queueState(ArmStates.IDLE);
     }
     
@@ -49,8 +50,6 @@ public class Arm extends StateMachineSubsystemBase<ArmStates> {
     public void handleStateMachine(){
       switch (getState()) {
         case DISABLED:
-          io.stopElbow();
-          io.stopShoulder();
           break;
         case IDLE:
           io.stopElbow();
@@ -63,8 +62,7 @@ public class Arm extends StateMachineSubsystemBase<ArmStates> {
           io.goToElbowPos(elbowTarget);
           io.goToShoulderPos(shoulderTarget);
 
-          if (Math.abs(inputs.elbowPos_deg - elbowTarget) < ArmConstants.elbowTolerance &&
-              Math.abs(inputs.shoulderPos_deg - shoulderTarget) < ArmConstants.shoulderTolerance) {
+          if (reachedTarget()) {
             queueState(ArmStates.HOLDING);
           }
           break;
