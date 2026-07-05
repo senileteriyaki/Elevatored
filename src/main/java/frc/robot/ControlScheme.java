@@ -19,12 +19,14 @@ public class ControlScheme implements IPeriodic {
     protected Elevator elevator;
     private SS ss;
 
+    private String[] modes = {"elevator", "arm", "climb", "drive", "ss"};
+    private int modeCounter;
     private int elevatorLevel;
     
     public ControlScheme() {
         this.drive = Drive.getInstance();
         this.elevator = Elevator.getInstance();
-        
+
         this.ss = SS.getInstance();
     }
 
@@ -79,24 +81,46 @@ public class ControlScheme implements IPeriodic {
             ss.setReef(3);
             ss.intend(Intention.SCORE);
         }
-            */
+        */
         
-        // Testing elevator
-        if (OI.DR.getLeftBumperButtonPressed()) {
-            elevatorLevel = Math.max(0, elevatorLevel - 1);
-            System.out.println("increased");
-        }
-
-        if (OI.DR.getRightBumperButtonPressed()) {
-            elevatorLevel = Math.min(ElevatorConstants.levelHeights.length - 1, elevatorLevel + 1);
-            System.out.println("decreased");
-        }
-
         if (OI.DR.getAButtonPressed()) {
-            elevatorLevel = 0;
-            System.out.println("zeroed");
+            modeCounter++;
+            System.out.println("\n\n\nCurrent mode is now: " + modes[modeCounter % modes.length] + "\n\n\n");
+            return;
         }
 
-        elevator.setHeight(ElevatorConstants.levelHeights[elevatorLevel]);
+        switch (modes[modeCounter % modes.length]) {
+            case "elevator":
+                // Testing elevator
+                if (OI.DR.getLeftBumperButtonPressed()) {
+                    elevatorLevel = Math.max(0, elevatorLevel - 1);
+                    System.out.println("increased");
+                }
+
+                if (OI.DR.getRightBumperButtonPressed()) {
+                    elevatorLevel = Math.min(ElevatorConstants.levelHeights.length - 1, elevatorLevel + 1);
+                    System.out.println("decreased");
+                }
+
+                if (OI.DR.getAButtonPressed()) {
+                    elevatorLevel = 0;
+                    System.out.println("zeroed");
+                }
+
+                elevator.setHeight(ElevatorConstants.levelHeights[elevatorLevel]);
+                break;
+            case "arm":
+                break;
+            case "climb":
+                break;
+            case "drive":
+                break;
+            case "ss":
+                // TODO: cycle through various states and intentions (pressing x and y buttons respectively)
+                break;
+            default:
+                System.err.println("\n\n\nERROR: Current mode \"" + modes[modeCounter % modes.length] + "\" not implemented!\n\n\n");
+                break;
+        }
     }
 }
