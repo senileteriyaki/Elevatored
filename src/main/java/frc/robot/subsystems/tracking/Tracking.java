@@ -42,6 +42,8 @@ public class Tracking extends StateMachineSubsystemBase<TrackingStates> {
           break;
 
         case SIM:
+          instance = new Tracking(new TrackingIOSim());
+          break;
         case REPLAY:
           instance = new Tracking(new TrackingIO() {});
           break;
@@ -325,7 +327,7 @@ public class Tracking extends StateMachineSubsystemBase<TrackingStates> {
   }
 
   public boolean finishedTracking(){
-    boolean isFinished = Math.abs((getTx() - getTxTarget())) < 0.75 && Math.abs((getTz() - getTzTarget())) < 0.75;
+    boolean isFinished = Math.abs((getLocation().getTx() - getTx())) < 0.75 && Math.abs((getLocation().getTz() - getTz())) < 0.75;
 
     Logger.recordOutput("Tracking/finished", isFinished);
     return isFinished;

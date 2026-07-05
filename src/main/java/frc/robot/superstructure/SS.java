@@ -105,7 +105,7 @@ public class SS extends StateMachineSubsystemBase<InternalState> {
                         timer.reset();
                         yield (InternalState.REJECT);
                     case SCORE: 
-                        yield (tracking.finishedTracking() ? InternalState.SCORESTAGE1 : InternalState.PRESCORE);
+                        yield (tracking.finishedTracking()  ? InternalState.SCORESTAGE1 : InternalState.PRESCORE);
                     case IDLE: 
                         yield InternalState.IDLE;
                     default: 
@@ -161,6 +161,8 @@ public class SS extends StateMachineSubsystemBase<InternalState> {
                 queueState(InternalState.IDLE);
                 break;
             case IDLE:
+                elevator.stow();
+                arm.stow();
                 break; // Wait for new intention - changes in handleIntention()      
             case PRESCORE:
                 drive.setPathingOverride(PathingOverride.TRACKING);
