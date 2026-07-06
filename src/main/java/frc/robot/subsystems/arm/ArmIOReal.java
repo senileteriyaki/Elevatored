@@ -17,7 +17,7 @@ import frc.robot.util.PhoenixUtil;
 
 public class ArmIOReal implements ArmIO{
 
-    private TalonFX elbowMotor = new TalonFX(ArmConstants.ELBOW_MOTOR_ID); // Raymond Use constants for device ids. Make a constant file for each subsystem
+    private TalonFX elbowMotor = new TalonFX(ArmConstants.ELBOW_MOTOR_ID);
     private TalonFX shoulderMotor = new TalonFX(ArmConstants.SHOULDER_MOTOR_ID);
 
     private final StatusSignal<Angle> elbowPos;
@@ -77,7 +77,7 @@ public class ArmIOReal implements ArmIO{
         shoulderVolts = shoulderMotor.getMotorVoltage();
         shoulderAmps = shoulderMotor.getStatorCurrent();
 
-        // NOTE: Apply motor configs here
+        // TODO: Apply motor configs here
         elbowConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
         shoulderConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
