@@ -1,7 +1,9 @@
 package frc.robot.subsystems.elevator;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.State;
@@ -13,32 +15,26 @@ import frc.robot.Constants;
 public class ElevatorIOSim implements ElevatorIO{
 
     private ElevatorSim sim;
-    private PIDController controller;
-    private TrapezoidProfile profile;
+    private ProfiledPIDController controller;
+    private State setpoint;
     private Constraints constraints;
-    private State setPoint;
-    private State startPoint;
-    private State goal;
-    private Timer timer;
 
     private double targetHeight;
     private double volts;
-    private ElevatorIOInputs inputs;
+
+    private ElevatorFeedforward ff;
 
     public ElevatorIOSim(){
         this.sim = new ElevatorSim(DCMotor.getKrakenX60(1), 3, 
-                                   5, 0.02, ElevatorConstants.minHeight, 
-                                   ElevatorConstants.maxHeight, true, 0, 0.1, 0);
-
-        this.controller = new PIDController(ElevatorConstants.kP, ElevatorConstants.kI, ElevatorConstants.kD);
+                                   5, ElevatorConstants.drumRadius, ElevatorConstants.minHeight, 
+                                   ElevatorConstants.maxHeight, true, ElevatorConstants.minHeight, 0.1, 0);
+        this.constraints = new Constraints(ElevatorConstants.maxVelocity, ElevatorConstants.maxAcceleration);
+        this.controller = new ProfiledPIDController(ElevatorConstants.kP, ElevatorConstants.kI, ElevatorConstants.kD, constraints);
         controller.setTolerance(0.05);
         this.targetHeight = ElevatorConstants.minHeight;
 
-        this.constraints = new Constraints(23.4, 3.1);
-        this.profile = new TrapezoidProfile(constraints);
-        this.setPoint = this.startPoint = this.goal = new State(targetHeight, 0);
-        this.timer = new Timer();
-        timer.start();
+        this.ff = new ElevatorFeedforward(ElevatorConstants.kS, ElevatorConstants.kG, ElevatorConstants.kV);   
+        controller.reset(ElevatorConstants.minHeight);
     }
     
     @Override
@@ -50,7 +46,6 @@ public class ElevatorIOSim implements ElevatorIO{
         inputs.pos_m = sim.getPositionMeters();
         inputs.vel_mps = sim.getVelocityMetersPerSecond();
 
-        this.inputs = inputs;
     }
 
     @Override
@@ -63,14 +58,13 @@ public class ElevatorIOSim implements ElevatorIO{
     public void goToPos(double pos){
        if (pos != targetHeight) {
         targetHeight = pos;
-        goal = new State(targetHeight, 0);
-        startPoint = new State(inputs.pos_m, inputs.vel_mps);
-        timer.reset();
        }
 
-       setPoint = profile.calculate(timer.get(), startPoint, goal);
-       controller.setSetpoint(setPoint.position);
-       setVoltage(controller.calculate(sim.getPositionMeters()));
+       double conVoltage = controller.calculate(sim.getPositionMeters(), pos);
+
+       setpoint = controller.getSetpoint();
+       setVoltage(conVoltage + ff.calculate(setpoint.velocity));
+
     }
 
     @Override

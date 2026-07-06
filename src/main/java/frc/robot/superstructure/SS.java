@@ -92,7 +92,6 @@ public class SS extends StateMachineSubsystemBase<InternalState> {
      * actions are called since that behavior is manged by handleStateMachine().
      */
     private void handleIntention() {
-        // System.out.println("\n\n\nIntention: " + intention + " | " + getState() + "\n\n\n");
 
         switch (getState()) {
             case BOOT:
