@@ -43,21 +43,15 @@ public class Elevator extends StateMachineSubsystemBase<ElevatorStates> {
     public void handleStateMachine() {
       switch (getState()) {
         case DISABLED:
-        case IDLE:
           io.stop();
           break;
-        case HOLDING:
-          if (!reachedTarget()){
-            queueState(ElevatorStates.TRAVELLING);
-          }else{
-            io.hold(target);
-          }
+        case IDLE:
+          io.hold(target);
           break;
         case TRAVELLING:
+          io.goToPos(target);
           if (reachedTarget()){
-            queueState(ElevatorStates.HOLDING);
-          }else{
-            io.goToPos(target);
+            queueState(ElevatorStates.IDLE);
           }
           break;
         default:
@@ -79,10 +73,12 @@ public class Elevator extends StateMachineSubsystemBase<ElevatorStates> {
       elevator2d.periodic();
     }
 
-
+    private void setTarget(double target) {
+      this.target = target;
+    }
 
     public void setHeight(double height) {
-      target = MathUtil.clamp(height, ElevatorConstants.minHeight, ElevatorConstants.maxHeight);
+      setTarget(height);
       queueState(ElevatorStates.TRAVELLING);
     }
 
@@ -92,6 +88,10 @@ public class Elevator extends StateMachineSubsystemBase<ElevatorStates> {
 
     public void stow() {
       setHeight(ElevatorConstants.STOW);
+    }
+
+    public void idle() {
+      queueState(ElevatorStates.IDLE);
     }
 
     public boolean reachedTarget() {

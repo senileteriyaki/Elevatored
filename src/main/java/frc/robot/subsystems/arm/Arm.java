@@ -86,16 +86,12 @@ public class Arm extends StateMachineSubsystemBase<ArmStates> {
       arm2d.periodic();
     }
 
-    public void setElbowTarget(double target) {
+    private void setElbowTarget(double target) {
       this.elbowTarget = target;
     }
 
-    public void setShoulderTarget(double target) {
+    private void setShoulderTarget(double target) {
       this.shoulderTarget = target;
-    }
-
-    public double getElbowPos(){
-      return inputs.elbowPos_deg;
     }
 
     public void trackToPosition(double elbowAngle, double shoulderAngle) {
@@ -124,6 +120,6 @@ public class Arm extends StateMachineSubsystemBase<ArmStates> {
 
     public boolean reachedTarget(){
       return Math.abs(inputs.elbowPos_deg - elbowTarget) < ArmConstants.elbowTolerance &&
-             Math.abs(inputs.shoulderPos_deg - shoulderTarget) < ArmConstants.shoulderTolerance;
+        Math.abs(inputs.shoulderPos_deg - shoulderTarget) < ArmConstants.shoulderTolerance;
     }
 }
