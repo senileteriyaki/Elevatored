@@ -36,11 +36,11 @@ public class ArmIOReal implements ArmIO{
     
     public ArmIOReal(){
         TalonFXConfiguration elbowConfig = new TalonFXConfiguration();
-        this.elbowMM = new MotionMagicVoltage(ArmConstants.minAngle);
+        this.elbowMM = new MotionMagicVoltage(ArmConstants.eMin);
         this.elbowFF = new ArmFeedforward(0, 0, 0, 0); //useless but you might as well be able to set voltage
     
         TalonFXConfiguration shoulderConfig = new TalonFXConfiguration();
-        this.shoulderMM = new MotionMagicVoltage(ArmConstants.minAngle);
+        this.shoulderMM = new MotionMagicVoltage(ArmConstants.sMin);
         this.shoulderFF = new ArmFeedforward(0, 0, 0, 0);
 
         shoulderConfig.CurrentLimits.StatorCurrentLimit = 80;

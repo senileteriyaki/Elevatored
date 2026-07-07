@@ -243,6 +243,9 @@ public class SS extends StateMachineSubsystemBase<InternalState> {
         coralLevel = l;
     }
 
+    public int getReef(){
+        return coralLevel;
+    }
     public boolean okToScore1(){
         return arm.reachedTarget() && elevator.reachedTarget();
     }

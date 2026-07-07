@@ -22,6 +22,6 @@ public final class ClimberConstants {
     public static final double kI = 0.0;
     public static final double kD = 0.05;  // Slight damping to stop oscillations
     public static final double kS = 0.0;   // Keep friction at 0 for clean simulation testing
-    public static final double kG = 0.5;   // Calculated gravity hold voltage for 50:1 ratio
+    public static final double kG = 0.65;   // Calculated gravity hold voltage for 50:1 ratio
     public static final double kV = 0.05;
 }

@@ -81,6 +81,7 @@ public class Arm extends StateMachineSubsystemBase<ArmStates> {
     protected void outputPeriodic(){
       Logger.recordOutput("Arm/Elbow/targetAngleDegrees", elbowTarget);
       Logger.recordOutput("Arm/Shoulder/targetAngleDegrees", shoulderTarget);
+      Logger.recordOutput("Arm/state", getState());
       arm2d.set(inputs.shoulderPos_deg);
       arm2d.periodic();
     }

@@ -12,9 +12,9 @@ public class ElevatorConstants {
     public static final double drumRadius = 0.015;       // Meters (1.5cm radius)
 
     // --- PID / Feedforward Constants ---
-    public static final double kP = 15.0;  // 15 Volts per 1 meter of error (e.g. 0.1m error = 1.5V)
+    public static final double kP = 8.0; 
     public static final double kI = 0.0;
-    public static final double kD = 0.0;
+    public static final double kD = 0.5;
     
     public static final double kS = 0.0;
     // FIX 5: Recalculated kG based on physical values

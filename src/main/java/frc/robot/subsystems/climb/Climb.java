@@ -80,6 +80,7 @@ public class Climb extends StateMachineSubsystemBase<ClimbStates> {
     @Override
     public void outputPeriodic() {
         Logger.recordOutput("Climb/target", target);
+        Logger.recordOutput("Climb/state", getState());
         climb2d.set(inputs.pos_deg);
         climb2d.periodic();
     }

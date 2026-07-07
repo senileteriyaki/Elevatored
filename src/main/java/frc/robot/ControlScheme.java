@@ -61,7 +61,7 @@ public class ControlScheme implements IPeriodic {
                     System.out.println("zeroed");
                 }
 
-                elevator.setHeight(ElevatorConstants.levelHeights[elevatorLevel]);
+                //elevator.setHeight(ElevatorConstants.levelHeights[elevatorLevel]);
                 break;
             case "arm":
                 break;

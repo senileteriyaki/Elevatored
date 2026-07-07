@@ -34,12 +34,12 @@ public class ArmIOSim implements ArmIO {
 
         this.elbowSim = new SingleJointedArmSim(
             DCMotor.getKrakenX60(1), 127.5, 0.1, 0.2, 
-            Units.degreesToRadians(ArmConstants.minAngle), Units.degreesToRadians(ArmConstants.maxAngle), 
+            Units.degreesToRadians(ArmConstants.eMin), Units.degreesToRadians(ArmConstants.eMax), 
             true, Units.degreesToRadians(ArmConstants.ELBOW_STOW)
         );
         this.shoulderSim = new SingleJointedArmSim(
             DCMotor.getKrakenX60(2), 151, 0.1, 0.2, 
-            Units.degreesToRadians(ArmConstants.minAngle), Units.degreesToRadians(ArmConstants.maxAngle), 
+            Units.degreesToRadians(ArmConstants.sMin), Units.degreesToRadians(ArmConstants.sMax), 
             true, Units.degreesToRadians(ArmConstants.SHOULDER_STOW)
         );
 

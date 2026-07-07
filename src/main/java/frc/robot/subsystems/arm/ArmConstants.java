@@ -4,14 +4,17 @@ public final class ArmConstants {
     public static final int ELBOW_MOTOR_ID = 2;
     public static final int SHOULDER_MOTOR_ID = 3;
 
-    public static final double minAngle = -90; // prolly fake but whatever
-    public static final double maxAngle = 90;
+    public static final double sMin = -90; // prolly fake but whatever
+    public static final double sMax = 90;
 
-    public static final double ELBOW_ZERO = ArmConstants.minAngle;
-    public static final double ELBOW_STOW = -90;
+    public static final double eMin = -135;
+    public static final double eMax = 135;
 
-    public static final double SHOULDER_ZERO = ArmConstants.minAngle;
-    public static final double SHOULDER_STOW = -90;
+    public static final double ELBOW_ZERO = ArmConstants.eMin;
+    public static final double ELBOW_STOW = 0;
+
+    public static final double SHOULDER_ZERO = ArmConstants.sMin;
+    public static final double SHOULDER_STOW = 90;
 
     // --- PID Constants (Tuned for Degrees) ---
     public static final double elbowKP = 0.3;   // Lowered from 17

@@ -2,6 +2,7 @@ package frc.robot.subsystems.elevator;
 
 import org.littletonrobotics.junction.Logger;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.util.Color8Bit;
 import frc.robot.Constants;
@@ -46,12 +47,17 @@ public class Elevator extends StateMachineSubsystemBase<ElevatorStates> {
           io.stop();
           break;
         case HOLDING:
-          io.hold(target);
+          if (!reachedTarget()){
+            queueState(ElevatorStates.TRAVELLING);
+          }else{
+            io.hold(target);
+          }
           break;
         case TRAVELLING:
-          io.goToPos(target);
-          if (Math.abs(inputs.pos_m - target) < ElevatorConstants.tolerance){
+          if (reachedTarget()){
             queueState(ElevatorStates.HOLDING);
+          }else{
+            io.goToPos(target);
           }
           break;
         default:
@@ -68,6 +74,7 @@ public class Elevator extends StateMachineSubsystemBase<ElevatorStates> {
     @Override
     public void outputPeriodic(){
       Logger.recordOutput("Elevator/target", target);
+      Logger.recordOutput("Elevator/state", getState());
       elevator2d.set(inputs.pos_m);
       elevator2d.periodic();
     }
@@ -75,12 +82,12 @@ public class Elevator extends StateMachineSubsystemBase<ElevatorStates> {
 
 
     public void setHeight(double height) {
-      target = height;
+      target = MathUtil.clamp(height, ElevatorConstants.minHeight, ElevatorConstants.maxHeight);
       queueState(ElevatorStates.TRAVELLING);
     }
 
     public void zero() {
-      setHeight(ElevatorConstants.ZERO);
+      setHeight(ElevatorConstants.minHeight);
     }
 
     public void stow() {
