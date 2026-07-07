@@ -45,13 +45,18 @@ public class Elevator extends StateMachineSubsystemBase<ElevatorStates> {
         case DISABLED:
           io.stop();
           break;
-        case IDLE:
-          io.hold(target);
+        case HOLDING:
+          if (!reachedTarget()){
+            queueState(ElevatorStates.TRAVELLING);
+          }else{
+            io.hold(target);
+          }
           break;
         case TRAVELLING:
-          io.goToPos(target);
           if (reachedTarget()){
-            queueState(ElevatorStates.IDLE);
+            queueState(ElevatorStates.HOLDING);
+          }else{
+            io.goToPos(target);
           }
           break;
         default:
@@ -78,7 +83,7 @@ public class Elevator extends StateMachineSubsystemBase<ElevatorStates> {
     }
 
     public void setHeight(double height) {
-      setTarget(height);
+      target = MathUtil.clamp(height, ElevatorConstants.minHeight, ElevatorConstants.maxHeight);
       queueState(ElevatorStates.TRAVELLING);
     }
 
