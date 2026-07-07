@@ -21,8 +21,8 @@ public class ClimbIOSim implements ClimbIO{
     private double volts;
 
     public ClimbIOSim(){
-        this.sim = new SingleJointedArmSim(DCMotor.getKrakenX60(2), 50, 
-                                   1.5, 0.5, Units.degreesToRadians(ClimberConstants.minAngle),
+        this.sim = new SingleJointedArmSim(DCMotor.getKrakenX60(2), ClimberConstants.GEAR_RATIO, 
+                                   ClimberConstants.MOI, ClimberConstants.LENGTH, Units.degreesToRadians(ClimberConstants.minAngle),
                                    Units.degreesToRadians(ClimberConstants.maxAngle), true, Units.degreesToRadians(ClimberConstants.stowAngle));
 
         this.constraints = new Constraints(ClimberConstants.MAX_VELOCITY, ClimberConstants.MAX_ACCELERATION);
@@ -52,7 +52,8 @@ public class ClimbIOSim implements ClimbIO{
     @Override
     public void goToPos(double pos){
         double conVoltage = controller.calculate(Units.radiansToDegrees(sim.getAngleRads()), pos);
-        setVoltage(conVoltage + ff.calculate(Units.degreesToRadians(controller.getSetpoint().position), Units.degreesToRadians(controller.getSetpoint().velocity)));
+        setVoltage(conVoltage + ff.calculate(
+            Units.degreesToRadians(controller.getSetpoint().position), Units.degreesToRadians(controller.getSetpoint().velocity)));
     }
 
     @Override
@@ -64,5 +65,4 @@ public class ClimbIOSim implements ClimbIO{
     public void stop(){
         setVoltage(0);
     }
-
 }

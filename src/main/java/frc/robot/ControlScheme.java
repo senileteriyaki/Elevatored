@@ -9,7 +9,6 @@ import frc.robot.subsystems.drive.PathingOverride;
 import frc.robot.subsystems.drive.SwerveInput;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.elevator.ElevatorConstants;
-import frc.robot.superstructure.SS;
 import frc.robot.util.IPeriodic;
 import frc.robot.util.Util;
 
@@ -76,7 +75,7 @@ public class ControlScheme implements IPeriodic {
                     System.out.println("zeroed");
                 }
 
-                //elevator.setHeight(ElevatorConstants.levelHeights[elevatorLevel]);
+                elevator.setHeight(ElevatorConstants.levelHeights[elevatorLevel]);
                 break;
             case "arm":
                 if (OI.DR.getLeftBumperButtonPressed()) { // as Y
