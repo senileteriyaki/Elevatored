@@ -45,23 +45,13 @@ public class Climb extends StateMachineSubsystemBase<ClimbStates> {
                 io.stop();
                 break;
             case IDLE:
-                target = ClimberConstants.stowAngle;
-                io.hold(ClimberConstants.stowAngle);
-                break;
             case HOLDING:
                 io.hold(target);
                 break;
             case STRETCHING:
-                target = ClimberConstants.stretchAngle;
-                io.goToPos(ClimberConstants.stretchAngle);
-                if (Math.abs(inputs.pos_deg - ClimberConstants.stretchAngle) < ClimberConstants.tolerance) {
-                    queueState(ClimbStates.HOLDING); // Wait for operator to request climb
-                }
-                break;
             case CLIMBING:
-                target = ClimberConstants.climbAngle;
-                io.goToPos(ClimberConstants.climbAngle);
-                if (Math.abs(inputs.pos_deg - ClimberConstants.climbAngle) < ClimberConstants.tolerance) {
+                io.goToPos(target);
+                if (reachedTarget()) {
                     queueState(ClimbStates.HOLDING);
                 }
                 break;
@@ -84,15 +74,17 @@ public class Climb extends StateMachineSubsystemBase<ClimbStates> {
         climb2d.periodic();
     }
 
-    public void setTarget(double p) {
-        target = p;
+    private void setTarget(double target) {
+        this.target = target;
     }
 
     public void stretch() {
+        setTarget(ClimberConstants.stretchAngle);
         queueState(ClimbStates.STRETCHING);
     }
 
     public void climb() {
+        setTarget(ClimberConstants.climbAngle);
         queueState(ClimbStates.CLIMBING);
     }
 
@@ -105,6 +97,7 @@ public class Climb extends StateMachineSubsystemBase<ClimbStates> {
     }
 
     public void idle() {
+        setTarget(ClimberConstants.stowAngle);
         queueState(ClimbStates.IDLE);
     }
 
@@ -114,6 +107,6 @@ public class Climb extends StateMachineSubsystemBase<ClimbStates> {
     }
 
     public boolean reachedTarget(){
-        return (Math.abs(inputs.pos_deg - target) < ClimberConstants.tolerance);
+        return Math.abs(inputs.pos_deg - target) < ClimberConstants.tolerance;
     }
 }
