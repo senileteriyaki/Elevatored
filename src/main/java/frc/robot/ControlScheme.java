@@ -1,5 +1,8 @@
 package frc.robot;
 
+import frc.robot.Constants.ArmConstants;
+import frc.robot.subsystems.arm.Arm;
+import frc.robot.subsystems.climb.Climb;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.PathingMode;
 import frc.robot.subsystems.drive.PathingOverride;
@@ -12,23 +15,25 @@ import frc.robot.util.Util;
 
 public class ControlScheme implements IPeriodic {
 
-    protected Drive drive;
-    protected Elevator elevator;
-    private SS ss;
+    private Drive drive;
+    private Elevator elevator;
+    private Arm arm;
+    private Climb climb;
 
-    private String[] modes = { "disabled", "elevator", "arm", "climb", "drive", "ss" };
+    private String[] modes = { "disabled", "elevator", "arm", "climb", "drive" };
     private int modeCounter;
     private boolean modeInit;
 
     private int elevatorLevel;
+    private int elbowLevel;
+    private int shoulderLevel;
 
     public ControlScheme() {
         this.drive = Drive.getInstance();
         this.elevator = Elevator.getInstance();
+        this.arm = Arm.getInstance();
+        this.climb = Climb.getInstance();
 
-        this.ss = SS.getInstance();
-
-        // TODO: TEMP
         this.modeInit = true;
     }
 
@@ -43,6 +48,7 @@ public class ControlScheme implements IPeriodic {
         if (OI.DR.getAButtonPressed()) {
             modeCounter++;
             System.out.println("\n\n\nCurrent mode is now: " + modes[modeCounter % modes.length] + "\n\n\n");
+            modeInit = true;
             return;
         }
 
@@ -55,15 +61,14 @@ public class ControlScheme implements IPeriodic {
 
                 break;
             case "elevator":
-                // Testing elevator
                 if (OI.DR.getLeftBumperButtonPressed()) { // as Y
                     elevatorLevel = Math.max(0, elevatorLevel - 1);
-                    System.out.println("decreased " + elevatorLevel);
+                    System.out.println("decreased, now: " + elevatorLevel);
                 }
 
                 if (OI.DR.getYButtonPressed()) { // as X
                     elevatorLevel = Math.min(ElevatorConstants.levelHeights.length - 1, elevatorLevel + 1);
-                    System.out.println("increased " + elevatorLevel);
+                    System.out.println("increased, now: " + elevatorLevel);
                 }
 
                 if (OI.DR.getBButtonPressed()) { // as B
@@ -74,9 +79,38 @@ public class ControlScheme implements IPeriodic {
                 elevator.setHeight(ElevatorConstants.levelHeights[elevatorLevel]);
                 break;
             case "arm":
-                
+                if (OI.DR.getLeftBumperButtonPressed()) { // as Y
+                    elbowLevel = (elbowLevel + 1) % ArmConstants.elbowLevelAngles.length;
+                    System.out.println("set elbow level: " + elbowLevel);
+                }
+
+                if (OI.DR.getYButtonPressed()) { // as X
+                    shoulderLevel = (shoulderLevel + 1) % ArmConstants.shoulderLevelAngles.length;
+                    System.out.println("set shoulder level: " + shoulderLevel);
+                }
+
+                if (OI.DR.getBButtonPressed()) { // as B
+                    elbowLevel = shoulderLevel = 0;
+                    System.out.println("zeroed all");
+                }
+
+                arm.trackToPosition(ArmConstants.elbowLevelAngles[elbowLevel], ArmConstants.shoulderLevelAngles[shoulderLevel]);
                 break;
             case "climb":
+                if (OI.DR.getLeftBumperButtonPressed()) { // as Y
+                    climb.stretch();
+                    System.out.println("stretching");
+                }
+
+                if (OI.DR.getYButtonPressed()) { // as X
+                    climb.climb();
+                    System.out.println("climbing");
+                }
+
+                if (OI.DR.getBButtonPressed()) { // as B
+                    climb.idle();
+                    System.out.println("stowing/idle");
+                }
                 break;
             case "drive":
                 double rotMult = 0.5;
@@ -102,9 +136,6 @@ public class ControlScheme implements IPeriodic {
 
                 SwerveInput input = new SwerveInput(x_, y_, w_, throttle);
                 drive.setInput(input);
-                break;
-            case "ss":
-                // TODO: cycle through various states and intentions (pressing x and y buttons respectively); "final" ss controls go here for testing as well
                 break;
             default:
                 System.err.println("\n\n\nERROR: Current mode \"" + modes[modeCounter % modes.length] + "\" not implemented!\n\n\n");
