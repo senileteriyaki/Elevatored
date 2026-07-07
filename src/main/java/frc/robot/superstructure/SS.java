@@ -92,7 +92,6 @@ public class SS extends StateMachineSubsystemBase<InternalState> {
      * actions are called since that behavior is manged by handleStateMachine().
      */
     private void handleIntention() {
-
         switch (getState()) {
             case BOOT:
             case DISABLED:

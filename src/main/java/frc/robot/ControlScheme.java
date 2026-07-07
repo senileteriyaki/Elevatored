@@ -1,14 +1,11 @@
 package frc.robot;
 
-import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.event.EventLoop;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.PathingMode;
 import frc.robot.subsystems.drive.PathingOverride;
 import frc.robot.subsystems.drive.SwerveInput;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.elevator.ElevatorConstants;
-import frc.robot.superstructure.Intention;
 import frc.robot.superstructure.SS;
 import frc.robot.util.IPeriodic;
 import frc.robot.util.Util;
@@ -19,8 +16,10 @@ public class ControlScheme implements IPeriodic {
     protected Elevator elevator;
     private SS ss;
 
-    private String[] modes = { "elevator", "arm", "climb", "drive", "ss" };
+    private String[] modes = { "disabled", "elevator", "arm", "climb", "drive", "ss" };
     private int modeCounter;
+    private boolean modeInit;
+
     private int elevatorLevel;
 
     public ControlScheme() {
@@ -28,6 +27,9 @@ public class ControlScheme implements IPeriodic {
         this.elevator = Elevator.getInstance();
 
         this.ss = SS.getInstance();
+
+        // TODO: TEMP
+        this.modeInit = true;
     }
 
     public void init() {
@@ -36,6 +38,7 @@ public class ControlScheme implements IPeriodic {
         System.out.println("Control Scheme Initialized");
     }
 
+    // FIXME: for some reason my controller bindings are all wrong (fedora linux, xbox one controller) & no auto mapping options! (sorry for the weird mappings)
     public void periodic() {
         if (OI.DR.getAButtonPressed()) {
             modeCounter++;
@@ -44,19 +47,26 @@ public class ControlScheme implements IPeriodic {
         }
 
         switch (modes[modeCounter % modes.length]) {
+            case "disabled":
+                if (modeInit) {
+                    System.out.println("\n\n\nCurrent mode is now: " + modes[modeCounter % modes.length] + "\n\n\n");
+                    modeInit = false;
+                }
+
+                break;
             case "elevator":
                 // Testing elevator
-                if (OI.DR.getLeftBumperButtonPressed()) {
+                if (OI.DR.getLeftBumperButtonPressed()) { // as Y
                     elevatorLevel = Math.max(0, elevatorLevel - 1);
-                    System.out.println("increased");
+                    System.out.println("decreased " + elevatorLevel);
                 }
 
-                if (OI.DR.getRightBumperButtonPressed()) {
+                if (OI.DR.getYButtonPressed()) { // as X
                     elevatorLevel = Math.min(ElevatorConstants.levelHeights.length - 1, elevatorLevel + 1);
-                    System.out.println("decreased");
+                    System.out.println("increased " + elevatorLevel);
                 }
 
-                if (OI.DR.getAButtonPressed()) {
+                if (OI.DR.getBButtonPressed()) { // as B
                     elevatorLevel = 0;
                     System.out.println("zeroed");
                 }
@@ -64,6 +74,7 @@ public class ControlScheme implements IPeriodic {
                 elevator.setHeight(ElevatorConstants.levelHeights[elevatorLevel]);
                 break;
             case "arm":
+                
                 break;
             case "climb":
                 break;
