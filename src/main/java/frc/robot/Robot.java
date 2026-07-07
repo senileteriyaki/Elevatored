@@ -226,8 +226,9 @@ public class Robot extends LoggedRobot {
     public void teleopInit() {
         scheme.init();
         drive.setPose(new Pose2d(7.4, 4, Rotation2d.k180deg)); // Raymond:You probably don't want to hardcode this or like do it in teleop init. Better for autoInit. 
-
-        
+        ss.intend(Intention.CLIMB1);
+        arm.setShoulderPosition(40);
+        arm.setElbowPosition(30);
     }
 
     /** This function is called periodically during operator control. */
