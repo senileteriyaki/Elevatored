@@ -81,6 +81,11 @@ public class ElevatorIOReal implements ElevatorIO{
     }
 
     @Override
+    public void hold(double pos) {
+        goToPos(pos);
+    }
+
+    @Override
     public void stop(){
         elevatorMotor.stopMotor();
     }

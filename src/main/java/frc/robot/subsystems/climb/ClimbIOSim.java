@@ -5,7 +5,6 @@ import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
-import edu.wpi.first.math.trajectory.TrapezoidProfile.State;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 
@@ -17,10 +16,8 @@ public class ClimbIOSim implements ClimbIO{
 
     private Constraints constraints;
     private ProfiledPIDController controller;
-    private State goal;
 
     private ArmFeedforward ff;
-    private double targetPos;
     private double volts;
 
     public ClimbIOSim(){
@@ -32,11 +29,8 @@ public class ClimbIOSim implements ClimbIO{
         this.controller = new ProfiledPIDController(ClimberConstants.kP, ClimberConstants.kI, ClimberConstants.kD, constraints);
         controller.setTolerance(ClimberConstants.tolerance);
 
-        ff = new ArmFeedforward(ClimberConstants.kS, ClimberConstants.kG, ClimberConstants.kV); 
-        this.targetPos = ClimberConstants.stowAngle;
-
+        this.ff = new ArmFeedforward(ClimberConstants.kS, ClimberConstants.kG, ClimberConstants.kV); 
         this.controller.reset(ClimberConstants.stowAngle);
-
     }
     
     @Override
