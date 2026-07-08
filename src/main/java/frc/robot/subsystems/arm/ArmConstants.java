@@ -58,7 +58,9 @@ public final class ArmConstants {
     public static final double elbowTolerance = 2;   // Loosened from 0.05
     public static final double shoulderTolerance = 0.5;
 
-    // Reef levels - note these are temporary
-    public static final double[] elbowLevelAngles = {90, 60, 30, 10};
-    public static final double[] shoulderLevelAngles = {10, 35, 55, 70};
+    public static final double[] elbowLevelAngles = {42, 60, 70, 67}; //entirely random numbers but wtv
+    public static final double[] shoulderLevelAngles = {80, 45, 32, 56};
+
+    public static double drumRadius = 0.015;
+     public static double[] shoulderLevelAngles2 = {70, 35, 22, 46};
 }

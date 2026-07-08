@@ -39,7 +39,7 @@ public class SS extends StateMachineSubsystemBase<InternalState> {
 
     private Alert unimplementedStateAlert = new Alert("SS InternalState unimplemented", AlertType.kError);
 
-    public static final double SCORE_s = 0.7;
+    public static final double SCORE_s = 2; //ts elevator is not that fast
     public static final double PULLBACK_TIME_s = 0.45;
     public static final double POSTSCORE_s = 0.5;
     public static final double REJECT_TIMEOUT_s = 2;
@@ -156,7 +156,7 @@ public class SS extends StateMachineSubsystemBase<InternalState> {
                 break;
             case POSTSCORE:
                 System.out.println(timer.get());
-                if (arm.reachedTarget() && elevator.reachedTarget() && timer.hasElapsed(POSTSCORE_s)){
+                if (arm.reachedTarget() && timer.hasElapsed(POSTSCORE_s)){
                     intend(Intention.IDLE);
                     timer.reset();
                     queueState(InternalState.IDLE);
@@ -232,7 +232,7 @@ public class SS extends StateMachineSubsystemBase<InternalState> {
                 break;
             case SCORESTAGE2:
                 if (timer.hasElapsed(PULLBACK_TIME_s)) {
-                    arm.setShoulderPosition(ArmConstants.shoulderLevelAngles[coralLevel]);
+                    arm.setShoulderPosition(ArmConstants.shoulderLevelAngles2[coralLevel]);
                 }
                 break;
             case POSTSCORE:
