@@ -48,7 +48,7 @@ public class ElevatorIOSim implements ElevatorIO{
     @Override
     public void goToPos(double pos){
        double conVoltage = controller.calculate(sim.getPositionMeters(), pos);
-       setVoltage(conVoltage + ff.calculate(controller.getSetpoint().position, controller.getSetpoint().velocity));
+       setVoltage(conVoltage + ff.calculate(controller.getSetpoint().velocity));
     }
 
     @Override

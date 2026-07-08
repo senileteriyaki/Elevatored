@@ -16,17 +16,18 @@ public final class ClimberConstants {
     public static final double currentLimit = 50;
 
     // Sim + motor configs
-    public static final double MAX_VELOCITY = 180;       // Max 180 degrees per second
-    public static final double MAX_ACCELERATION = 360;   // Reach max speed in 0.5 seconds
+    public static final double MAX_VELOCITY = 180;
+    public static final double MAX_ACCELERATION = 360;
     public static final double MAX_JERK = 0; // Using trapezoidal profile so jerk must be 0
 
-    public static double tolerance = 0.5; // 0.5 degree tolerance is more realistic than 0.01
+    public static double tolerance = 0.5;
 
     // TUNED SIMULATION GAINS
-    public static final double kP = 0.4;   // Lowered to prevent massive over-voltage spikes
+    public static final double kP = 0.4;
     public static final double kI = 0.0;
-    public static final double kD = 0.05;  // Slight damping to stop oscillations
-    public static final double kS = 0.0;   // Keep friction at 0 for clean simulation testing
-    public static final double kG = 0.65;   // Calculated gravity hold voltage for 50:1 ratio
-    public static final double kV = 0.05;
+    public static final double kD = 0.05;
+
+    public static final double kS = 0.0;
+    public static final double kG = 0.65;
+    public static final double kV = 0.96;
 }

@@ -2,6 +2,7 @@ package frc.robot.subsystems.arm;
 
 import org.littletonrobotics.junction.Logger;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.util.Color8Bit;
 import frc.robot.Constants;
@@ -88,11 +89,11 @@ public class Arm extends StateMachineSubsystemBase<ArmStates> {
     }
 
     private void setElbowTarget(double target) {
-      this.elbowTarget = target;
+      this.elbowTarget = MathUtil.clamp(target, ArmConstants.eMin, ArmConstants.eMax);
     }
 
     private void setShoulderTarget(double target) {
-      this.shoulderTarget = target;
+      this.shoulderTarget = MathUtil.clamp(target, ArmConstants.sMin, ArmConstants.sMax);
     }
 
     public void trackToPosition(double elbowAngle, double shoulderAngle) {
