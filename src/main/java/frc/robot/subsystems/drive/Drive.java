@@ -147,6 +147,7 @@ public class Drive extends StateMachineSubsystemBase<PathingMode> {
     private ChassisSpeeds lastSpeeds;
     private ChassisSpeeds measuredAcc;
     private PathingOverride override;
+    private PathingOverride prevOverride;
 
     private ChassisSpeeds autoSpeeds = new ChassisSpeeds();
 
@@ -197,7 +198,7 @@ public class Drive extends StateMachineSubsystemBase<PathingMode> {
         acc = new ChassisSpeeds();
         lastSpeeds = new ChassisSpeeds();
         measuredAcc = new ChassisSpeeds();
-        override = PathingOverride.NONE;
+        prevOverride = override = PathingOverride.NONE;
         gyroIO.zero();
         poseFilter = new PoseFilter();
         filteredPose = new Pose2d();
@@ -307,17 +308,22 @@ public class Drive extends StateMachineSubsystemBase<PathingMode> {
                         if (tracking.finishedTracking()) {
                             setPathingOverride(PathingOverride.NONE);
                         }
-                        inputSpeeds = tracking.getTrackingSpeeds(getRotation().getDegrees()); // bro use trackings get tracking speeds. Your things do not work like this. Or figure out how to make it work.... The angling is wrong.
+                        inputSpeeds = tracking.getTrackingSpeeds(getRotation().getDegrees());
                         break;
                     case BASELOCK:
+                        if (prevOverride != PathingOverride.BASELOCK) {
+                            stopWithX();
+                        }
+                        inputSpeeds = new ChassisSpeeds();
                         break;
                     case INTAKING:
+                        inputSpeeds = inputSpeeds.times(0.5);
                         break;
                     case NONE:
                         break;
                     case SHOOTING:
-                        ChassisSpeeds trackingSpeeds = (tracking
-                                .getTrackingSpeeds(getRotation().getDegrees()));
+                        ChassisSpeeds trackingSpeeds = tracking
+                                .getTrackingSpeeds(getRotation().getDegrees());
                         inputSpeeds = inputSpeeds.plus(trackingSpeeds);
                         Logger.recordOutput("Tracking/Shooter/Speeds", inputSpeeds);
                         break;
@@ -425,6 +431,7 @@ public class Drive extends StateMachineSubsystemBase<PathingMode> {
     }
 
     public void setPathingOverride(PathingOverride override) {
+        this.prevOverride = this.override;
         this.override = override;
     }
 
@@ -614,8 +621,6 @@ public class Drive extends StateMachineSubsystemBase<PathingMode> {
         this.poseFollower.setParams(tPose, maxVel, translate_kp, rotate_kP);
     }
 
-  
-
     public PathingOverride getOverride() {
         return override;
     }
@@ -653,7 +658,9 @@ public class Drive extends StateMachineSubsystemBase<PathingMode> {
     }
 
     public void updateSimulationField() {
-        if (!RobotBase.isSimulation()) return;
+        if (!RobotBase.isSimulation()) {
+            return;
+        }
 
         fieldSim.setRobotPose(getPose());
 
@@ -683,8 +690,5 @@ public class Drive extends StateMachineSubsystemBase<PathingMode> {
                 vx,
                 0.0,
                 omega);
-
     }
-
-
 }

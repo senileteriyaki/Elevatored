@@ -26,7 +26,7 @@ public class ElevatorConstants {
     public static final double maxAcceleration = 3.0;
     public static final double maxJerk = 0; // Using trapezoid so jerk should be zero
     
-    public static final double tolerance = 0.01;
+    public static final double tolerance = 0.2;
 
     public static final double[] levelHeights = {0.2, 0.5, 0.7, 1.5};
 }
