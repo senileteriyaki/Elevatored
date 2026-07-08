@@ -20,7 +20,7 @@ public class ElevatorIOSim implements ElevatorIO{
     public ElevatorIOSim(){
         this.sim = new ElevatorSim(DCMotor.getKrakenX60(1), ElevatorConstants.GEAR_RATIO, 
                                    ElevatorConstants.CARRIAGE_MASS_KG, ElevatorConstants.drumRadius, ElevatorConstants.minHeight, 
-                                   ElevatorConstants.maxHeight, true, ElevatorConstants.minHeight, 0.1, 0);
+                                   ElevatorConstants.maxHeight, true, ElevatorConstants.minHeight, 0.001, 0);
         this.constraints = new Constraints(ElevatorConstants.maxVelocity, ElevatorConstants.maxAcceleration);
         this.controller = new ProfiledPIDController(ElevatorConstants.kP, ElevatorConstants.kI, ElevatorConstants.kD, constraints);
         controller.setTolerance(ElevatorConstants.tolerance);

@@ -234,7 +234,7 @@ public class SS extends StateMachineSubsystemBase<InternalState> {
                 break;
             case SCORESTAGE2:
                 if (timer.hasElapsed(PULLBACK_TIME_s)) {
-                    arm.setShoulderPosition(ArmConstants.shoulderLevelAngles2[coralLevel]);
+                    arm.setShoulderPosition(ArmConstants.shoulderLevelAngles[coralLevel]);
                 }
                 break;
             case POSTSCORE:

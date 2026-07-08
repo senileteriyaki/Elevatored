@@ -28,8 +28,8 @@ public final class ArmConstants {
     public static final double SHOULDER_CURRENT_LIMIT = 50;
 
     // --- PID Constants (Tuned for Degrees) ---
-    public static final double elbowKP = 0.15;
-    public static final double elbowKI = 0.8;
+    public static final double elbowKP = 0.2;
+    public static final double elbowKI = 0.0;
     public static final double elbowKD = 0.05;
 
     public static final double shoulderKP = 0.4;
@@ -55,12 +55,10 @@ public final class ArmConstants {
     public static final double SHOULDER_MAX_JERK = 0; // Use trapezoidal profile - no jerk
 
     // --- Tolerances ---
-    public static final double elbowTolerance = 2;   // Loosened from 0.05
-    public static final double shoulderTolerance = 0.5;
+    public static final double elbowTolerance = 0.05;
+    public static final double shoulderTolerance = 0.05;
 
-    public static final double[] elbowLevelAngles = {42, 60, 70, 67}; //entirely random numbers but wtv
-    public static final double[] shoulderLevelAngles = {80, 45, 32, 56};
-
-    public static double drumRadius = 0.015;
-     public static double[] shoulderLevelAngles2 = {70, 35, 22, 46};
+    // These level should be replaced with real level angles, but here we are showcasing the movement of the ligaments
+    public static final double[] elbowLevelAngles = {-90, -45, 0, 45, 90};
+    public static final double[] shoulderLevelAngles = {-90, -45, 0, 45, 90};
 }
