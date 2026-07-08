@@ -32,6 +32,9 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.RobotBase;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants;
 import frc.robot.Constants.Mode;
 import frc.robot.generated.TunerConstants;
@@ -108,10 +111,8 @@ public class Drive extends StateMachineSubsystemBase<PathingMode> {
                             new ModuleIOTalonFX(TunerConstants.BackRight));
                     break;
                 case SIM:
-                    // Sim robot, TODO: instantiate physics sim IO implementations
                     instance = new Drive(
-                            new GyroIO() { // TODO: IMPLEMENT sim gyro
-                            },
+                            new GyroIOSim(),
                             new ModuleIOSim(TunerConstants.FrontLeft),
                             new ModuleIOSim(TunerConstants.FrontRight),
                             new ModuleIOSim(TunerConstants.BackLeft),
@@ -162,6 +163,7 @@ public class Drive extends StateMachineSubsystemBase<PathingMode> {
             AlertType.kError);
     private final PoseFilter poseFilter;
     private Pose2d filteredPose;
+    private Field2d fieldSim;
     private SwerveDriveKinematics kinematics = new SwerveDriveKinematics(getModuleTranslations());
     private Rotation2d rawGyroRotation = new Rotation2d();
     private SwerveModulePosition[] lastModulePositions = // For delta tracking
@@ -199,6 +201,7 @@ public class Drive extends StateMachineSubsystemBase<PathingMode> {
         gyroIO.zero();
         poseFilter = new PoseFilter();
         filteredPose = new Pose2d();
+        fieldSim = new Field2d();
         vision = Vision.getInstance();
         tracking = Tracking.getInstance();
         queueState(PathingMode.DISABLED);
@@ -253,11 +256,6 @@ public class Drive extends StateMachineSubsystemBase<PathingMode> {
                 rawGyroRotation = gyroInputs.odometryYawPositions[i];
             } else {
                 // Use the angle delta from the kinematics and module deltas
-                double tempscale = Units.inchesToMeters(1); // Fixes sim twist calc
-                moduleDeltas[0].distanceMeters *= tempscale;
-                moduleDeltas[1].distanceMeters *= tempscale;
-                moduleDeltas[2].distanceMeters *= tempscale;
-                moduleDeltas[3].distanceMeters *= tempscale;
                 Twist2d twist = kinematics.toTwist2d(moduleDeltas);
                 rawGyroRotation = rawGyroRotation.plus(new Rotation2d(twist.dtheta));
             }
@@ -268,6 +266,11 @@ public class Drive extends StateMachineSubsystemBase<PathingMode> {
 
         // Update gyro alert
         gyroDisconnectedAlert.set(!gyroInputs.connected && Constants.currentMode != Mode.SIM);
+
+        // Feed computed yaw back to sim gyro for next cycle
+        if (Constants.currentMode == Mode.SIM) {
+            gyroIO.setYaw(rawGyroRotation, getChassisSpeeds().omegaRadiansPerSecond);
+        }
     }
 
     @Override
@@ -647,6 +650,21 @@ public class Drive extends StateMachineSubsystemBase<PathingMode> {
             poseEstimator.resetPosition(rawGyroRotation, getModulePositions(), filteredPose);
         }
         Logger.recordOutput("Vision/FilteredPose", filteredPose);
+    }
+
+    public void updateSimulationField() {
+        if (!RobotBase.isSimulation()) return;
+
+        fieldSim.setRobotPose(getPose());
+
+        SwerveModuleState[] states = getModuleStates();
+        Translation2d[] translations = getModuleTranslations();
+        for (int i = 0; i < 4; i++) {
+            fieldSim.getObject("module_" + i)
+                .setPose(new Pose2d(translations[i], states[i].angle));
+        }
+
+        SmartDashboard.putData("Field", fieldSim);
     }
     
     public ChassisSpeeds calculateTracking(double targetXDegrees, double targetYDegrees) {
