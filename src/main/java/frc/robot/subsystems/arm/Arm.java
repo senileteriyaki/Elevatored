@@ -58,6 +58,7 @@ public class Arm extends StateMachineSubsystemBase<ArmStates> {
         case HOLDING:
           io.holdElbow(elbowTarget); 
           io.holdShoulder(shoulderTarget);
+          break;
         case TRAVELLING:
           io.goToElbowPos(elbowTarget);
           io.goToShoulderPos(shoulderTarget);

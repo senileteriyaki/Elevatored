@@ -35,7 +35,7 @@ public class ClimbIOReal implements ClimbIO{
 
         request = new MotionMagicVoltage(ClimberConstants.stowAngle);
 
-        config.Feedback.SensorToMechanismRatio = ClimberConstants.GEAR_RATIO / 360;
+        config.Feedback.SensorToMechanismRatio = ClimberConstants.GEAR_RATIO;
         config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
         config.CurrentLimits.StatorCurrentLimit = ClimberConstants.currentLimit;
@@ -69,8 +69,8 @@ public class ClimbIOReal implements ClimbIO{
         
         inputs.voltage_v = volts.getValueAsDouble();
         inputs.current_a = amps.getValueAsDouble();
-        inputs.pos_deg = pos.getValueAsDouble();
-        inputs.vel_dps = vel.getValueAsDouble();
+        inputs.pos_deg = pos.getValueAsDouble() * 360;
+        inputs.vel_dps = vel.getValueAsDouble() * 360;
     }
 
     @Override

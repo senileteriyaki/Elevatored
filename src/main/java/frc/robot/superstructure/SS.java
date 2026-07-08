@@ -155,7 +155,6 @@ public class SS extends StateMachineSubsystemBase<InternalState> {
                 });
                 break;
             case POSTSCORE:
-                System.out.println(timer.get());
                 if (arm.reachedTarget() && timer.hasElapsed(POSTSCORE_s)){
                     intend(Intention.IDLE);
                     timer.reset();
@@ -264,19 +263,19 @@ public class SS extends StateMachineSubsystemBase<InternalState> {
         intention = i;
     }
 
-    public void setReef(int l) { 
-        coralLevel = l;
+    public void setReef(int coralLevel) { 
+        this.coralLevel = coralLevel;
     }
 
-    public int getReef(){
+    public int getReef() {
         return coralLevel;
     }
-    public boolean okToScore1(){
+
+    public boolean okToScore1() {
         return arm.reachedTarget() && timer.hasElapsed(SCORE_s);
-        // && elevator.reachedTarget(); too jittery smh
     }
 
-    public boolean okToScore2(){
+    public boolean okToScore2() {
         return arm.reachedTarget() && timer.hasElapsed(PULLBACK_TIME_s + 0.05);
     }
 }
