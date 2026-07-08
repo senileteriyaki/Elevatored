@@ -31,7 +31,7 @@ public class ElevatorIOReal implements ElevatorIO{
 
         request = new MotionMagicVoltage(ElevatorConstants.minHeight);
 
-        config.Feedback.SensorToMechanismRatio = (2 * Math.PI * ElevatorConstants.drumRadius) / ElevatorConstants.GEAR_RATIO; 
+        config.Feedback.SensorToMechanismRatio = ElevatorConstants.GEAR_RATIO; 
         config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
         config.CurrentLimits.StatorCurrentLimit = ElevatorConstants.currentLimit;

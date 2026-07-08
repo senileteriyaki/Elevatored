@@ -62,6 +62,7 @@ public class Robot extends LoggedRobot {
     private boolean lastState = false;
 
     private ControlScheme scheme;
+    // private ControlSchemeV2 scheme;
 
     private MTimer pipelineSwitch = new MTimer();
 
@@ -71,9 +72,6 @@ public class Robot extends LoggedRobot {
      */
     @Override
     public void robotInit() {
-
-
-
         Logger.recordMetadata("ProjectName", BuildConstants.MAVEN_NAME);
         Logger.recordMetadata("BuildDate", BuildConstants.BUILD_DATE);
         Logger.recordMetadata("GitSHA", BuildConstants.GIT_SHA);
@@ -123,6 +121,7 @@ public class Robot extends LoggedRobot {
 
         // Init control scheme
         scheme = new ControlScheme();
+        // scheme = new ConstrolSchemeV2();
 
         // init subsystems
         drive = Drive.getInstance();
@@ -133,6 +132,7 @@ public class Robot extends LoggedRobot {
         climb = Climb.getInstance();
         vision = Vision.getInstance();
         vision.setPipeline(0);
+
         // Check for valid swerve config
         var modules = new SwerveModuleConstants[] {
                 TunerConstants.FrontLeft,
@@ -147,9 +147,6 @@ public class Robot extends LoggedRobot {
                         "You are using an unsupported swerve configuration, which this template does not support without manual customization. The 2025 release of Phoenix supports some swerve configurations which were not available during 2025 beta testing, preventing any development and support from the AdvantageKit developers.");
             }
         }
-
-        
-
     }
 
     /** This function is called periodically during all modes. */

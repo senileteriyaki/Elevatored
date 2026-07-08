@@ -51,6 +51,7 @@ public class ArmIOReal implements ArmIO{
         elbowMMConfig.MotionMagicJerk = ArmConstants.ELBOW_MAX_JERK;
         elbowConfig.MotionMagic = elbowMMConfig;
 
+        elbowConfig.Feedback.SensorToMechanismRatio = ArmConstants.ELBOW_GEAR_RATIO;
         elbowConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
         elbowConfig.Slot0.GravityType = GravityTypeValue.Arm_Cosine;
         elbowConfig.Slot0.kG = ArmConstants.elbowKG;
