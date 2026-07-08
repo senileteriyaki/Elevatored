@@ -18,12 +18,12 @@ public class ElevatorIOSim implements ElevatorIO{
     private double volts;
 
     public ElevatorIOSim(){
-        this.sim = new ElevatorSim(DCMotor.getKrakenX60(1), 3, 
+        this.sim = new ElevatorSim(DCMotor.getKrakenX60(1), ElevatorConstants.GEAR_RATIO, 
                                    5, ElevatorConstants.drumRadius, ElevatorConstants.minHeight, 
                                    ElevatorConstants.maxHeight, true, ElevatorConstants.minHeight, 0.1, 0);
         this.constraints = new Constraints(ElevatorConstants.maxVelocity, ElevatorConstants.maxAcceleration);
         this.controller = new ProfiledPIDController(ElevatorConstants.kP, ElevatorConstants.kI, ElevatorConstants.kD, constraints);
-        controller.setTolerance(0.05);
+        controller.setTolerance(ElevatorConstants.tolerance);
 
         this.ff = new ElevatorFeedforward(ElevatorConstants.kS, ElevatorConstants.kG, ElevatorConstants.kV);   
         controller.reset(ElevatorConstants.minHeight);

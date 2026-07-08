@@ -1,6 +1,6 @@
 package frc.robot;
 
-import frc.robot.Constants.ArmConstants;
+import frc.robot.subsystems.arm.ArmConstants;
 import frc.robot.subsystems.arm.Arm;
 import frc.robot.subsystems.climb.Climb;
 import frc.robot.subsystems.drive.Drive;
