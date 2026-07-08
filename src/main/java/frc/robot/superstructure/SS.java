@@ -158,7 +158,7 @@ public class SS extends StateMachineSubsystemBase<InternalState> {
                 });
                 break;
             case POSTSCORE:
-                if (arm.reachedTarget() && timer.hasElapsed(POSTSCORE_s)){
+                if (arm.reachedTarget() && elevator.reachedTarget() && timer.hasElapsed(POSTSCORE_s)){
                     intend(Intention.IDLE);
                     timer.reset();
                     queueState(InternalState.IDLE);
