@@ -56,17 +56,20 @@ public class SS extends StateMachineSubsystemBase<InternalState> {
     private static Tracking tracking;
     private static Vision vision;
 
-    private int coralLevel = 3;
+    private int coralLevel;
 
     private SS() {
         super("SS");
 
-        intention = Intention.IDLE;
+        this.intention = Intention.IDLE;
         queueState(InternalState.BOOT);
         
-        booted = false;
+        this.booted = false;
+        this.homedYet = false;
+        this.coralLevel = 3;
+
         timer = new Timer();
-        homedYet = false;
+        timer.start();
 
         drive = Drive.getInstance();
         elevator = Elevator.getInstance();
