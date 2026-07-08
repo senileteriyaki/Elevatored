@@ -31,10 +31,15 @@ public class SS extends StateMachineSubsystemBase<InternalState> {
 
     private Intention intention;
 
+    private boolean test = false;
+    private boolean ready1 = false;
+    private boolean ready2 = false;
+
     public boolean booted;
 
     private Alert unimplementedStateAlert = new Alert("SS InternalState unimplemented", AlertType.kError);
 
+    public static final double SCORE_s = 0.7;
     public static final double PULLBACK_TIME_s = 0.45;
     public static final double POSTSCORE_s = 0.5;
     public static final double REJECT_TIMEOUT_s = 2;
@@ -103,6 +108,7 @@ public class SS extends StateMachineSubsystemBase<InternalState> {
                 }
                 break;
             case IDLE:
+
                 queueState(defaultIntentionHandling());
                 break;
             case PRESCORE:
@@ -111,6 +117,9 @@ public class SS extends StateMachineSubsystemBase<InternalState> {
                         timer.reset();
                         yield InternalState.REJECT;
                     case SCORE: 
+                        if (tracking.finishedTracking()){
+                            timer.restart();
+                        }
                         yield tracking.finishedTracking() ? InternalState.SCORESTAGE1 : InternalState.PRESCORE;
                     default: 
                         yield defaultIntentionHandling();
@@ -122,26 +131,35 @@ public class SS extends StateMachineSubsystemBase<InternalState> {
                         timer.reset();
                         yield InternalState.REJECT;
                     case SCORE:
-                        if (okToScore1()){
-                            timer.reset();
+                        ready1 = okToScore1();
+                        if (ready1){
+                            timer.restart();
                         }
-                        yield okToScore1() ? InternalState.SCORESTAGE2 : InternalState.SCORESTAGE1;
+                        yield ready1 ? InternalState.SCORESTAGE2 : InternalState.SCORESTAGE1;
                     default:
                         yield defaultIntentionHandling();
                 });
+                break;
             case SCORESTAGE2:
-                queueState(okToScore2() ? InternalState.POSTSCORE : InternalState.SCORESTAGE2);
                 queueState(switch (intention) {
                     case REJECT:
                         timer.reset();
                         yield InternalState.REJECT;
                     case SCORE:
-                        yield okToScore2() ? InternalState.POSTSCORE : InternalState.SCORESTAGE2;
+                        ready2 = okToScore2();
+                        if (ready2){
+                            timer.restart();
+                        }
+                        yield ready2 ? InternalState.POSTSCORE : InternalState.SCORESTAGE2;
                     default:
                         yield defaultIntentionHandling();
                 });
+                break;
             case POSTSCORE:
-                if (arm.reachedTarget() && elevator.reachedTarget()){
+                System.out.println(timer.get());
+                if (arm.reachedTarget() && elevator.reachedTarget() && timer.hasElapsed(POSTSCORE_s)){
+                    test = true;
+                    timer.restart();
                     queueState(InternalState.IDLE);
                 }
                 break;
@@ -195,6 +213,9 @@ public class SS extends StateMachineSubsystemBase<InternalState> {
                 queueState(InternalState.IDLE);
                 break;
             case IDLE:
+                if (test) {
+                    intend(Intention.IDLE);
+                }
                 elevator.stow();
                 arm.stow();
                 break; // Wait for new intention - changes in handleIntention()      
@@ -233,6 +254,7 @@ public class SS extends StateMachineSubsystemBase<InternalState> {
     public final void outputPeriodic() {
         Logger.recordOutput("SS/Booted?", booted);
         Logger.recordOutput("SS/Intention", intention);
+        Logger.recordOutput("SS/timer", timer.get());
     }
 
     public void intend(Intention i) {
@@ -247,11 +269,12 @@ public class SS extends StateMachineSubsystemBase<InternalState> {
         return coralLevel;
     }
     public boolean okToScore1(){
-        return arm.reachedTarget() && elevator.reachedTarget();
+        return arm.reachedTarget() && timer.hasElapsed(SCORE_s);
+        // && elevator.reachedTarget(); too jittery smh
     }
 
     public boolean okToScore2(){
-        return arm.reachedTarget();
+        return arm.reachedTarget() && timer.hasElapsed(PULLBACK_TIME_s + 0.05);
     }
 }
 

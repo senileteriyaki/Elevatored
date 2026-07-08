@@ -42,7 +42,7 @@ public final class ArmConstants {
     public static final double SHOULDER_MAX_ACCELERATION_DPS2 = 360;
 
     // --- Tolerances ---
-    public static final double elbowTolerance = 0.5;   // Loosened from 0.05
+    public static final double elbowTolerance = 2;   // Loosened from 0.05
     public static final double shoulderTolerance = 0.5;
 
     public static final double[] elbowLevelAngles = {42, 60, 70, 67}; // entirely random numbers but wtv
