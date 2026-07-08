@@ -317,7 +317,6 @@ public class Drive extends StateMachineSubsystemBase<PathingMode> {
                                 .getTrackingSpeeds(getRotation().getDegrees()));
                         inputSpeeds = inputSpeeds.plus(trackingSpeeds);
                         Logger.recordOutput("Tracking/Shooter/Speeds", inputSpeeds);
-
                         break;
                     default:
                         break;
