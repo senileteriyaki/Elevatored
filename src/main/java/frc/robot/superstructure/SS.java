@@ -31,7 +31,7 @@ public class SS extends StateMachineSubsystemBase<InternalState> {
 
     private Intention intention;
 
-    private boolean test = false;
+    private boolean resetIntention = false;
     private boolean ready1 = false;
     private boolean ready2 = false;
 
@@ -157,8 +157,8 @@ public class SS extends StateMachineSubsystemBase<InternalState> {
             case POSTSCORE:
                 System.out.println(timer.get());
                 if (arm.reachedTarget() && elevator.reachedTarget() && timer.hasElapsed(POSTSCORE_s)){
-                    test = true;
-                    timer.restart();
+                    intend(Intention.IDLE);
+                    timer.reset();
                     queueState(InternalState.IDLE);
                 }
                 break;
@@ -178,6 +178,7 @@ public class SS extends StateMachineSubsystemBase<InternalState> {
             case CLIMB:
                 queueState(switch (intention) {
                     case IDLE: 
+                        intend(Intention.IDLE);
                         yield InternalState.IDLE;
                     default: 
                         yield defaultIntentionHandling();
@@ -217,9 +218,7 @@ public class SS extends StateMachineSubsystemBase<InternalState> {
                 }
                 break;
             case IDLE:
-                if (test) {
-                    intend(Intention.IDLE);
-                }
+
                 elevator.stow();
                 arm.stow();
                 break; // Wait for new intention - changes in handleIntention()      

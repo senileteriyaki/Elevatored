@@ -62,6 +62,7 @@ public class Robot extends LoggedRobot {
     private boolean lastState = false;
 
     private ControlScheme scheme;
+    
 
     private MTimer pipelineSwitch = new MTimer();
 
@@ -225,6 +226,7 @@ public class Robot extends LoggedRobot {
     @Override
     public void teleopInit() {
         scheme.init();
+        ss.intend(Intention.SCORE);
     }
 
     /** This function is called periodically during operator control. */
