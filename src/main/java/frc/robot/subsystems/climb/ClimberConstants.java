@@ -9,11 +9,16 @@ public final class ClimberConstants {
     public static final double stretchAngle = 0;
     public static final double climbAngle = 45;
 
-    // Converted to Degrees/sec and Degrees/sec^2 to match ProfiledPID units
+    // Physical constants
+    public static final double GEAR_RATIO = 50.0;
+    public static final double MOI = 1.5;
+    public static final double LENGTH = 0.5;
+    public static final double currentLimit = 50;
+
+    // Sim + motor configs
     public static final double MAX_VELOCITY = 180;       // Max 180 degrees per second
     public static final double MAX_ACCELERATION = 360;   // Reach max speed in 0.5 seconds
-
-    public static final double GEAR_RATIO = 50.0; 
+    public static final double MAX_JERK = 0; // Using trapezoidal profile so jerk must be 0
 
     public static double tolerance = 0.5; // 0.5 degree tolerance is more realistic than 0.01
 

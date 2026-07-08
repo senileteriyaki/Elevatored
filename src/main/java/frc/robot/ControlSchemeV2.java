@@ -5,7 +5,6 @@ import frc.robot.subsystems.drive.PathingMode;
 import frc.robot.subsystems.drive.PathingOverride;
 import frc.robot.subsystems.drive.SwerveInput;
 import frc.robot.subsystems.elevator.Elevator;
-import frc.robot.subsystems.elevator.ElevatorConstants;
 import frc.robot.superstructure.Intention;
 import frc.robot.superstructure.SS;
 import frc.robot.util.IPeriodic;

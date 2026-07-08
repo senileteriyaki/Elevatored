@@ -5,7 +5,6 @@ import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
-import edu.wpi.first.math.trajectory.TrapezoidProfile.State;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 import frc.robot.Constants;
@@ -24,21 +23,17 @@ public class ArmIOSim implements ArmIO {
     private double elbowVoltsApplied;
     private double shoulderVoltsApplied;
 
-    private double elbowTarget;
-    private double shoulderTarget;
-
     private ArmFeedforward elbowFF;
     private ArmFeedforward shoulderFF;
 
     public ArmIOSim() {
-
         this.elbowSim = new SingleJointedArmSim(
-            DCMotor.getKrakenX60(1), 127.5, 0.1, 0.2, 
+            DCMotor.getKrakenX60(1), ArmConstants.ELBOW_GEAR_RATIO, ArmConstants.ELBOW_MOI, ArmConstants.ELBOW_LENGTH, 
             Units.degreesToRadians(ArmConstants.eMin), Units.degreesToRadians(ArmConstants.eMax), 
             false, Units.degreesToRadians(ArmConstants.ELBOW_STOW)
         );
         this.shoulderSim = new SingleJointedArmSim(
-            DCMotor.getKrakenX60(1), 151, 0.1, 0.2, 
+            DCMotor.getKrakenX60(1), ArmConstants.SHOULDER_GEAR_RATIO, ArmConstants.SHOULDER_MOI, ArmConstants.SHOULDER_LENGTH, 
             Units.degreesToRadians(ArmConstants.sMin), Units.degreesToRadians(ArmConstants.sMax), 
             true, Units.degreesToRadians(ArmConstants.SHOULDER_STOW)
         );
@@ -51,7 +46,6 @@ public class ArmIOSim implements ArmIO {
 
         elbowController.setTolerance(ArmConstants.elbowTolerance);
         shoulderController.setTolerance(ArmConstants.shoulderTolerance);
-
 
         this.elbowFF = new ArmFeedforward(ArmConstants.elbowKS, ArmConstants.elbowKG, ArmConstants.elbowKV);
         this.shoulderFF = new ArmFeedforward(ArmConstants.shoulderKS, ArmConstants.shoulderKG, ArmConstants.shoulderKV);
@@ -92,26 +86,16 @@ public class ArmIOSim implements ArmIO {
 
     @Override
     public void goToElbowPos(double pos) {
-        elbowTarget = pos;
-        
         double pidOutput = elbowController.calculate(Units.radiansToDegrees(elbowSim.getAngleRads()), pos);
-        
-        State setpoint = elbowController.getSetpoint();
-        double ffOutput = elbowFF.calculate(Units.degreesToRadians(setpoint.position), Units.degreesToRadians(setpoint.velocity));
-
-        setElbowVoltage(pidOutput + ffOutput);
+        setElbowVoltage(pidOutput + elbowFF.calculate(
+            Units.degreesToRadians(elbowController.getSetpoint().position), Units.degreesToRadians(elbowController.getSetpoint().velocity)));
     }
 
     @Override
     public void goToShoulderPos(double pos) {
-        shoulderTarget = pos;
-        
         double pidOutput = shoulderController.calculate(Units.radiansToDegrees(shoulderSim.getAngleRads()), pos);
-        
-        State setpoint = shoulderController.getSetpoint();
-        double ffOutput = shoulderFF.calculate(Units.degreesToRadians(setpoint.position), Units.degreesToRadians(setpoint.velocity));
-
-        setShoulderVoltage(pidOutput + ffOutput);
+        setShoulderVoltage(pidOutput + shoulderFF.calculate(
+            Units.degreesToRadians(shoulderController.getSetpoint().position), Units.degreesToRadians(shoulderController.getSetpoint().velocity)));
     }
 
     @Override

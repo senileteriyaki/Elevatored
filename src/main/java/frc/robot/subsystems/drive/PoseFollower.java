@@ -49,10 +49,8 @@ public class PoseFollower {
 
         Rotation2d rotationDiff = poseDiff.getRotation();
         double radDiff = rotationDiff.getRadians();
-        double angularVelocity = Util.limit(rotate_kP * radDiff, -Drive.getInstance().MAX_ANGULAR_VEL_radps,
-                Drive.getInstance().MAX_ANGULAR_VEL_radps);
-
-        angularVelocity *= Units.radiansToDegrees(1);
+        double angularVelocity = Util.limit(rotate_kP * radDiff, -Drive.MAX_ANGULAR_VEL_radps,
+                Drive.MAX_ANGULAR_VEL_radps);
 
         double output = Util.limit(translate_kP * magnitude, maxSpeed);
         if(magnitude < 0.05){

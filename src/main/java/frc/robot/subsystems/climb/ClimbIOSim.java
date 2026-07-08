@@ -5,7 +5,6 @@ import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
-import edu.wpi.first.math.trajectory.TrapezoidProfile.State;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 
@@ -17,26 +16,21 @@ public class ClimbIOSim implements ClimbIO{
 
     private Constraints constraints;
     private ProfiledPIDController controller;
-    private State goal;
 
     private ArmFeedforward ff;
-    private double targetPos;
     private double volts;
 
     public ClimbIOSim(){
-        this.sim = new SingleJointedArmSim(DCMotor.getKrakenX60(2), 50, 
-                                   1.5, 0.5, Units.degreesToRadians(ClimberConstants.minAngle),
+        this.sim = new SingleJointedArmSim(DCMotor.getKrakenX60(2), ClimberConstants.GEAR_RATIO, 
+                                   ClimberConstants.MOI, ClimberConstants.LENGTH, Units.degreesToRadians(ClimberConstants.minAngle),
                                    Units.degreesToRadians(ClimberConstants.maxAngle), true, Units.degreesToRadians(ClimberConstants.stowAngle));
 
         this.constraints = new Constraints(ClimberConstants.MAX_VELOCITY, ClimberConstants.MAX_ACCELERATION);
         this.controller = new ProfiledPIDController(ClimberConstants.kP, ClimberConstants.kI, ClimberConstants.kD, constraints);
         controller.setTolerance(ClimberConstants.tolerance);
 
-        ff = new ArmFeedforward(ClimberConstants.kS, ClimberConstants.kG, ClimberConstants.kV); 
-        this.targetPos = ClimberConstants.stowAngle;
-
+        this.ff = new ArmFeedforward(ClimberConstants.kS, ClimberConstants.kG, ClimberConstants.kV); 
         this.controller.reset(ClimberConstants.stowAngle);
-
     }
     
     @Override
@@ -58,7 +52,8 @@ public class ClimbIOSim implements ClimbIO{
     @Override
     public void goToPos(double pos){
         double conVoltage = controller.calculate(Units.radiansToDegrees(sim.getAngleRads()), pos);
-        setVoltage(conVoltage + ff.calculate(Units.degreesToRadians(controller.getSetpoint().position), Units.degreesToRadians(controller.getSetpoint().velocity)));
+        setVoltage(conVoltage + ff.calculate(
+            Units.degreesToRadians(controller.getSetpoint().position), Units.degreesToRadians(controller.getSetpoint().velocity)));
     }
 
     @Override
@@ -70,5 +65,4 @@ public class ClimbIOSim implements ClimbIO{
     public void stop(){
         setVoltage(0);
     }
-
 }

@@ -20,7 +20,8 @@ public class Elevator extends StateMachineSubsystemBase<ElevatorStates> {
         this.io = io;
         target = ElevatorConstants.minHeight;
         queueState(ElevatorStates.IDLE);
-        elevator2d = new Elevator2D("elevator", new Color8Bit(Color.kLavender), new Color8Bit(Color.kDarkOrange));
+        
+        this.elevator2d = new Elevator2D("elevator", new Color8Bit(Color.kLavender), new Color8Bit(Color.kDarkOrange));
     }
 
     public static Elevator getInstance(){
@@ -43,8 +44,10 @@ public class Elevator extends StateMachineSubsystemBase<ElevatorStates> {
     public void handleStateMachine() {
       switch (getState()) {
         case DISABLED:
-        case IDLE:
           io.stop();
+          break;
+        case IDLE:
+          io.hold(target);
           break;
         case HOLDING:
           if (!reachedTarget()){
@@ -79,10 +82,12 @@ public class Elevator extends StateMachineSubsystemBase<ElevatorStates> {
       elevator2d.periodic();
     }
 
-
+    private void setTarget(double target) {
+      this.target = MathUtil.clamp(target, ElevatorConstants.minHeight, ElevatorConstants.maxHeight);
+    }
 
     public void setHeight(double height) {
-      target = MathUtil.clamp(height, ElevatorConstants.minHeight, ElevatorConstants.maxHeight);
+      setTarget(height);
       queueState(ElevatorStates.TRAVELLING);
     }
 
@@ -92,6 +97,10 @@ public class Elevator extends StateMachineSubsystemBase<ElevatorStates> {
 
     public void stow() {
       setHeight(ElevatorConstants.STOW);
+    }
+
+    public void idle() {
+      queueState(ElevatorStates.IDLE);
     }
 
     public boolean reachedTarget() {

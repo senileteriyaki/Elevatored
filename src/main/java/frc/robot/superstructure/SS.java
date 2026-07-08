@@ -5,7 +5,7 @@ import org.littletonrobotics.junction.Logger;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.Timer;
-import frc.robot.Constants.ArmConstants;
+import frc.robot.subsystems.arm.ArmConstants;
 import frc.robot.subsystems.StateMachineSubsystemBase;
 import frc.robot.subsystems.arm.Arm;
 import frc.robot.subsystems.climb.Climb;
@@ -97,7 +97,6 @@ public class SS extends StateMachineSubsystemBase<InternalState> {
      * actions are called since that behavior is manged by handleStateMachine().
      */
     private void handleIntention() {
-
         switch (getState()) {
             case BOOT:
             case DISABLED:
@@ -183,6 +182,7 @@ public class SS extends StateMachineSubsystemBase<InternalState> {
                     default: 
                         yield defaultIntentionHandling();
                 });
+                break;
             default:
                 queueState(defaultIntentionHandling());
                 break;
@@ -206,11 +206,15 @@ public class SS extends StateMachineSubsystemBase<InternalState> {
             case REJECT:
                 break;
             case BOOT:
-                elevator.zero();
-                arm.zero();
+                if (!booted) {
+                    elevator.zero();
+                    arm.zero();
+                    booted = true;
+                }
 
-                booted = true;
-                queueState(InternalState.IDLE);
+                if (elevator.reachedTarget() && arm.reachedTarget()) {
+                    queueState(InternalState.IDLE);
+                }
                 break;
             case IDLE:
                 if (test) {
@@ -229,7 +233,7 @@ public class SS extends StateMachineSubsystemBase<InternalState> {
                 break;
             case SCORESTAGE2:
                 if (timer.hasElapsed(PULLBACK_TIME_s)) {
-                    arm.setShoulderPosition(ArmConstants.shoulderLevelAngles2[coralLevel]);
+                    arm.setShoulderPosition(ArmConstants.shoulderLevelAngles[coralLevel]);
                 }
                 break;
             case POSTSCORE:
