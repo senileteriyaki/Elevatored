@@ -9,7 +9,6 @@ import frc.robot.subsystems.arm.ArmConstants;
 import frc.robot.subsystems.StateMachineSubsystemBase;
 import frc.robot.subsystems.arm.Arm;
 import frc.robot.subsystems.climb.Climb;
-import frc.robot.subsystems.climb.ClimbStates;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.PathingOverride;
 import frc.robot.subsystems.elevator.Elevator;
