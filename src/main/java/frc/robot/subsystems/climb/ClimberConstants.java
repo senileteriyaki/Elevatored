@@ -19,8 +19,7 @@ public final class ClimberConstants {
     public static final double MAX_VELOCITY = 180;
     public static final double MAX_ACCELERATION = 360;
     public static final double MAX_JERK = 0; // Using trapezoidal profile so jerk must be 0
-
-    public static double tolerance = 0.5;
+    public static final double tolerance = 0.5;
 
     // TUNED SIMULATION GAINS
     public static final double kP = 0.4;

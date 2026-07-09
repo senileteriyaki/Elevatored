@@ -16,9 +16,11 @@ public class Climb extends StateMachineSubsystemBase<ClimbStates> {
 
     public Climb(ClimbIO io) {
         super("climb");
+
         this.io = io;
-        target = 0;
+        this.target = ClimberConstants.stowAngle;
         queueState(ClimbStates.IDLE);
+        
         climb2d = new Climb2D("climb", new Color8Bit(Color.kMediumSpringGreen));
     }
 
