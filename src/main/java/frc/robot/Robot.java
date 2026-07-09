@@ -61,8 +61,8 @@ public class Robot extends LoggedRobot {
     private Climb climb;
     private boolean lastState = false;
 
-    private ControlScheme scheme;
-    // private ControlSchemeV2 scheme;
+    // private ControlScheme scheme;
+    private ControlSchemeV2 scheme;
 
     private MTimer pipelineSwitch = new MTimer();
 
@@ -120,8 +120,8 @@ public class Robot extends LoggedRobot {
         Logger.start();
 
         // Init control scheme
-        scheme = new ControlScheme();
-        // scheme = new ConstrolSchemeV2();
+        // scheme = new ControlScheme();
+        scheme = new ControlSchemeV2();
 
         // init subsystems
         drive = Drive.getInstance();

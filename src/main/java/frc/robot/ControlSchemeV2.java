@@ -62,6 +62,14 @@ public class ControlSchemeV2 implements IPeriodic {
             ss.setReef((ss.getReef() - 1 + 4) % 4);
         }
 
+        if (OI.DR.getStartButton()) {
+            ss.intend(Intention.REJECT);
+        }
+
+        if (OI.DR.getYButton()) {
+            ss.intend(Intention.IDLE);
+        }
+
         if (OI.DR.getXButton()){
             ss.intend(Intention.SCORE);
         }

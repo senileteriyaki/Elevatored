@@ -32,7 +32,7 @@ public final class ArmConstants {
     public static final double elbowKI = 0.0;
     public static final double elbowKD = 0.05;
 
-    public static final double shoulderKP = 0.4;
+    public static final double shoulderKP = 2.1;
     public static final double shoulderKI = 0.0;
     public static final double shoulderKD = 0.05;
 
