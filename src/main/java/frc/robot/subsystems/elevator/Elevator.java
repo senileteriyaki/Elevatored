@@ -47,8 +47,7 @@ public class Elevator extends StateMachineSubsystemBase<ElevatorStates> {
           io.stop();
           break;
         case IDLE:
-          // io.hold(target);
-          io.stop();
+          io.hold(target);
           break;
         case HOLDING:
           if (!reachedTarget()){

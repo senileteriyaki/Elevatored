@@ -42,7 +42,7 @@ public class SS extends StateMachineSubsystemBase<InternalState> {
     public static final double PULLBACK_TIME_s = 0.45;
     public static final double POSTSCORE_s = 0.5;
     public static final double REJECT_TIMEOUT_s = 2;
-    public static final int REEF_LEVELS = 3;
+    public static final int REEF_LEVELS = 3; // by index
 
     private Timer timer;
 

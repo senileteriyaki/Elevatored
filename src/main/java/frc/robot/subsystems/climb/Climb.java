@@ -51,6 +51,7 @@ public class Climb extends StateMachineSubsystemBase<ClimbStates> {
             case STRETCHING:
             case CLIMBING:
                 io.goToPos(target);
+                
                 if (reachedTarget()) {
                     queueState(ClimbStates.HOLDING);
                 }
