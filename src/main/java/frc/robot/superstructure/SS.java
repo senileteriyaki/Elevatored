@@ -31,7 +31,6 @@ public class SS extends StateMachineSubsystemBase<InternalState> {
 
     private Intention intention;
 
-    private boolean resetIntention = false;
     private boolean ready1 = false;
     private boolean ready2 = false;
 
@@ -43,11 +42,9 @@ public class SS extends StateMachineSubsystemBase<InternalState> {
     public static final double PULLBACK_TIME_s = 0.45;
     public static final double POSTSCORE_s = 0.5;
     public static final double REJECT_TIMEOUT_s = 2;
-    public static final int REEF_LEVELS = 4;
+    public static final int REEF_LEVELS = 3;
 
     private Timer timer;
-
-    private boolean homedYet = false;
 
     private static Drive drive;
 
@@ -66,7 +63,6 @@ public class SS extends StateMachineSubsystemBase<InternalState> {
         queueState(InternalState.BOOT);
         
         this.booted = false;
-        this.homedYet = false;
         this.coralLevel = 3;
 
         timer = new Timer();
@@ -90,8 +86,8 @@ public class SS extends StateMachineSubsystemBase<InternalState> {
             case IDLE -> InternalState.IDLE;
             case REJECT -> InternalState.REJECT;
             case SCORE -> InternalState.PRESCORE;
-            case CLIMB1 -> InternalState.PRECLIMB;
-            case CLIMB2 -> InternalState.CLIMB;
+            case PRECLIMB -> InternalState.PRECLIMB;
+            case CLIMB -> InternalState.PRECLIMB;
             default -> InternalState.IDLE;
         };
     }
@@ -159,8 +155,8 @@ public class SS extends StateMachineSubsystemBase<InternalState> {
                 break;
             case POSTSCORE:
                 if (arm.reachedTarget() && elevator.reachedTarget() && timer.hasElapsed(POSTSCORE_s)){
-                    intend(Intention.IDLE);
                     timer.reset();
+                    intend(Intention.IDLE);
                     queueState(InternalState.IDLE);
                 }
                 break;
@@ -168,20 +164,20 @@ public class SS extends StateMachineSubsystemBase<InternalState> {
                 queueState(switch (intention) {
                     case IDLE:
                         yield InternalState.IDLE;
-                    case CLIMB1:
+                    case PRECLIMB:
                         yield InternalState.PRECLIMB;
-                    case CLIMB2:
+                    case CLIMB:
                         yield climb.reachedTarget() ? InternalState.CLIMB : InternalState.PRECLIMB;
                     default:
                         yield defaultIntentionHandling();
-
                 });
                 break;
             case CLIMB:
                 queueState(switch (intention) {
-                    case IDLE: 
-                        intend(Intention.IDLE);
+                    case IDLE:
                         yield InternalState.IDLE;
+                    case CLIMB:
+                        yield InternalState.CLIMB;
                     default: 
                         yield defaultIntentionHandling();
                 });
@@ -243,10 +239,10 @@ public class SS extends StateMachineSubsystemBase<InternalState> {
                 }
                 break;
             case PRECLIMB:
-                climb.queueState(ClimbStates.STRETCHING);
+                climb.stretch();
                 break;
             case CLIMB:
-                climb.queueState(ClimbStates.CLIMBING);
+                climb.climb();
                 break;
             default:
                 unimplementedStateAlert.set(true);
@@ -261,8 +257,8 @@ public class SS extends StateMachineSubsystemBase<InternalState> {
         Logger.recordOutput("SS/timer", timer.get());
     }
 
-    public void intend(Intention i) {
-        intention = i;
+    public void intend(Intention intention) {
+        this.intention = intention;
     }
 
     public void setReef(int coralLevel) { 
@@ -274,11 +270,11 @@ public class SS extends StateMachineSubsystemBase<InternalState> {
     }
 
     public boolean okToScore1() {
-        return arm.reachedTarget() && timer.hasElapsed(SCORE_s);
+        return arm.reachedTarget() && elevator.reachedTarget() && timer.hasElapsed(SCORE_s);
     }
 
     public boolean okToScore2() {
-        return arm.reachedTarget() && timer.hasElapsed(PULLBACK_TIME_s + 0.05);
+        return arm.reachedTarget() && elevator.reachedTarget() && timer.hasElapsed(PULLBACK_TIME_s + 0.05);
     }
 }
 

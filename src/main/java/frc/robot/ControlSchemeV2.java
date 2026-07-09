@@ -40,7 +40,7 @@ public class ControlSchemeV2 implements IPeriodic {
         }
 
         if (OI.DR.getRightTriggerAxis() >= 0.8) {
-            // drive.queueState(PathingMode.TRACKING);
+            drive.queueState(PathingMode.TRACKING);
 
         } else {
             drive.queueState(PathingMode.FIELD_RELATIVE);
@@ -76,11 +76,11 @@ public class ControlSchemeV2 implements IPeriodic {
         }
 
         if (OI.DR.getAButton()){
-            ss.intend(Intention.CLIMB1);
+            ss.intend(Intention.PRECLIMB);
         }
 
         if (OI.DR.getBButton()){
-            ss.intend(Intention.CLIMB2);
+            ss.intend(Intention.CLIMB);
         }
     }
 }
