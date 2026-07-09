@@ -1,59 +1,79 @@
 package frc.robot.subsystems.arm;
 
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.ArmFeedforward;
+import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 import frc.robot.Constants;
-import frc.robot.Constants.ArmConstants;
 
-public class ArmIOSim implements ArmIO{
+public class ArmIOSim implements ArmIO {
 
     private SingleJointedArmSim elbowSim;
     private SingleJointedArmSim shoulderSim;
 
-    private PIDController elbowPID;
-    private PIDController shoulderPID;
+    private Constraints elbowConstraints;
+    private Constraints shoulderConstraints;
+
+    private ProfiledPIDController elbowController;
+    private ProfiledPIDController shoulderController;
 
     private double elbowVoltsApplied;
     private double shoulderVoltsApplied;
 
-    private double elbowTarget;
-    private double shoulderTarget;
+    private ArmFeedforward elbowFF;
+    private ArmFeedforward shoulderFF;
 
-    public ArmIOSim(){
-        this.elbowSim = new SingleJointedArmSim(DCMotor.getKrakenX60(1), 127.5, 
-                                   1.5, 0.2, ArmConstants.minAngle, 
-                                   ArmConstants.maxAngle, true, 0, 0.1, 0);
-        this.elbowPID = new PIDController(ArmConstants.elbowKP, ArmConstants.elbowKI, ArmConstants.elbowKD);
-        elbowPID.setTolerance(0.05);
-        this.shoulderSim = new SingleJointedArmSim(DCMotor.getKrakenX60(2), 151, 
-                                   1.5, 0.2, ArmConstants.minAngle, 
-                                   ArmConstants.maxAngle, true, 0, 0.1, 0);
-        this.shoulderPID = new PIDController(ArmConstants.shoulderKP, ArmConstants.shoulderKI, ArmConstants.shoulderKD);
-        shoulderPID.setTolerance(0.05);
-        this.elbowVoltsApplied = this.shoulderVoltsApplied = 0;
-        this.elbowTarget = this.shoulderTarget = ArmConstants.minAngle;
+    public ArmIOSim() {
+        this.elbowSim = new SingleJointedArmSim(
+            DCMotor.getKrakenX60(1), ArmConstants.ELBOW_GEAR_RATIO, ArmConstants.ELBOW_MOI, ArmConstants.ELBOW_LENGTH, 
+            Units.degreesToRadians(ArmConstants.eMin), Units.degreesToRadians(ArmConstants.eMax), 
+            false, Units.degreesToRadians(ArmConstants.ELBOW_STOW)
+        );
+        this.shoulderSim = new SingleJointedArmSim(
+            DCMotor.getKrakenX60(1), ArmConstants.SHOULDER_GEAR_RATIO, ArmConstants.SHOULDER_MOI, ArmConstants.SHOULDER_LENGTH, 
+            Units.degreesToRadians(ArmConstants.sMin), Units.degreesToRadians(ArmConstants.sMax), 
+            true, Units.degreesToRadians(ArmConstants.SHOULDER_STOW)
+        );
+
+        this.elbowConstraints = new Constraints(ArmConstants.ELBOW_MAX_VELOCITY_DPS, ArmConstants.ELBOW_MAX_ACCELERATION_DPS2);
+        this.shoulderConstraints = new Constraints(ArmConstants.SHOULDER_MAX_VELOCITY_DPS, ArmConstants.SHOULDER_MAX_ACCELERATION_DPS2);
+
+        this.elbowController = new ProfiledPIDController(ArmConstants.elbowKP, ArmConstants.elbowKI, ArmConstants.elbowKD, elbowConstraints);
+        this.shoulderController = new ProfiledPIDController(ArmConstants.shoulderKP, ArmConstants.shoulderKI, ArmConstants.shoulderKD, shoulderConstraints);
+
+        elbowController.setTolerance(ArmConstants.elbowTolerance);
+        shoulderController.setTolerance(ArmConstants.shoulderTolerance);
+
+        this.elbowFF = new ArmFeedforward(ArmConstants.elbowKS, ArmConstants.elbowKG, ArmConstants.elbowKV);
+        this.shoulderFF = new ArmFeedforward(ArmConstants.shoulderKS, ArmConstants.shoulderKG, ArmConstants.shoulderKV);
+
+        this.elbowVoltsApplied = 0;
+        this.shoulderVoltsApplied = 0;
+
+        elbowController.reset(ArmConstants.ELBOW_STOW);
+        shoulderController.reset(ArmConstants.SHOULDER_STOW);
     }
     
     @Override
-    public void updateInputs(ArmIOInputs inputs){
+    public void updateInputs(ArmIOInputs inputs) {
         elbowSim.update(Constants.globalDelta_s);
-        inputs.elbowPos = Units.radiansToDegrees(elbowSim.getAngleRads());
-        inputs.elbowVel = Units.radiansToDegrees(elbowSim.getVelocityRadPerSec());
-        inputs.elbowVolts = elbowVoltsApplied;
-        inputs.elbowAmps = elbowSim.getCurrentDrawAmps();
+        inputs.elbowPos_deg = Units.radiansToDegrees(elbowSim.getAngleRads());
+        inputs.elbowVel_dps = Units.radiansToDegrees(elbowSim.getVelocityRadPerSec());
+        inputs.elbowVoltage_v = elbowVoltsApplied;
+        inputs.elbowCurrent_a = elbowSim.getCurrentDrawAmps();
 
         shoulderSim.update(Constants.globalDelta_s);
-        inputs.shoulderPos = Units.degreesToRadians(shoulderSim.getAngleRads());
-        inputs.shoulderVel = Units.degreesToRadians(shoulderSim.getVelocityRadPerSec());
-        inputs.shoulderVolts = shoulderVoltsApplied;
-        inputs.shoulderAmps = shoulderSim.getCurrentDrawAmps();
+        inputs.shoulderPos_deg = Units.radiansToDegrees(shoulderSim.getAngleRads());
+        inputs.shoulderVel_dps = Units.radiansToDegrees(shoulderSim.getVelocityRadPerSec());
+        inputs.shoulderVoltage_v = shoulderVoltsApplied;
+        inputs.shoulderCurrent_a = shoulderSim.getCurrentDrawAmps();
     }
 
     @Override
-    public void setElbowVoltage(double voltage){
+    public void setElbowVoltage(double voltage) {
         elbowVoltsApplied = MathUtil.clamp(voltage, -12, 12);
         elbowSim.setInputVoltage(elbowVoltsApplied);
     }
@@ -65,36 +85,36 @@ public class ArmIOSim implements ArmIO{
     }
 
     @Override
-    public void goToElbowPos(double pos){
-        elbowTarget = pos;
-        setElbowVoltage(elbowPID.calculate(elbowSim.getAngleRads(), Units.degreesToRadians(elbowTarget)));
+    public void goToElbowPos(double pos) {
+        double pidOutput = elbowController.calculate(Units.radiansToDegrees(elbowSim.getAngleRads()), pos);
+        setElbowVoltage(pidOutput + elbowFF.calculate(
+            Units.degreesToRadians(elbowController.getSetpoint().position), Units.degreesToRadians(elbowController.getSetpoint().velocity)));
     }
 
     @Override
     public void goToShoulderPos(double pos) {
-        shoulderTarget = pos;
-        setShoulderVoltage(shoulderPID.calculate(shoulderSim.getAngleRads(), Units.degreesToRadians(shoulderTarget)));
+        double pidOutput = shoulderController.calculate(Units.radiansToDegrees(shoulderSim.getAngleRads()), pos);
+        setShoulderVoltage(pidOutput + shoulderFF.calculate(
+            Units.degreesToRadians(shoulderController.getSetpoint().position), Units.degreesToRadians(shoulderController.getSetpoint().velocity)));
     }
 
     @Override
-    public void holdElbow(double pos){
+    public void holdElbow(double pos) {
         goToElbowPos(pos);
     }
 
     @Override
     public void holdShoulder(double pos) {
-        goToElbowPos(pos);
+        goToShoulderPos(pos); 
     }
 
     @Override
-    public void stopElbow(){
-        elbowVoltsApplied = 0;
-        elbowSim.setInputVoltage(elbowVoltsApplied);
+    public void stopElbow() {
+        setElbowVoltage(0);
     }
 
     @Override
     public void stopShoulder() {
-        shoulderVoltsApplied = 0;
-        shoulderSim.setInputVoltage(shoulderVoltsApplied);
+        setShoulderVoltage(0);
     }
 }

@@ -1,10 +1,11 @@
 package frc.robot.superstructure;
 
-import java.util.Arrays;
-
 import org.littletonrobotics.junction.Logger;
+
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
+import edu.wpi.first.wpilibj.Timer;
+import frc.robot.subsystems.arm.ArmConstants;
 import frc.robot.subsystems.StateMachineSubsystemBase;
 import frc.robot.subsystems.arm.Arm;
 import frc.robot.subsystems.climb.Climb;
@@ -12,10 +13,9 @@ import frc.robot.subsystems.climb.ClimbStates;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.PathingOverride;
 import frc.robot.subsystems.elevator.Elevator;
+import frc.robot.subsystems.elevator.ElevatorConstants;
 import frc.robot.subsystems.tracking.Tracking;
 import frc.robot.subsystems.vision.Vision;
-import frc.robot.util.MTimer;
-import frc.robot.superstructure.InternalState;
 
 
 public class SS extends StateMachineSubsystemBase<InternalState> {
@@ -31,15 +31,20 @@ public class SS extends StateMachineSubsystemBase<InternalState> {
 
     private Intention intention;
 
+    private boolean ready1 = false;
+    private boolean ready2 = false;
+
     public boolean booted;
 
     private Alert unimplementedStateAlert = new Alert("SS InternalState unimplemented", AlertType.kError);
 
+    public static final double SCORE_s = 2;
     public static final double PULLBACK_TIME_s = 0.45;
+    public static final double POSTSCORE_s = 0.5;
+    public static final double REJECT_TIMEOUT_s = 2;
+    public static final int REEF_LEVELS = 3; // by index
 
-    private MTimer scoringTimer;
-
-    private boolean homedYet = false;
+    private Timer timer;
 
     private static Drive drive;
     private static Arm arm;
@@ -48,15 +53,19 @@ public class SS extends StateMachineSubsystemBase<InternalState> {
     private static Tracking tracking;
     private static Vision vision;
 
-    private int coralLevel = 3;
+    private int coralLevel;
 
     private SS() {
         super("SS");
-        intention = Intention.IDLE;
-        queueState(InternalState.IDLE);
-        booted = false;
-        scoringTimer = new MTimer();
-        homedYet = false;
+
+        this.intention = Intention.IDLE;
+        queueState(InternalState.BOOT);
+        
+        this.booted = false;
+        this.coralLevel = 3;
+
+        timer = new Timer();
+        timer.start();
 
         drive = Drive.getInstance();
         elevator = Elevator.getInstance();
@@ -64,7 +73,6 @@ public class SS extends StateMachineSubsystemBase<InternalState> {
         climb = Climb.getInstance();
         tracking = Tracking.getInstance();
         vision = Vision.getInstance();
-
 
         tracking.setValidIds(new double[] {6, 7, 8, 9, 10, 11, 17, 18, 19, 20, 21}); //reef only
     }
@@ -75,103 +83,197 @@ public class SS extends StateMachineSubsystemBase<InternalState> {
     public InternalState defaultIntentionHandling() {
         return switch (intention){
             case IDLE -> InternalState.IDLE;
-            case CLIMB -> InternalState.CLIMBING;
+            case REJECT -> InternalState.REJECT;
             case SCORE -> InternalState.PRESCORE;
+            case PRECLIMB -> InternalState.PRECLIMB;
+            case CLIMB -> InternalState.PRECLIMB;
+            default -> InternalState.IDLE;
         };
     }
 
+    /**
+     * Controls the switching between states by handling the intention. No subsystem
+     * actions are called since that behavior is manged by handleStateMachine().
+     */
     private void handleIntention() {
-        switch (getState()){
-            case BOOT: break;
-            case DISABLED: break;
-            case IDLE: break;
-            case PRESCORE: 
-                if (drive.finishedTracking() && intention == Intention.SCORE){
-                    switch (coralLevel){
-                        case 1: 
-                            queueState(InternalState.SCORE1);
-                        case 2:
-                            queueState(InternalState.SCORE2);
-                        case 3:
-                            queueState(InternalState.SCORE3);
-                        case 4:
-                            queueState(InternalState.SCORE4);
-                    }
-                    break;
-                }else{
-                    queueState(InternalState.PRESCORE);
-                    break;
+        switch (getState()) {
+            case BOOT:
+            case DISABLED:
+                break; // Wait for handleStateMachine() to finish booting / disable state switching
+            case REJECT:
+                if (timer.hasElapsed(REJECT_TIMEOUT_s)){
+                    queueState(InternalState.IDLE); 
                 }
+                break;
+            case IDLE:
+                queueState(defaultIntentionHandling());
+                break;
+            case PRESCORE:
+                queueState(switch (intention) {
+                    case REJECT:
+                        timer.reset();
+                        yield InternalState.REJECT;
+                    case SCORE: 
+                        if (tracking.finishedTracking()){
+                            timer.restart();
+                        }
+                        yield tracking.finishedTracking() ? InternalState.SCORESTAGE1 : InternalState.PRESCORE;
+                    default: 
+                        yield defaultIntentionHandling();
+                });
+                break;
+            case SCORESTAGE1:
+                queueState(switch (intention) {
+                    case REJECT:
+                        timer.reset();
+                        yield InternalState.REJECT;
+                    case SCORE:
+                        ready1 = okToScore1();
+                        if (ready1){
+                            timer.restart();
+                        }
+                        yield ready1 ? InternalState.SCORESTAGE2 : InternalState.SCORESTAGE1;
+                    default:
+                        yield defaultIntentionHandling();
+                });
+                break;
+            case SCORESTAGE2:
+                queueState(switch (intention) {
+                    case REJECT:
+                        timer.reset();
+                        yield InternalState.REJECT;
+                    case SCORE:
+                        ready2 = okToScore2();
+                        if (ready2){
+                            timer.restart();
+                        }
+                        yield ready2 ? InternalState.POSTSCORE : InternalState.SCORESTAGE2;
+                    default:
+                        yield defaultIntentionHandling();
+                });
+                break;
+            case POSTSCORE:
+                if (arm.reachedTarget() && elevator.reachedTarget() && timer.hasElapsed(POSTSCORE_s)){
+                    timer.reset();
+                    intend(Intention.IDLE);
+                    queueState(InternalState.IDLE);
+                }
+                break;
+            case PRECLIMB:
+                queueState(switch (intention) {
+                    case IDLE:
+                        yield InternalState.IDLE;
+                    case PRECLIMB:
+                        yield InternalState.PRECLIMB;
+                    case CLIMB:
+                        yield climb.reachedTarget() ? InternalState.CLIMB : InternalState.PRECLIMB;
+                    default:
+                        yield defaultIntentionHandling();
+                });
+                break;
+            case CLIMB:
+                queueState(switch (intention) {
+                    case IDLE:
+                        yield InternalState.IDLE;
+                    case CLIMB:
+                        yield InternalState.CLIMB;
+                    default: 
+                        yield defaultIntentionHandling();
+                });
+                break;
             default:
+                queueState(defaultIntentionHandling());
                 break;
         }
     }
 
+    /**
+     * Calls subsystem methods to achive the current state. Does not manage switching
+     * the current state - use handleIntention().
+     */
     @Override
-    public void handleStateMachine() {
+    public void handleStateMachine() { 
         if (!booted && !isState(InternalState.DISABLED)) {
             queueState(InternalState.BOOT);
         }
 
-        queueState(defaultIntentionHandling());
         handleIntention();
 
-        switch (getState()) {
+        switch (getState()){
             case DISABLED:
+            case REJECT:
                 break;
             case BOOT:
-                booted = true;
-                queueState(InternalState.IDLE);
+                if (!booted) {
+                    elevator.zero();
+                    arm.zero();
+                    booted = true;
+                }
+
+                if (elevator.reachedTarget() && arm.reachedTarget()) {
+                    queueState(InternalState.IDLE);
+                }
                 break;
             case IDLE:
-                if (stateInit()) {
-                    homedYet = false;
-                }
-                // ensure drive is in a safe state
-                if (drive != null) {
-                    drive.setPathingOverride(PathingOverride.NONE);
-                }
-                break;
+                elevator.stow();
+                arm.stow();
+                break; // Wait for new intention - changes in handleIntention()      
             case PRESCORE:
                 drive.setPathingOverride(PathingOverride.TRACKING);
-            case SCORE1:
-                elevator.setCoralLevel(0);
-                arm.setCoralLevel(0);
                 break;
-            case SCORE2:
-                elevator.setCoralLevel(1);
-                arm.setCoralLevel(1);
+            case SCORESTAGE1:
+                elevator.setHeight(ElevatorConstants.levelHeights[coralLevel]);
+                arm.setShoulderPosition(ArmConstants.shoulderLevelAngles[coralLevel]);
+                arm.setElbowPosition(ArmConstants.elbowLevelAngles[coralLevel]);
                 break;
-            case SCORE3:
-                elevator.setCoralLevel(2);
-                arm.setCoralLevel(2);
+            case SCORESTAGE2:
+                if (timer.hasElapsed(PULLBACK_TIME_s)) {
+                    arm.setShoulderPosition(ArmConstants.shoulderLevelAngles[coralLevel]);
+                }
                 break;
-            case SCORE4:
-                elevator.setCoralLevel(3);
-                arm.setCoralLevel(3);
-            case CLIMBING:
-                climb.queueState(ClimbStates.STRETCHING);
+            case POSTSCORE:
+                if (timer.hasElapsed(POSTSCORE_s)) {
+                    elevator.stow();
+                    arm.stow();
+                }
+                break;
+            case PRECLIMB:
+                climb.stretch();
+                break;
+            case CLIMB:
+                climb.climb();
                 break;
             default:
                 unimplementedStateAlert.set(true);
                 break;
         }
-    }
 
+    }
     @Override
     public final void outputPeriodic() {
         Logger.recordOutput("SS/Booted?", booted);
         Logger.recordOutput("SS/Intention", intention);
-        elevator.setArmLigament(arm.getElbowPos()); //hella sus design pattern but whatever
+        Logger.recordOutput("SS/timer", timer.get());
     }
 
-    public void intend(Intention i) {
-        intention = i;
+    public void intend(Intention intention) {
+        this.intention = intention;
     }
 
-    public void setReef(int l) {
-        coralLevel = l;
+    public void setReef(int coralLevel) { 
+        this.coralLevel = coralLevel;
     }
 
+    public int getReef() {
+        return coralLevel;
+    }
+
+    public boolean okToScore1() {
+        return arm.reachedTarget() && elevator.reachedTarget() && timer.hasElapsed(SCORE_s);
+    }
+
+    public boolean okToScore2() {
+        return arm.reachedTarget() && elevator.reachedTarget() && timer.hasElapsed(PULLBACK_TIME_s + 0.05);
+    }
 }
 

@@ -2,10 +2,10 @@ package frc.robot.subsystems.elevator;
 
 import org.littletonrobotics.junction.Logger;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.util.Color8Bit;
 import frc.robot.Constants;
-import frc.robot.Constants.ElevatorConstants;
 import frc.robot.subsystems.StateMachineSubsystemBase;
 
 public class Elevator extends StateMachineSubsystemBase<ElevatorStates> {
@@ -20,7 +20,8 @@ public class Elevator extends StateMachineSubsystemBase<ElevatorStates> {
         this.io = io;
         target = ElevatorConstants.minHeight;
         queueState(ElevatorStates.IDLE);
-        elevator2d = new Elevator2D("elevator", new Color8Bit(Color.kLavender), new Color8Bit(Color.kDarkOrange));
+        
+        this.elevator2d = new Elevator2D("elevator", new Color8Bit(Color.kLavender), new Color8Bit(Color.kDarkOrange));
     }
 
     public static Elevator getInstance(){
@@ -46,15 +47,20 @@ public class Elevator extends StateMachineSubsystemBase<ElevatorStates> {
           io.stop();
           break;
         case IDLE:
-          io.hold(ElevatorConstants.minHeight);
-          break;
-        case HOLDING:
           io.hold(target);
           break;
+        case HOLDING:
+          if (!reachedTarget()){
+            queueState(ElevatorStates.TRAVELLING);
+          }else{
+            io.hold(target);
+          }
+          break;
         case TRAVELLING:
-          io.goToPos(target);
-          if (Math.abs(inputs.pos - target) < ElevatorConstants.tolerance){
+          if (reachedTarget()){
             queueState(ElevatorStates.HOLDING);
+          }else{
+            io.goToPos(target);
           }
           break;
         default:
@@ -71,21 +77,33 @@ public class Elevator extends StateMachineSubsystemBase<ElevatorStates> {
     @Override
     public void outputPeriodic(){
       Logger.recordOutput("Elevator/target", target);
-      elevator2d.set(inputs.pos);
+      Logger.recordOutput("Elevator/state", getState());
+      elevator2d.set(inputs.pos_m);
       elevator2d.periodic();
     }
 
-    public void setTarget(double p){
-        target = p;
+    private void setTarget(double target) {
+      this.target = MathUtil.clamp(target, ElevatorConstants.minHeight, ElevatorConstants.maxHeight);
     }
 
-    public void setCoralLevel(int level){
-      setTarget(ElevatorConstants.levelHeights[level]);
+    public void setHeight(double height) {
+      setTarget(height);
       queueState(ElevatorStates.TRAVELLING);
     }
 
-    public void setArmLigament(double deg){
-      elevator2d.setArm(deg);
+    public void zero() {
+      setHeight(ElevatorConstants.minHeight);
     }
 
+    public void stow() {
+      setHeight(ElevatorConstants.STOW);
+    }
+
+    public void idle() {
+      queueState(ElevatorStates.IDLE);
+    }
+
+    public boolean reachedTarget() {
+      return Math.abs(inputs.pos_m - target) < ElevatorConstants.tolerance;
+    }
 }

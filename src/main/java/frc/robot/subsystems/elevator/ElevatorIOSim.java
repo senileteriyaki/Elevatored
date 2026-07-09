@@ -1,38 +1,42 @@
 package frc.robot.subsystems.elevator;
 
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.ElevatorFeedforward;
+import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.wpilibj.simulation.ElevatorSim;
 import frc.robot.Constants;
-import frc.robot.Constants.ElevatorConstants;
 
 public class ElevatorIOSim implements ElevatorIO{
 
     private ElevatorSim sim;
-    private PIDController controller;
+    private ProfiledPIDController controller;
+    private ElevatorFeedforward ff;
+    private Constraints constraints;
 
-    private double targetHeight;
     private double volts;
 
     public ElevatorIOSim(){
-        this.sim = new ElevatorSim(DCMotor.getKrakenX60(1), 3, 
-                                   5, 0.02, ElevatorConstants.minHeight, 
-                                   ElevatorConstants.maxHeight, true, 0, 0.1, 0);
+        this.sim = new ElevatorSim(DCMotor.getKrakenX60(1), ElevatorConstants.GEAR_RATIO, 
+                                   ElevatorConstants.CARRIAGE_MASS_KG, ElevatorConstants.drumRadius, ElevatorConstants.minHeight, 
+                                   ElevatorConstants.maxHeight, true, ElevatorConstants.minHeight, 0.001, 0);
+        this.constraints = new Constraints(ElevatorConstants.maxVelocity, ElevatorConstants.maxAcceleration);
+        this.controller = new ProfiledPIDController(ElevatorConstants.kP, ElevatorConstants.kI, ElevatorConstants.kD, constraints);
+        controller.setTolerance(ElevatorConstants.tolerance);
 
-        this.controller = new PIDController(ElevatorConstants.kP, ElevatorConstants.kI, ElevatorConstants.kD);
-        controller.setTolerance(0.05);
-        this.targetHeight = ElevatorConstants.minHeight;
+        this.ff = new ElevatorFeedforward(ElevatorConstants.kS, ElevatorConstants.kG, ElevatorConstants.kV);   
+        controller.reset(ElevatorConstants.minHeight);
     }
     
     @Override
     public void updateInputs(ElevatorIOInputs inputs){
         sim.update(Constants.globalDelta_s);
 
-        inputs.volts = volts;
-        inputs.amps = sim.getCurrentDrawAmps();
-        inputs.pos = sim.getPositionMeters();
-        inputs.vel = sim.getVelocityMetersPerSecond();
+        inputs.voltage_v = volts;
+        inputs.current_a = sim.getCurrentDrawAmps();
+        inputs.pos_m = sim.getPositionMeters();
+        inputs.vel_mps = sim.getVelocityMetersPerSecond();
     }
 
     @Override
@@ -43,19 +47,17 @@ public class ElevatorIOSim implements ElevatorIO{
 
     @Override
     public void goToPos(double pos){
-       targetHeight = pos;
-       setVoltage(controller.calculate(sim.getPositionMeters(), targetHeight));
+       double conVoltage = controller.calculate(sim.getPositionMeters(), pos);
+       setVoltage(conVoltage + ff.calculate(controller.getSetpoint().velocity));
     }
 
     @Override
     public void hold(double pos){
-        targetHeight = pos;
-        setVoltage(controller.calculate(sim.getPositionMeters(), targetHeight));
+        goToPos(pos);
     }
 
     @Override
     public void stop(){
         setVoltage(0);
     }
-
 }

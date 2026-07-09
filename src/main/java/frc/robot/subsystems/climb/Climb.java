@@ -5,7 +5,6 @@ import org.littletonrobotics.junction.Logger;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.util.Color8Bit;
 import frc.robot.Constants;
-import frc.robot.Constants.ClimberConstants;
 import frc.robot.subsystems.StateMachineSubsystemBase;
 
 public class Climb extends StateMachineSubsystemBase<ClimbStates> {
@@ -17,9 +16,11 @@ public class Climb extends StateMachineSubsystemBase<ClimbStates> {
 
     public Climb(ClimbIO io) {
         super("climb");
+
         this.io = io;
-        target = 0;
+        this.target = ClimberConstants.stowAngle;
         queueState(ClimbStates.IDLE);
+        
         climb2d = new Climb2D("climb", new Color8Bit(Color.kMediumSpringGreen));
     }
 
@@ -46,24 +47,14 @@ public class Climb extends StateMachineSubsystemBase<ClimbStates> {
                 io.stop();
                 break;
             case IDLE:
-                target = ClimberConstants.stowAngle;
-                io.hold(ClimberConstants.stowAngle);
-                break;
             case HOLDING:
-                target = ClimberConstants.climbAngle;
-                io.hold(ClimberConstants.climbAngle);
+                io.hold(target);
                 break;
             case STRETCHING:
-                target = ClimberConstants.stretchAngle;
-                io.goToPos(ClimberConstants.stretchAngle);
-                if (Math.abs(inputs.pos - ClimberConstants.stretchAngle) < ClimberConstants.tolerance){
-                    queueState(ClimbStates.CLIMBING);
-                }
-                break;
             case CLIMBING:
-                target = ClimberConstants.climbAngle;
-                io.goToPos(ClimberConstants.climbAngle);
-                if (Math.abs(inputs.pos - ClimberConstants.climbAngle) < ClimberConstants.tolerance){
+                io.goToPos(target);
+                
+                if (reachedTarget()) {
                     queueState(ClimbStates.HOLDING);
                 }
                 break;
@@ -75,18 +66,51 @@ public class Climb extends StateMachineSubsystemBase<ClimbStates> {
     @Override
     public void inputPeriodic() {
         io.updateInputs(inputs);
+        climb2d.set(inputs.pos_deg);
         Logger.processInputs("Climb", inputs);
     }
 
     @Override
     public void outputPeriodic() {
         Logger.recordOutput("Climb/target", target);
-        climb2d.set(inputs.pos);
+        Logger.recordOutput("Climb/state", getState());
+        climb2d.set(inputs.pos_deg);
         climb2d.periodic();
     }
 
-    public void setTarget(double p) {
-        target = p;
+    private void setTarget(double target) {
+        this.target = target;
     }
 
+    public void stretch() {
+        setTarget(ClimberConstants.stretchAngle);
+        queueState(ClimbStates.STRETCHING);
+    }
+
+    public void climb() {
+        setTarget(ClimberConstants.climbAngle);
+        queueState(ClimbStates.CLIMBING);
+    }
+
+    public void hold() {
+        queueState(ClimbStates.HOLDING);
+    }
+
+    public void disable() {
+        queueState(ClimbStates.DISABLED);
+    }
+
+    public void idle() {
+        setTarget(ClimberConstants.stowAngle);
+        queueState(ClimbStates.IDLE);
+    }
+
+    public void abortAndHold() {
+        target = inputs.pos_deg;
+        hold();
+    }
+
+    public boolean reachedTarget(){
+        return Math.abs(inputs.pos_deg - target) < ClimberConstants.tolerance;
+    }
 }

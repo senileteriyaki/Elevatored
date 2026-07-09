@@ -17,7 +17,6 @@ public class Climb2D {
         mech = new LoggedMechanism2d(4, 4);
         climb = mech.getRoot("root", 2, 0.1)
                     .append(new LoggedMechanismLigament2d("climb", 0.5, 90, 5, color1));
-
     }
 
     public void set(double deg) {
@@ -28,5 +27,4 @@ public class Climb2D {
         SmartDashboard.putData(name, mech);
         Logger.recordOutput(name, mech);
     }
-
 }

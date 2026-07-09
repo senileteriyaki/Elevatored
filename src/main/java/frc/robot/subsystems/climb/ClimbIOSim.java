@@ -1,37 +1,46 @@
 package frc.robot.subsystems.climb;
 
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.ArmFeedforward;
+import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.system.plant.DCMotor;
-import edu.wpi.first.wpilibj.simulation.ElevatorSim;
+import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
+import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
+
 import frc.robot.Constants;
-import frc.robot.Constants.ElevatorConstants;
 
 public class ClimbIOSim implements ClimbIO{
 
-    private ElevatorSim sim;
-    private PIDController controller;
+    private SingleJointedArmSim sim;
 
-    private double targetPos;
+    private Constraints constraints;
+    private ProfiledPIDController controller;
+
+    private ArmFeedforward ff;
     private double volts;
 
     public ClimbIOSim(){
-        this.sim = new ElevatorSim(DCMotor.getKrakenX60(1), 3, 
-                                   5, 0.02, ElevatorConstants.minHeight, 
-                                   ElevatorConstants.maxHeight, true, 0, 0.1, 0);
+        this.sim = new SingleJointedArmSim(DCMotor.getKrakenX60(2), ClimberConstants.GEAR_RATIO, 
+                                   ClimberConstants.MOI, ClimberConstants.LENGTH, Units.degreesToRadians(ClimberConstants.minAngle),
+                                   Units.degreesToRadians(ClimberConstants.maxAngle), true, Units.degreesToRadians(ClimberConstants.stowAngle));
 
-        this.controller = new PIDController(1.0, 0, 0);
-        this.targetPos = 0;
+        this.constraints = new Constraints(ClimberConstants.MAX_VELOCITY, ClimberConstants.MAX_ACCELERATION);
+        this.controller = new ProfiledPIDController(ClimberConstants.kP, ClimberConstants.kI, ClimberConstants.kD, constraints);
+        controller.setTolerance(ClimberConstants.tolerance);
+
+        this.ff = new ArmFeedforward(ClimberConstants.kS, ClimberConstants.kG, ClimberConstants.kV); 
+        this.controller.reset(ClimberConstants.stowAngle);
     }
     
     @Override
     public void updateInputs(ClimbIOInputs inputs){
         sim.update(Constants.globalDelta_s);
 
-        inputs.volts = volts;
-        inputs.amps = sim.getCurrentDrawAmps();
-        inputs.pos = sim.getPositionMeters();
-        inputs.vel = sim.getVelocityMetersPerSecond();
+        inputs.voltage_v = volts;
+        inputs.current_a = sim.getCurrentDrawAmps();
+        inputs.pos_deg = Units.radiansToDegrees(sim.getAngleRads());
+        inputs.vel_dps = Units.radiansToDegrees(sim.getVelocityRadPerSec());
     }
 
     @Override
@@ -42,19 +51,18 @@ public class ClimbIOSim implements ClimbIO{
 
     @Override
     public void goToPos(double pos){
-       targetPos = pos;
-       setVoltage(controller.calculate(sim.getPositionMeters(), targetPos));
+        double conVoltage = controller.calculate(Units.radiansToDegrees(sim.getAngleRads()), pos);
+        setVoltage(conVoltage + ff.calculate(
+            Units.degreesToRadians(controller.getSetpoint().position), Units.degreesToRadians(controller.getSetpoint().velocity)));
     }
 
     @Override
     public void hold(double pos){
-        targetPos = pos;
-        setVoltage(controller.calculate(sim.getPositionMeters(), targetPos));
+        goToPos(pos);
     }
 
     @Override
     public void stop(){
         setVoltage(0);
     }
-
 }

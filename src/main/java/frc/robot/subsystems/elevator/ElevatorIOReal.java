@@ -2,18 +2,19 @@ package frc.robot.subsystems.elevator;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
+import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 
-import edu.wpi.first.math.controller.ElevatorFeedforward;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
-import frc.robot.Constants;
-import frc.robot.Constants.ElevatorConstants;
+import frc.robot.util.PhoenixUtil;
 
 public class ElevatorIOReal implements ElevatorIO{
 
@@ -23,61 +24,67 @@ public class ElevatorIOReal implements ElevatorIO{
     private final StatusSignal<Angle> pos;
     private final StatusSignal<Current> amps;
     private final StatusSignal<AngularVelocity> vel;
-    private final ElevatorFeedforward ff;
-    private double ffVoltage;
 
     public ElevatorIOReal(){
         TalonFXConfiguration config = new TalonFXConfiguration();
-        request = new MotionMagicVoltage(ElevatorConstants.minHeight);
-        ff = new ElevatorFeedforward(0, 0, 0, 0);
+        MotionMagicConfigs mmConfig = new MotionMagicConfigs();
 
-        config.Feedback.SensorToMechanismRatio = 1/(2*Math.PI*Constants.ElevatorConstants.drumRadius); 
+        request = new MotionMagicVoltage(ElevatorConstants.minHeight);
+
+        config.Feedback.SensorToMechanismRatio = ElevatorConstants.GEAR_RATIO; 
         config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+
+        config.CurrentLimits.StatorCurrentLimit = ElevatorConstants.currentLimit;
+        config.CurrentLimits.StatorCurrentLimitEnable = true;
+
+        mmConfig.MotionMagicCruiseVelocity = ElevatorConstants.maxVelocity;
+        mmConfig.MotionMagicAcceleration = ElevatorConstants.maxAcceleration;
+        mmConfig.MotionMagicJerk = ElevatorConstants.maxJerk;
+        config.MotionMagic = mmConfig;
+
+        config.Slot0.GravityType = GravityTypeValue.Elevator_Static;
+        config.Slot0.kG = ElevatorConstants.kG;
+        config.Slot0.kS = ElevatorConstants.kS;
+        config.Slot0.kV = ElevatorConstants.kV;
+        config.Slot0.kP = ElevatorConstants.kP;
+        config.Slot0.kI = ElevatorConstants.kI;
+        config.Slot0.kD = ElevatorConstants.kD;
+        
+        PhoenixUtil.tryUntilOk(5, () -> elevatorMotor.getConfigurator().apply(config));
 
         volts = elevatorMotor.getMotorVoltage();
         pos = elevatorMotor.getPosition();
         amps = elevatorMotor.getStatorCurrent();
         vel = elevatorMotor.getVelocity();
-        
-        // [imagine I actually had values to config the motor]
-
-        frc.robot.util.PhoenixUtil.tryUntilOk(5, () -> elevatorMotor.getConfigurator().apply(config));
     }
 
     public void updateInputs(ElevatorIOInputs inputs){
         BaseStatusSignal.refreshAll(volts, amps, pos, vel);
         
-        inputs.volts = volts.getValueAsDouble();
-        inputs.amps = amps.getValueAsDouble();
-        inputs.pos = pos.getValueAsDouble() * 360;
-        inputs.vel = vel.getValueAsDouble() * 360;
+        inputs.voltage_v = volts.getValueAsDouble();
+        inputs.current_a = amps.getValueAsDouble();
+        inputs.pos_m = pos.getValueAsDouble();
+        inputs.vel_mps = vel.getValueAsDouble();
     }
     
     @Override
     public void setVoltage(double voltage){
-        ffVoltage = ff.calculate(0);
-        elevatorMotor.setVoltage(voltage + ffVoltage);
+        elevatorMotor.setVoltage(MathUtil.clamp(voltage, -12, 12));
     }
 
     @Override
     public void goToPos(double pos){
-        ffVoltage = ff.calculate(0);
         elevatorMotor.setControl(request
-            .withPosition(pos)
-            .withFeedForward(ffVoltage));
+            .withPosition(pos));
     }
 
     @Override
-    public void hold(double pos){
-        ffVoltage = ff.calculate(0);
-        elevatorMotor.setControl(request
-            .withPosition(pos)
-            .withFeedForward(ffVoltage));
+    public void hold(double pos) {
+        goToPos(pos);
     }
 
     @Override
     public void stop(){
         elevatorMotor.stopMotor();
     }
-    
 }

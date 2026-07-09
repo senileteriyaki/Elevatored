@@ -22,10 +22,8 @@ public class Vision {
     private final VisionIOInputsAutoLogged inputs = new VisionIOInputsAutoLogged();
     private static Vision instance;
 
-    public static final Transform3d ROBOT_TO_CAMERA =
-            // new Transform3d(new Translation3d(0.16, -0.162, 0.45), new Rotation3d(0, Units.degreesToRadians(20), 0));
-
-    new Transform3d(new Translation3d(0.0889, -0.2794, 0.4445), new Rotation3d(0, Units.degreesToRadians(20), 0));
+    public static final Transform3d ROBOT_TO_CAMERA = new Transform3d(new Translation3d(0.0889, -0.2794, 0.4445),
+        new Rotation3d(0, Units.degreesToRadians(20), 0));
 
     public static Vision getInstance() {
         if (instance == null) {
@@ -37,8 +35,7 @@ public class Vision {
                     instance = new Vision(new VisionIOSimPhoton(ROBOT_TO_CAMERA));
                     break;
                 case REPLAY:
-                    break;
-
+                    instance = new Vision(new VisionIOSimPhoton(ROBOT_TO_CAMERA));
                 default:
                     break;
             }
