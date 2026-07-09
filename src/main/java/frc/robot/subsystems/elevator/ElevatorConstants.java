@@ -13,7 +13,7 @@ public class ElevatorConstants {
     public static final double currentLimit = 50;
 
     // --- PID / Feedforward Constants ---
-    public static final double kP = 8; 
+    public static final double kP = 8.0;
     public static final double kI = 0.0;
     public static final double kD = 0.5;
     
@@ -26,7 +26,7 @@ public class ElevatorConstants {
     public static final double maxAcceleration = 3.0;
     public static final double maxJerk = 0; // Using trapezoid so jerk should be zero
     
-    public static final double tolerance = 0.05;
+    public static final double tolerance = 0.025;
 
     public static final double[] levelHeights = {0.2, 0.5, 0.7, 1.5};
 }

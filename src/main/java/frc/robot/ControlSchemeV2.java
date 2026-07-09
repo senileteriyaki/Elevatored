@@ -1,5 +1,6 @@
 package frc.robot;
 
+import edu.wpi.first.math.MathUtil;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.PathingMode;
 import frc.robot.subsystems.drive.PathingOverride;
@@ -54,12 +55,12 @@ public class ControlSchemeV2 implements IPeriodic {
         SwerveInput input = new SwerveInput(x_, y_, w_, throttle);
         drive.setInput(input);
 
-        if (OI.DR.getRightBumperButtonPressed()){ //increment reef level
-            ss.setReef((ss.getReef() + 1) % 4);
+        if (OI.DR.getRightBumperButtonPressed()) { // increment reef level
+            ss.setReef(MathUtil.clamp(ss.getReef() + 1, 0, SS.REEF_LEVELS));
         }
 
-        if (OI.DR.getLeftBumperButtonPressed()){ //decrement reef level
-            ss.setReef((ss.getReef() - 1 + 4) % 4);
+        if (OI.DR.getLeftBumperButtonPressed()) { // decrement reef level
+            ss.setReef(MathUtil.clamp(ss.getReef() - 1, 0, SS.REEF_LEVELS));
         }
 
         if (OI.DR.getStartButton()) {
@@ -74,13 +75,12 @@ public class ControlSchemeV2 implements IPeriodic {
             ss.intend(Intention.SCORE);
         }
 
-        if (OI.DR.getAButton()){ //first stage of climbing
+        if (OI.DR.getAButton()){
             ss.intend(Intention.CLIMB1);
         }
 
         if (OI.DR.getBButton()){
             ss.intend(Intention.CLIMB2);
         }
-
     }
 }

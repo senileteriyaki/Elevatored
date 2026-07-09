@@ -222,13 +222,12 @@ public class Robot extends LoggedRobot {
     @Override
     public void teleopInit() {
         scheme.init();
-        ss.intend(Intention.SCORE);
     }
 
     /** This function is called periodically during operator control. */
     @Override
     public void teleopPeriodic() {
-        if(RobotBase.isSimulation()){
+        if (RobotBase.isSimulation()) {
             Tracking.getInstance().disable();
         } else if(OI.DR.getAButtonReleased()) {
             Tracking.getInstance().toggleEnabled();

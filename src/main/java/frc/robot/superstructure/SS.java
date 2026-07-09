@@ -39,10 +39,11 @@ public class SS extends StateMachineSubsystemBase<InternalState> {
 
     private Alert unimplementedStateAlert = new Alert("SS InternalState unimplemented", AlertType.kError);
 
-    public static final double SCORE_s = 2; //ts elevator is not that fast
+    public static final double SCORE_s = 2;
     public static final double PULLBACK_TIME_s = 0.45;
     public static final double POSTSCORE_s = 0.5;
     public static final double REJECT_TIMEOUT_s = 2;
+    public static final int REEF_LEVELS = 4;
 
     private Timer timer;
 
@@ -87,7 +88,7 @@ public class SS extends StateMachineSubsystemBase<InternalState> {
     public InternalState defaultIntentionHandling() {
         return switch (intention){
             case IDLE -> InternalState.IDLE;
-            case REJECT -> InternalState.IDLE;
+            case REJECT -> InternalState.REJECT;
             case SCORE -> InternalState.PRESCORE;
             case CLIMB1 -> InternalState.PRECLIMB;
             case CLIMB2 -> InternalState.CLIMB;
@@ -110,7 +111,6 @@ public class SS extends StateMachineSubsystemBase<InternalState> {
                 }
                 break;
             case IDLE:
-
                 queueState(defaultIntentionHandling());
                 break;
             case PRESCORE:
@@ -220,7 +220,6 @@ public class SS extends StateMachineSubsystemBase<InternalState> {
                 }
                 break;
             case IDLE:
-
                 elevator.stow();
                 arm.stow();
                 break; // Wait for new intention - changes in handleIntention()      
