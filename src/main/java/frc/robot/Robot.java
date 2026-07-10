@@ -222,6 +222,7 @@ public class Robot extends LoggedRobot {
     @Override
     public void teleopInit() {
         scheme.init();
+        ss.intend(Intention.SCORE);
     }
 
     /** This function is called periodically during operator control. */

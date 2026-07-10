@@ -7,6 +7,7 @@ import frc.robot.subsystems.drive.PathingOverride;
 import frc.robot.subsystems.drive.SwerveInput;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.superstructure.Intention;
+import frc.robot.superstructure.InternalState;
 import frc.robot.superstructure.SS;
 import frc.robot.util.IPeriodic;
 import frc.robot.util.Util;
@@ -44,7 +45,9 @@ public class ControlSchemeV2 implements IPeriodic {
 
         } else {
             drive.queueState(PathingMode.FIELD_RELATIVE);
-            drive.setPathingOverride(PathingOverride.NONE);
+            if (ss.getState() != InternalState.PRESCORE){
+                drive.setPathingOverride(PathingOverride.NONE);
+            }
         }
         double x_ = -OI.deadband(OI.DR.getLeftY() * mult);
         double y_ = -OI.deadband(OI.DR.getLeftX() * mult);
