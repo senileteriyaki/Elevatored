@@ -54,7 +54,7 @@ public class Climb extends StateMachineSubsystemBase<ClimbStates> {
             case CLIMBING:
                 io.goToPos(target);
                 
-                if (reachedTarget()) {
+                if (reachedTarget()) { // ethan - should handle state switching elsewhere
                     queueState(ClimbStates.HOLDING);
                 }
                 break;
@@ -78,7 +78,7 @@ public class Climb extends StateMachineSubsystemBase<ClimbStates> {
         climb2d.periodic();
     }
 
-    private void setTarget(double target) {
+    private void setTarget(double target) { // ethan - satyaki queued travelling here. best to do so here too.
         this.target = target;
     }
 

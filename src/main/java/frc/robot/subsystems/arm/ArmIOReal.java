@@ -112,12 +112,12 @@ public class ArmIOReal implements ArmIO{
 
     @Override
     public void setElbowVoltage(double voltage){
-        elbowMotor.setVoltage(MathUtil.clamp(voltage, -12, 12));  
+        elbowMotor.setVoltage(MathUtil.clamp(voltage, -12, 12)); // ethan - recommend voltageOut
     }
 
     @Override
     public void setShoulderVoltage(double voltage) {
-        shoulderMotor.setVoltage(MathUtil.clamp(voltage, -12, 12)); 
+        shoulderMotor.setVoltage(MathUtil.clamp(voltage, -12, 12)); // ethan - recommend voltageOut
     }
 
     @Override
@@ -132,12 +132,12 @@ public class ArmIOReal implements ArmIO{
     }
 
     @Override
-    public void holdElbow(double pos){
+    public void holdElbow(double pos){ // ethan - why do we have this? just run goToElbowPos()
         goToElbowPos(pos);
     }
 
     @Override
-    public void holdShoulder(double pos) {
+    public void holdShoulder(double pos) { // ethan - why do we have this? just run goToElbowPos()
         goToShoulderPos(pos);
     }
 

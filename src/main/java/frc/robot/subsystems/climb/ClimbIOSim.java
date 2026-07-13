@@ -24,7 +24,8 @@ public class ClimbIOSim implements ClimbIO{
         this.sim = new SingleJointedArmSim(DCMotor.getKrakenX60(2), ClimberConstants.GEAR_RATIO, 
                                    ClimberConstants.MOI, ClimberConstants.LENGTH, Units.degreesToRadians(ClimberConstants.minAngle),
                                    Units.degreesToRadians(ClimberConstants.maxAngle), true, Units.degreesToRadians(ClimberConstants.stowAngle));
-
+        // ethan - for this sim we don't need the complex pid + arm ffw calculators, just run TrapezoidProfile
+        // this should work perfectly fine.
         this.constraints = new Constraints(ClimberConstants.MAX_VELOCITY, ClimberConstants.MAX_ACCELERATION);
         this.controller = new ProfiledPIDController(ClimberConstants.kP, ClimberConstants.kI, ClimberConstants.kD, constraints);
         controller.setTolerance(ClimberConstants.tolerance);

@@ -38,6 +38,10 @@ public class ArmIOSim implements ArmIO {
             true, Units.degreesToRadians(ArmConstants.SHOULDER_STOW)
         );
 
+        /* ethan - fancy pid stuff. lowk just run trapezoidprofile and call it a day. we're just
+         * simming to see if the code works, no need to do the actual simulation of arm pid/ffw.
+         */
+
         this.elbowConstraints = new Constraints(ArmConstants.ELBOW_MAX_VELOCITY_DPS, ArmConstants.ELBOW_MAX_ACCELERATION_DPS2);
         this.shoulderConstraints = new Constraints(ArmConstants.SHOULDER_MAX_VELOCITY_DPS, ArmConstants.SHOULDER_MAX_ACCELERATION_DPS2);
 
@@ -47,6 +51,7 @@ public class ArmIOSim implements ArmIO {
         elbowController.setTolerance(ArmConstants.elbowTolerance);
         shoulderController.setTolerance(ArmConstants.shoulderTolerance);
 
+        // ethan - it's sim so you don't rlly need all of this.
         this.elbowFF = new ArmFeedforward(ArmConstants.elbowKS, ArmConstants.elbowKG, ArmConstants.elbowKV);
         this.shoulderFF = new ArmFeedforward(ArmConstants.shoulderKS, ArmConstants.shoulderKG, ArmConstants.shoulderKV);
 
@@ -84,6 +89,7 @@ public class ArmIOSim implements ArmIO {
         shoulderSim.setInputVoltage(shoulderVoltsApplied);
     }
 
+    /* ethan - recommend trapezoidprofile here. */
     @Override
     public void goToElbowPos(double pos) {
         double pidOutput = elbowController.calculate(Units.radiansToDegrees(elbowSim.getAngleRads()), pos);
@@ -91,6 +97,7 @@ public class ArmIOSim implements ArmIO {
             Units.degreesToRadians(elbowController.getSetpoint().position), Units.degreesToRadians(elbowController.getSetpoint().velocity)));
     }
 
+    /* ethan - recommend trapezoidprofile here. */
     @Override
     public void goToShoulderPos(double pos) {
         double pidOutput = shoulderController.calculate(Units.radiansToDegrees(shoulderSim.getAngleRads()), pos);
@@ -98,6 +105,7 @@ public class ArmIOSim implements ArmIO {
             Units.degreesToRadians(shoulderController.getSetpoint().position), Units.degreesToRadians(shoulderController.getSetpoint().velocity)));
     }
 
+    /* ethan - what are these two methods for. */
     @Override
     public void holdElbow(double pos) {
         goToElbowPos(pos);

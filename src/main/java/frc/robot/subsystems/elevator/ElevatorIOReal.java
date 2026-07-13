@@ -69,7 +69,7 @@ public class ElevatorIOReal implements ElevatorIO{
     
     @Override
     public void setVoltage(double voltage){
-        elevatorMotor.setVoltage(MathUtil.clamp(voltage, -12, 12));
+        elevatorMotor.setVoltage(MathUtil.clamp(voltage, -12, 12)); // ethan - voltageOut
     }
 
     @Override

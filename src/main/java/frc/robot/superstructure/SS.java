@@ -107,7 +107,8 @@ public class SS extends StateMachineSubsystemBase<InternalState> {
             case IDLE:
                 queueState(defaultIntentionHandling());
                 break;
-            case PRESCORE:
+            case PRESCORE: // ethan - try to just redirect to specific internal states, deal with
+                           // logic in the internal state.
                 queueState(switch (intention) {
                     case REJECT:
                         timer.reset();
@@ -122,7 +123,7 @@ public class SS extends StateMachineSubsystemBase<InternalState> {
                 });
                 break;
             case SCORESTAGE1:
-                queueState(switch (intention) {
+                queueState(switch (intention) { // ethan - handle logic in the internal state.
                     case REJECT:
                         timer.reset();
                         yield InternalState.REJECT;
@@ -224,11 +225,16 @@ public class SS extends StateMachineSubsystemBase<InternalState> {
                 elevator.setHeight(ElevatorConstants.levelHeights[coralLevel]);
                 arm.setShoulderPosition(ArmConstants.shoulderLevelAngles[coralLevel]);
                 arm.setElbowPosition(ArmConstants.elbowLevelAngles[coralLevel]);
+                // ethan - queue scorestage2 after elevator has reached somewhat up to target height
+                // (with playing around with tolerance values). do you want to raise arm as you
+                // raise elbow? if not then do it in scorestage2. better than timers cuz what happens
+                // if for some reason elevator is slower than normal and your time is off?
                 break;
             case SCORESTAGE2:
                 if (timer.hasElapsed(PULLBACK_TIME_s)) {
                     arm.setShoulderPosition(ArmConstants.shoulderLevelAngles[coralLevel]);
-                }
+                } // you have no sensors so a timer here from score stage2 to post-score is ok.
+                  // you have no hand to release though...
                 break;
             case POSTSCORE:
                 if (timer.hasElapsed(POSTSCORE_s)) {
@@ -237,7 +243,7 @@ public class SS extends StateMachineSubsystemBase<InternalState> {
                 }
                 break;
             case PRECLIMB:
-                climb.stretch();
+                climb.stretch(); // ethan - switch internal state here.
                 break;
             case CLIMB:
                 climb.climb();

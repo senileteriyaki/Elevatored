@@ -75,7 +75,8 @@ public class ClimbIOReal implements ClimbIO{
 
     @Override
     public void setVoltage(double voltage){
-        left.setVoltage(MathUtil.clamp(voltage, -12, 12));
+        left.setVoltage(MathUtil.clamp(voltage, -12, 12)); // ethan - recommend VoltageOut.
+                                                                // it has foc control -> more torque.
     }
 
     @Override

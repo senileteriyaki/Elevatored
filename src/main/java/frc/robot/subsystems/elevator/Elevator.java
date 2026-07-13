@@ -50,7 +50,7 @@ public class Elevator extends StateMachineSubsystemBase<ElevatorStates> {
           io.hold(target);
           break;
         case HOLDING:
-          if (!reachedTarget()){
+          if (!reachedTarget()){ // ethan - try handling state changing elsewhere.
             queueState(ElevatorStates.TRAVELLING);
           }else{
             io.hold(target);
