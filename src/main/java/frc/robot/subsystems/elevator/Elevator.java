@@ -47,19 +47,16 @@ public class Elevator extends StateMachineSubsystemBase<ElevatorStates> {
           io.stop();
           break;
         case IDLE:
-          io.hold(target);
-          break;
-        case HOLDING:
           if (!reachedTarget()){
             queueState(ElevatorStates.TRAVELLING);
-          }else{
+          } else {
             io.hold(target);
           }
           break;
         case TRAVELLING:
           if (reachedTarget()){
-            queueState(ElevatorStates.HOLDING);
-          }else{
+            queueState(ElevatorStates.IDLE);
+          } else {
             io.goToPos(target);
           }
           break;
@@ -97,10 +94,6 @@ public class Elevator extends StateMachineSubsystemBase<ElevatorStates> {
 
     public void stow() {
       setHeight(ElevatorConstants.STOW);
-    }
-
-    public void idle() {
-      queueState(ElevatorStates.IDLE);
     }
 
     public boolean reachedTarget() {

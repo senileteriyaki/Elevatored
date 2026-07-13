@@ -47,7 +47,6 @@ public class Climb extends StateMachineSubsystemBase<ClimbStates> {
                 io.stop();
                 break;
             case IDLE:
-            case HOLDING:
                 io.hold(target);
                 break;
             case STRETCHING:
@@ -55,7 +54,7 @@ public class Climb extends StateMachineSubsystemBase<ClimbStates> {
                 io.goToPos(target);
                 
                 if (reachedTarget()) {
-                    queueState(ClimbStates.HOLDING);
+                    queueState(ClimbStates.IDLE);
                 }
                 break;
             default:
@@ -82,6 +81,11 @@ public class Climb extends StateMachineSubsystemBase<ClimbStates> {
         this.target = target;
     }
 
+    public void stow() {
+        setTarget(ClimberConstants.stowAngle);
+        queueState(ClimbStates.STRETCHING);
+    }
+
     public void stretch() {
         setTarget(ClimberConstants.stretchAngle);
         queueState(ClimbStates.STRETCHING);
@@ -92,22 +96,8 @@ public class Climb extends StateMachineSubsystemBase<ClimbStates> {
         queueState(ClimbStates.CLIMBING);
     }
 
-    public void hold() {
-        queueState(ClimbStates.HOLDING);
-    }
-
     public void disable() {
         queueState(ClimbStates.DISABLED);
-    }
-
-    public void idle() {
-        setTarget(ClimberConstants.stowAngle);
-        queueState(ClimbStates.IDLE);
-    }
-
-    public void abortAndHold() {
-        target = inputs.pos_deg;
-        hold();
     }
 
     public boolean reachedTarget(){

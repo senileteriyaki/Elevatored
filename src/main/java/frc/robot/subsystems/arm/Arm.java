@@ -51,12 +51,10 @@ public class Arm extends StateMachineSubsystemBase<ArmStates> {
     public void handleStateMachine(){
       switch (getState()) {
         case DISABLED:
-          break;
-        case IDLE:
           io.stopElbow();
           io.stopShoulder();
           break;
-        case HOLDING:
+        case IDLE:
           io.holdElbow(elbowTarget); 
           io.holdShoulder(shoulderTarget);
           break;
@@ -65,7 +63,7 @@ public class Arm extends StateMachineSubsystemBase<ArmStates> {
           io.goToShoulderPos(shoulderTarget);
 
           if (reachedTarget()) {
-            queueState(ArmStates.HOLDING);
+            queueState(ArmStates.IDLE);
           }
           break;
         default:

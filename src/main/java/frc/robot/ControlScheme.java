@@ -107,7 +107,7 @@ public class ControlScheme implements IPeriodic {
                 }
 
                 if (OI.DR.getBButtonPressed()) { // as B
-                    climb.idle();
+                    climb.stow();
                     System.out.println("stowing/idle");
                 }
                 break;
