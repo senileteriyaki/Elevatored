@@ -58,31 +58,39 @@ public class ControlSchemeV2 implements IPeriodic {
         SwerveInput input = new SwerveInput(x_, y_, w_, throttle);
         drive.setInput(input);
 
-        if (OI.DR.getRightBumperButtonPressed()) { // increment reef level
+        boolean leftBumper = OI.DR.getRawButtonPressed(7);
+        boolean rightBumper = OI.DR.getRawButtonPressed(8);
+        boolean aButton = OI.DR.getRawButtonPressed(1);
+        boolean bButton = OI.DR.getRawButtonPressed(2);
+        boolean xButton = OI.DR.getRawButtonPressed(4);
+        boolean yButton = OI.DR.getRawButtonPressed(5);
+        boolean menuButton = OI.DR.getRawButtonPressed(12);
+        
+        if (rightBumper) { // increment reef level
             ss.setReef(MathUtil.clamp(ss.getReef() + 1, 0, SS.REEF_LEVELS));
         }
 
-        if (OI.DR.getLeftBumperButtonPressed()) { // decrement reef level
+        if (leftBumper) { // decrement reef level
             ss.setReef(MathUtil.clamp(ss.getReef() - 1, 0, SS.REEF_LEVELS));
         }
 
-        if (OI.DR.getStartButton()) {
+        if (menuButton) {
             ss.intend(Intention.REJECT);
         }
 
-        if (OI.DR.getYButton()) {
+        if (yButton) {
             ss.intend(Intention.IDLE);
         }
 
-        if (OI.DR.getXButton()){
+        if (xButton){
             ss.intend(Intention.SCORE);
         }
 
-        if (OI.DR.getAButton()){
+        if (aButton){
             ss.intend(Intention.PRECLIMB);
         }
 
-        if (OI.DR.getBButton()){
+        if (bButton){
             ss.intend(Intention.CLIMB);
         }
     }

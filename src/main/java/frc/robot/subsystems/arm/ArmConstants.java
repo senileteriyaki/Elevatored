@@ -58,7 +58,7 @@ public final class ArmConstants {
     public static final double elbowTolerance = 1;
     public static final double shoulderTolerance = 1;
 
-    // These level should be replaced with real level angles, but here we are showcasing the movement of the ligaments
-    public static final double[] elbowLevelAngles = {-90, -45, 45, 90};
-    public static final double[] shoulderLevelAngles = {-90, -45, 45, 90};
+    public static final double[] elbowLevelAngles = {85, 80, 75, 70};
+    public static final double[] shoulderLevelAngles = {60, 60, 50, 45};
+    public static final double[] shoulderLevelAngles2 = {30, 30, 20, 15};
 }

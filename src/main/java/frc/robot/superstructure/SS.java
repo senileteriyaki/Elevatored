@@ -101,7 +101,7 @@ public class SS extends StateMachineSubsystemBase<InternalState> {
                 break; // Wait for handleStateMachine() to finish booting / disable state switching
             case REJECT:
                 if (timer.hasElapsed(REJECT_TIMEOUT_s)){
-                    queueState(InternalState.IDLE); 
+                    queueState(InternalState.IDLE);
                 }
                 break;
             case IDLE:
@@ -116,6 +116,7 @@ public class SS extends StateMachineSubsystemBase<InternalState> {
                         if (tracking.finishedTracking()){
                             timer.restart();
                         }
+
                         yield tracking.finishedTracking() ? InternalState.SCORESTAGE1 : InternalState.PRESCORE;
                     default: 
                         yield defaultIntentionHandling();
@@ -131,6 +132,7 @@ public class SS extends StateMachineSubsystemBase<InternalState> {
                         if (ready1){
                             timer.restart();
                         }
+
                         yield ready1 ? InternalState.SCORESTAGE2 : InternalState.SCORESTAGE1;
                     default:
                         yield defaultIntentionHandling();
@@ -146,13 +148,14 @@ public class SS extends StateMachineSubsystemBase<InternalState> {
                         if (ready2){
                             timer.restart();
                         }
+
                         yield ready2 ? InternalState.POSTSCORE : InternalState.SCORESTAGE2;
                     default:
                         yield defaultIntentionHandling();
                 });
                 break;
             case POSTSCORE:
-                if (arm.reachedTarget() && elevator.reachedTarget() && timer.hasElapsed(POSTSCORE_s)){
+                if (arm.reachedTarget() && elevator.reachedTarget() && timer.hasElapsed(POSTSCORE_s)) {
                     timer.reset();
                     intend(Intention.IDLE);
                     queueState(InternalState.IDLE);
@@ -216,6 +219,7 @@ public class SS extends StateMachineSubsystemBase<InternalState> {
             case IDLE:
                 elevator.stow();
                 arm.stow();
+                climb.stow();
                 break; // Wait for new intention - changes in handleIntention()      
             case PRESCORE:
                 drive.setPathingOverride(PathingOverride.TRACKING);
@@ -227,7 +231,7 @@ public class SS extends StateMachineSubsystemBase<InternalState> {
                 break;
             case SCORESTAGE2:
                 if (timer.hasElapsed(PULLBACK_TIME_s)) {
-                    arm.setShoulderPosition(ArmConstants.shoulderLevelAngles[coralLevel]);
+                    arm.setShoulderPosition(ArmConstants.shoulderLevelAngles2[coralLevel]);
                 }
                 break;
             case POSTSCORE:
@@ -252,6 +256,7 @@ public class SS extends StateMachineSubsystemBase<InternalState> {
     public final void outputPeriodic() {
         Logger.recordOutput("SS/Booted?", booted);
         Logger.recordOutput("SS/Intention", intention);
+        Logger.recordOutput("SS/reefLevel", coralLevel);
         Logger.recordOutput("SS/timer", timer.get());
     }
 
